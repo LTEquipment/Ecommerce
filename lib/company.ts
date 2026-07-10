@@ -11,7 +11,7 @@ export const COMPANY = {
   hqAddress: "280 Taylor St, Staten Island, NY 10310",
   mainPhone: "(917) 204-1697",
   altPhone: "(718) 567-8658",
-  email: "customer@ekitchensupply.com",
+  email: "customer@ltfse.com",
   locations: [
     {
       kind: "Corporate HQ & Factory",
