@@ -8,7 +8,7 @@ import { useAuth } from "./AuthProvider";
 import { money } from "@/lib/format";
 import { COMPANY } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
-import { Search, User, Cart, Menu, ChevronDown, Package, LogOut } from "./icons";
+import { Search, User, Cart, Menu, ChevronDown, Package, LogOut, FileText } from "./icons";
 
 const NAV = CATEGORIES.slice(0, 6);
 
@@ -37,6 +37,10 @@ export default function Header() {
       <div className="wrap hdr">
         <Link className="brand" href="/" aria-label="L&T — home">
           <span className="brand-logo" role="img" aria-label="L&T Restaurant Equipment" />
+          <span className="wordmark">
+            <b>Restaurant Equipment</b>
+            <span>Made to inspire · NYC</span>
+          </span>
         </Link>
 
         <form className="big-search" onSubmit={submitSearch} role="search">
@@ -50,6 +54,10 @@ export default function Header() {
         </form>
 
         <div className="hdr-actions">
+          <Link className="qcta" href="/contact">
+            <FileText /> Request a quote
+          </Link>
+
           {/* desktop account */}
           {user ? (
             <div className="acct-wrap hact acc" ref={acctRef}>
