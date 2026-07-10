@@ -70,3 +70,18 @@ export const Phone = (p: P) => (
 export const Mail = (p: P) => (
   <svg {...base} strokeWidth={1.8} {...p}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
 );
+export const TrendingUp = (p: P) => (
+  <svg {...base} strokeWidth={1.9} {...p}><path d="M3 17l6-6 4 4 8-8" /><path d="M17 7h4v4" /></svg>
+);
+export const FileText = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><path d="M6 2h8l4 4v16H6z" /><path d="M14 2v4h4M9 13h6M9 17h6" /></svg>
+);
+export const LinkedIn = (p: P) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.3-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21h-4z" /></svg>
+);
+export const Instagram = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
+);
+export const XSocial = (p: P) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M18.9 2H22l-7.1 8.1L23 22h-6.8l-5-6.6L5.4 22H2.3l7.6-8.7L1.7 2h6.9l4.5 6zm-1.2 18h1.7L7.4 3.8H5.6z" /></svg>
+);
