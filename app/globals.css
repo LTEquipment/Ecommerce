@@ -436,8 +436,26 @@ footer .fphone a:hover{color:var(--red)}
 .content .lede-head{max-width:64ch;margin-bottom:var(--s6)}
 .content .lede-head h1{font-size:var(--t-h1);font-weight:800;line-height:1.02;margin:10px 0 var(--s3)}
 .content .lede-head p{font-size:var(--t-lg);color:var(--ink-2);line-height:1.6}
-.prose{max-width:68ch;font-size:16px;line-height:1.7;color:var(--ink-2)}
+.prose{max-width:72ch;font-size:16px;line-height:1.7;color:var(--ink-2)}
 .prose p{margin:0 0 var(--s4)}
+.prose h2{font-family:var(--disp);font-weight:700;font-size:var(--t-h4);color:var(--ink);margin:var(--s5) 0 var(--s2);letter-spacing:-.01em}
+.prose h2:first-child{margin-top:0}
+.prose h3{font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin:var(--s4) 0 var(--s1)}
+.prose ul{margin:0 0 var(--s4);padding-left:20px}
+.prose li{margin:7px 0}
+.prose a{color:var(--red);font-weight:600}
+.prose strong{color:var(--ink);font-weight:600}
+.prose .muted{color:var(--muted);font-size:13.5px}
+
+/* FAQ accordion */
+.faq{max-width:780px}
+.faq details{border:1px solid var(--line);border-radius:var(--r);background:var(--white);margin-bottom:10px;padding:0 18px}
+.faq details[open]{border-color:var(--line-2)}
+.faq summary{cursor:pointer;list-style:none;padding:17px 0;font-weight:600;font-size:15px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-size:20px;color:var(--muted);flex:0 0 auto}
+.faq details[open] summary::after{content:"\2212"}
+.faq details p{padding:0 0 17px;margin:0;color:var(--ink-2);font-size:14.5px;line-height:1.65}
 .valuegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s4);margin:var(--s6) 0}
 .valuecard{background:var(--white);border:1px solid var(--line);border-radius:var(--rl);padding:var(--s5)}
 .valuecard h3{font-size:16px;margin:0 0 8px}.valuecard p{font-size:14px;color:var(--muted);line-height:1.6;margin:0}

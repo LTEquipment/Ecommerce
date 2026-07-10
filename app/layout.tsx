@@ -24,9 +24,19 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.ltfse.com"),
   title: "L&T — Commercial Kitchen Equipment & Supply",
   description:
     "Panda® wok ranges, steamers, roasters, refrigeration and smallwares. Designed and built in New York, shipped nationwide.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "L&T Restaurant Equipment",
+    url: "https://www.ltfse.com",
+    title: "L&T — Commercial Kitchen Equipment & Supply",
+    description:
+      "Panda® wok ranges, steamers, roasters and automation — designed and built in New York, shipped nationwide.",
+  },
   icons: {
     icon: [
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },

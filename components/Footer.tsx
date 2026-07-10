@@ -52,16 +52,16 @@ export default function Footer() {
           <div className="fcol">
             <h5>Ordering</h5>
             <Link href="/register">Trade accounts</Link>
-            <Link href="/cart">Cart</Link>
-            <Link href="/contact">Bulk &amp; contract pricing</Link>
-            <Link href="/contact">Freight &amp; delivery</Link>
+            <Link href="/financing">Financing &amp; pricing</Link>
+            <Link href="/shipping">Shipping &amp; freight</Link>
+            <Link href="/returns">Returns</Link>
           </div>
           <div className="fcol">
             <h5>Support</h5>
-            <Link href="/contact">Spec support</Link>
+            <Link href="/faq">FAQ</Link>
+            <Link href="/warranty">Warranty &amp; parts</Link>
             <Link href="/account">Track an order</Link>
-            <Link href="/contact">Warranty &amp; parts</Link>
-            <Link href="/locations">Locations</Link>
+            <Link href="/contact">Spec support</Link>
           </div>
           <div className="fcol">
             <h5>Investors</h5>
@@ -73,6 +73,7 @@ export default function Footer() {
           <div className="fcol">
             <h5>Company</h5>
             <Link href="/about">About us</Link>
+            <Link href="/careers">Careers</Link>
             <Link href="/locations">Showrooms</Link>
             <Link href="/contact">Contact</Link>
           </div>
@@ -81,8 +82,8 @@ export default function Footer() {
         <div className="foot-bot">
           <span>© 2026 {COMPANY.legalName} — concept build</span>
           <span className="foot-legal">
-            <Link href="/about">Privacy</Link>
-            <Link href="/about">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
             <span>NSF · CSA · ETL Listed · Made in New York</span>
           </span>
         </div>
