@@ -19,6 +19,10 @@ Requires Node 18.17+ (Node 20 recommended).
 Push to GitHub, import the repo in Vercel — no config needed. Add the Supabase
 env vars in Vercel once you connect the backend.
 
+The canonical site URL is **https://www.ltfse.com** (set via `metadataBase` in
+`app/layout.tsx`, and used by `app/sitemap.ts` and `app/robots.ts`). Point that
+domain at the Vercel deployment; update the URL in those three files if it changes.
+
 ## What's built
 
 - **Full multi-page store** (App Router): home, all-products, per-department
