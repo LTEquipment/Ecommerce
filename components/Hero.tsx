@@ -1,4 +1,5 @@
-import { HERO_DRAW } from "@/lib/illus";
+import Link from "next/link";
+import { money } from "@/lib/format";
 import { ArrowRight } from "./icons";
 
 export default function Hero() {
@@ -6,35 +7,36 @@ export default function Hero() {
     <div className="hero">
       <div className="wrap">
         <div>
-          <span className="eyebrow">Commercial kitchen equipment &amp; supply</span>
+          <span className="eyebrow">Panda® — made to inspire</span>
           <h1>
-            Equip your kitchen.
+            The wok range,
             <br />
-            Ship it this week.
+            perfected in New York.
           </h1>
           <p className="lede">
-            Over 12,000 stocked SKUs — ranges, refrigeration, prep tables and smallwares.
-            NSF-certified, spec&apos;d right, and shipped from six regional depots in 24–48 hours.
+            Custom-built Panda® wok ranges, steamers, roasters and automation — engineered for
+            high-output Oriental cooking and shipped nationwide from our 60,000 sq ft factory.
           </p>
           <div className="hero-cta">
-            <a className="btn btn-primary" href="#catalog">
+            <Link className="btn btn-primary btn-lg" href="/products">
               Shop all equipment <ArrowRight />
-            </a>
-            <a className="btn btn-line" href="#">
+            </Link>
+            <Link className="btn btn-line btn-lg" href="/register">
               Open a trade account
-            </a>
+            </Link>
           </div>
         </div>
-        <div className="hero-spec">
-          <span className="corner">Model PR-WR24</span>
-          <div className="draw" dangerouslySetInnerHTML={{ __html: HERO_DRAW }} />
+        <div className="hero-media">
+          <span className="corner">Model 52527</span>
+          <img src="/products/52527-1.png" alt="Panda Turbo Wok Range" />
           <div className="featom">
             <div>
-              <div className="fn">Wok Range, 2-Burner Gas</div>
-              <div className="fs">120,000 BTU · 16-ga stainless · NSF</div>
+              <div className="fn">Turbo Wok Range</div>
+              <div className="fs">125,000 BTU · turbo jet chamber · stainless</div>
             </div>
             <div className="fp">
-              $1,749<small>In stock</small>
+              {money(12177)}
+              <small>In stock</small>
             </div>
           </div>
         </div>

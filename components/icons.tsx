@@ -52,3 +52,21 @@ export const Card = (p: P) => (
 export const Chat = (p: P) => (
   <svg {...base} strokeWidth={1.8} {...p}><path d="M4 4h16v12H8l-4 4z" /><path d="M8 9h8M8 12h5" /></svg>
 );
+export const ChevronDown = (p: P) => (
+  <svg {...base} {...p}><path d="m6 9 6 6 6-6" /></svg>
+);
+export const Package = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5 12 12l8-4.5M12 12v9" /></svg>
+);
+export const LogOut = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><path d="M15 4h4v16h-4" /><path d="M10 12h9M15 8l4 4-4 4" /><path d="M10 4H5v16h5" /></svg>
+);
+export const MapPin = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" /><circle cx="12" cy="10" r="2.6" /></svg>
+);
+export const Phone = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><path d="M4 5c0 8 7 15 15 15l-2-4-4 1-6-6 1-4z" /></svg>
+);
+export const Mail = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+);

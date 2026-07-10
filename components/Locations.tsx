@@ -1,15 +1,17 @@
 import { COMPANY, telHref } from "@/lib/company";
 
-export default function Locations() {
+export default function Locations({ hideHead = false }: { hideHead?: boolean }) {
   return (
     <section id="locations" className="locations">
       <div className="wrap">
-        <div className="sec-head">
-          <div>
-            <span className="eyebrow">Visit or call</span>
-            <h2>Two NYC showrooms, one line to call.</h2>
+        {!hideHead && (
+          <div className="sec-head">
+            <div>
+              <span className="eyebrow">Visit or call</span>
+              <h2>NYC showrooms &amp; factory, one line to call.</h2>
+            </div>
           </div>
-        </div>
+        )}
         <div className="locgrid">
           {COMPANY.locations.map((l) => (
             <div className="loc" key={l.name + l.address}>
