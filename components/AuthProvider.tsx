@@ -19,6 +19,7 @@ type Auth = {
   loading: boolean;
   user: User | null;
   session: Session | null;
+  isAdmin: boolean;
   displayName: string;
   signIn: (email: string, password: string) => Promise<Result>;
   signUp: (email: string, password: string, company?: string) => Promise<Result>;
@@ -39,6 +40,7 @@ const NOT_CONFIGURED =
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,14 +49,21 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
+    const checkAdmin = async (u: User | null) => {
+      if (!u) return setIsAdmin(false);
+      const { data } = await supabase.from("admins").select("user_id").eq("user_id", u.id).maybeSingle();
+      setIsAdmin(Boolean(data));
+    };
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
+      checkAdmin(data.session?.user ?? null);
       setLoading(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       setUser(s?.user ?? null);
+      checkAdmin(s?.user ?? null);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -87,6 +96,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     if (supabase) await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    setIsAdmin(false);
   }, []);
 
   const displayName = useMemo(() => {
@@ -101,6 +111,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     user,
     session,
+    isAdmin,
     displayName,
     signIn,
     signUp,

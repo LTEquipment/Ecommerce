@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
+import { useLiveProduct } from "@/lib/useLiveProducts";
 import { money } from "@/lib/format";
 import { ILLUS } from "@/lib/illus";
 import { Star, Plus, Truck, Shield, Card } from "./icons";
 import type { Product } from "@/lib/types";
 
-export default function ProductDetail({ p }: { p: Product }) {
+export default function ProductDetail({ p: initial }: { p: Product }) {
+  const p = useLiveProduct(initial);
   const { add, openCart } = useStore();
   const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);

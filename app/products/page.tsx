@@ -3,6 +3,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import Catalog from "@/components/Catalog";
 
 export const metadata = { title: "All Equipment — L&T" };
+export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useStore } from "./StoreProvider";
+import { useLiveProducts } from "@/lib/useLiveProducts";
 import ProductCard from "./ProductCard";
 import { Check, Filter } from "./icons";
 import type { Category, Product } from "@/lib/types";
@@ -15,7 +16,7 @@ const PRICES: { id: string; name: string; t: (p: Product) => boolean }[] = [
 
 export default function Catalog({
   categories,
-  products,
+  products: initialProducts,
   title = "Best sellers",
   lockedCat,
   anchor,
@@ -27,6 +28,7 @@ export default function Catalog({
   lockedCat?: string;
   anchor?: string;
 }) {
+  const products = useLiveProducts(initialProducts);
   const {
     activeCat, setActiveCat,
     priceBracket, setPriceBracket,

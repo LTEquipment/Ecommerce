@@ -1,14 +1,10 @@
 import { notFound } from "next/navigation";
-import { getProduct, getRelated } from "@/lib/catalog";
-import { getCategory } from "@/lib/catalog";
-import { PRODUCTS } from "@/lib/products";
+import { getProduct, getRelated, getCategory } from "@/lib/catalog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductDetail from "@/components/ProductDetail";
 import RelatedProducts from "@/components/RelatedProducts";
 
-export function generateStaticParams() {
-  return PRODUCTS.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const p = await getProduct(params.slug);

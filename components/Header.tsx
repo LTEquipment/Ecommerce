@@ -8,13 +8,13 @@ import { useAuth } from "./AuthProvider";
 import { money } from "@/lib/format";
 import { COMPANY } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
-import { Search, User, Cart, Menu, ChevronDown, Package, LogOut, FileText } from "./icons";
+import { Search, User, Cart, Menu, ChevronDown, Package, LogOut, FileText, TrendingUp } from "./icons";
 
 const NAV = CATEGORIES.slice(0, 6);
 
 export default function Header() {
   const { query, setQuery, openCart, openNav, count, subtotal } = useStore();
-  const { user, displayName, signOut } = useAuth();
+  const { user, isAdmin, displayName, signOut } = useAuth();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const acctRef = useRef<HTMLDivElement>(null);
@@ -86,6 +86,11 @@ export default function Header() {
                   <Link href="/account?tab=orders" role="menuitem" onClick={() => setMenuOpen(false)}>
                     <Package /> Orders
                   </Link>
+                  {isAdmin && (
+                    <Link href="/admin" role="menuitem" onClick={() => setMenuOpen(false)}>
+                      <TrendingUp /> Admin
+                    </Link>
+                  )}
                   <button role="menuitem" onClick={() => { setMenuOpen(false); signOut(); }}>
                     <LogOut /> Sign out
                   </button>

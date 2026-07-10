@@ -1,12 +1,9 @@
 import { notFound } from "next/navigation";
 import { getCategories, getCategory, getProducts } from "@/lib/catalog";
-import { CATEGORIES } from "@/lib/products";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Catalog from "@/components/Catalog";
 
-export function generateStaticParams() {
-  return CATEGORIES.map((c) => ({ id: c.id }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const cat = await getCategory(params.id);

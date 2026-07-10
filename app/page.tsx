@@ -7,6 +7,8 @@ import Band from "@/components/Band";
 import Locations from "@/components/Locations";
 import Signup from "@/components/Signup";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
   return (
