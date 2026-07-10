@@ -30,12 +30,26 @@ export default function AccountDashboard() {
   useEffect(() => {
     const supabase = getBrowserSupabase();
     if (!supabase || !user) return;
-    supabase
-      .from("orders")
-      .select("id, created_at, status, total, order_items(name, qty, unit_price)")
-      .eq("customer_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => setOrders((data as Order[]) ?? []));
+    const fetchOrders = () =>
+      supabase
+        .from("orders")
+        .select("id, created_at, status, total, order_items(name, qty, unit_price)")
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false })
+        .then(({ data }) => setOrders((data as Order[]) ?? []));
+    fetchOrders();
+    // Live: refetch when any of this customer's orders change.
+    const channel = supabase
+      .channel("rt-orders")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders", filter: `customer_id=eq.${user.id}` },
+        () => fetchOrders()
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   if (!configured) {

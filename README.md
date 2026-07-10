@@ -42,15 +42,29 @@ domain at the Vercel deployment; update the URL in those three files if it chang
   (collapsing header bar + slide-in nav, full-width drawer, stacked grids).
 - Brand: L&T logo + brand red (`#BE1E2D`) as the single accent; favicons wired.
 
-## Auth setup (Supabase)
+## Backend, realtime & admin (Supabase)
 
-Auth pages render without keys but can't sign in until you connect Supabase:
+The storefront runs on mock data until you connect Supabase, then goes fully
+live — DB-driven catalog, real auth, orders, realtime stock/price updates, and
+an admin panel. Setup:
 
-1. Copy `.env.example` → `.env.local` and fill `NEXT_PUBLIC_SUPABASE_URL` and
-   `NEXT_PUBLIC_SUPABASE_ANON_KEY` from your Supabase project.
-2. Run `supabase/schema.sql` in the Supabase SQL editor (creates
-   `customers` / `orders` / `order_items` + RLS).
-3. Restart `npm run dev`. Registration, sign-in, and order history now work.
+1. **Keys** — copy `.env.example` → `.env.local` and fill
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and
+   `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API).
+2. **Schema** — paste `supabase/schema.sql` into the Supabase SQL editor and run
+   it (catalog, admins, customers, orders, forms, RLS, and Realtime on
+   `products`/`orders`).
+3. **Seed** — `npm run seed` loads the 37 real products + categories from
+   `lib/products.ts` into the DB (uses the service-role key).
+4. **Make yourself admin** — in the SQL editor:
+   `insert into admins (user_id) select id from auth.users where email = 'you@example.com';`
+   (register the account first, then run this.)
+5. `npm run dev` — catalog now reads from the DB, sign-in/orders persist, and
+   `/admin` lets you edit price/badge/stock with changes pushed live to the
+   storefront in real time.
+
+Without keys every page still renders (mock catalog, friendly "connect Supabase"
+notices on auth/admin).
 
 ## Data & Supabase
 

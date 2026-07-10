@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/account", "/checkout"],
+      disallow: ["/account", "/checkout", "/admin"],
     },
     sitemap: "https://www.ltfse.com/sitemap.xml",
     host: "https://www.ltfse.com",
