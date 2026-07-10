@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import { Archivo, Inter } from "next/font/google";
 import "./globals.css";
+import AuthProvider from "@/components/AuthProvider";
 import StoreProvider from "@/components/StoreProvider";
+import TopBar from "@/components/TopBar";
+import Header from "@/components/Header";
+import MobileNav from "@/components/MobileNav";
+import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
+import Toast from "@/components/Toast";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -19,7 +26,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "L&T — Commercial Kitchen Equipment & Supply",
   description:
-    "Commercial kitchen equipment and supply for operators who run a real line. NSF-certified, spec'd right, shipped from six depots in 24–48 hours.",
+    "Panda® wok ranges, steamers, roasters, refrigeration and smallwares. Designed and built in New York, shipped nationwide.",
   icons: {
     icon: [
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -35,7 +42,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${archivo.variable} ${inter.variable}`}>
       <body>
-        <StoreProvider>{children}</StoreProvider>
+        <AuthProvider>
+          <StoreProvider>
+            <TopBar />
+            <Header />
+            <MobileNav />
+            <main>{children}</main>
+            <Footer />
+            <CartDrawer />
+            <Toast />
+          </StoreProvider>
+        </AuthProvider>
       </body>
     </html>
   );
