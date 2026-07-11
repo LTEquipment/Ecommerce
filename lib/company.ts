@@ -40,6 +40,16 @@ export const COMPANY = {
   ] as Location[],
 };
 
+/** Official L&T / Panda social profiles (tracking params stripped). */
+export const SOCIALS = [
+  { name: "TikTok", href: "https://www.tiktok.com/@ltusa.net" },
+  { name: "Facebook", href: "https://www.facebook.com/p/LT-Restaurant-Equipment-Inc-61558406247428/" },
+  { name: "Pinterest", href: "https://www.pinterest.com/ltrestauran_inc/" },
+  { name: "X", href: "https://x.com/ltrestauran_inc" },
+  { name: "YouTube", href: "https://www.youtube.com/channel/UCv-EDGBVBIRzW0UgB-kiV0Q" },
+  { name: "Xiaohongshu", href: "https://www.xiaohongshu.com/user/profile/6661c3e20000000007007b5f" },
+] as const;
+
 /** "(917) 204-1697" -> "+19172041697" for tel: links */
 export const telHref = (phone: string): string =>
   "tel:+1" + phone.replace(/\D/g, "");

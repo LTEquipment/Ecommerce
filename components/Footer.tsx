@@ -1,7 +1,17 @@
 import Link from "next/link";
-import { COMPANY, telHref } from "@/lib/company";
+import type { SVGProps } from "react";
+import { COMPANY, SOCIALS, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
-import { TrendingUp, ArrowRight, LinkedIn, Instagram, XSocial } from "./icons";
+import { TrendingUp, ArrowRight, XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu } from "./icons";
+
+const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => JSX.Element> = {
+  TikTok,
+  Facebook,
+  Pinterest,
+  X: XSocial,
+  YouTube: Youtube,
+  Xiaohongshu,
+};
 
 export default function Footer() {
   return (
@@ -35,11 +45,6 @@ export default function Footer() {
             </div>
             <div className="fphone">
               <a href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a>
-            </div>
-            <div className="socials">
-              <a href="#" aria-label="LinkedIn"><LinkedIn /></a>
-              <a href="#" aria-label="Instagram"><Instagram /></a>
-              <a href="#" aria-label="X"><XSocial /></a>
             </div>
           </div>
 
@@ -80,12 +85,23 @@ export default function Footer() {
         </div>
 
         <div className="foot-bot">
-          <span>© 2026 {COMPANY.legalName} — concept build</span>
-          <span className="foot-legal">
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
-            <span>NSF · CSA · ETL Listed · Made in New York</span>
-          </span>
+          <div className="fb-left">
+            <span>© 2026 {COMPANY.legalName} — concept build</span>
+            <span className="foot-legal">
+              <Link href="/privacy">Privacy</Link>
+              <Link href="/terms">Terms</Link>
+            </span>
+          </div>
+          <div className="socials" aria-label="Follow L&T">
+            {SOCIALS.map((s) => {
+              const Icon = SOCIAL_ICON[s.name];
+              return (
+                <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name}>
+                  <Icon />
+                </a>
+              );
+            })}
+          </div>
         </div>
       </div>
     </footer>
