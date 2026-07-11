@@ -48,6 +48,7 @@ export default function Footer() {
             </div>
           </div>
 
+          <div className="foot-nav">
           <div className="fcol">
             <h5>Departments</h5>
             {CATEGORIES.slice(0, 6).map((c) => (
@@ -81,6 +82,7 @@ export default function Footer() {
             <Link href="/careers">Careers</Link>
             <Link href="/locations">Showrooms</Link>
             <Link href="/contact">Contact</Link>
+          </div>
           </div>
         </div>
 
