@@ -41,12 +41,13 @@ export const COMPANY = {
 };
 
 /** Official L&T / Panda social profiles (tracking params stripped). */
+/** Grouped: Western platforms first, then the China-market pair (TikTok · Xiaohongshu). */
 export const SOCIALS = [
-  { name: "TikTok", href: "https://www.tiktok.com/@ltusa.net" },
   { name: "Facebook", href: "https://www.facebook.com/p/LT-Restaurant-Equipment-Inc-61558406247428/" },
-  { name: "Pinterest", href: "https://www.pinterest.com/ltrestauran_inc/" },
   { name: "X", href: "https://x.com/ltrestauran_inc" },
   { name: "YouTube", href: "https://www.youtube.com/channel/UCv-EDGBVBIRzW0UgB-kiV0Q" },
+  { name: "Pinterest", href: "https://www.pinterest.com/ltrestauran_inc/" },
+  { name: "TikTok", href: "https://www.tiktok.com/@ltusa.net" },
   { name: "Xiaohongshu", href: "https://www.xiaohongshu.com/user/profile/6661c3e20000000007007b5f" },
 ] as const;
 
