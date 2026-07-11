@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCategories, getCategory, getProducts } from "@/lib/catalog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Catalog from "@/components/Catalog";
+import PageHeader, { StatMeta } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -14,15 +15,18 @@ export default async function CategoryPage({ params }: { params: { id: string } 
   const cat = await getCategory(params.id);
   if (!cat) notFound();
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
+  const count = products.filter((p) => p.cat === cat.id).length;
+  const inStock = products.filter((p) => p.cat === cat.id && p.stock === "in").length;
   return (
     <>
       <div className="wrap">
         <Breadcrumbs items={[{ label: "Departments", href: "/products" }, { label: cat.name }]} />
-        <header className="page-header">
-          <span className="eyebrow">{cat.count}</span>
-          <h1>{cat.name}</h1>
-          <p>{cat.blurb}</p>
-        </header>
+        <PageHeader
+          eyebrow={cat.count}
+          title={cat.name}
+          intro={cat.blurb}
+          meta={<StatMeta n={count} label="products" sub={`${inStock} in stock`} />}
+        />
       </div>
       <Catalog categories={categories} products={products} title="" lockedCat={cat.id} />
     </>

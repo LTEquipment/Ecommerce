@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHeader, { StatMeta } from "@/components/PageHeader";
 import { BRAND } from "@/lib/brand";
 import { ArrowRight, MapPin } from "@/components/icons";
 
@@ -9,11 +10,12 @@ export default function AboutPage() {
   return (
     <div className="wrap content">
       <Breadcrumbs items={[{ label: "About" }]} />
-      <header className="page-header">
-        <span className="eyebrow">Panda® — {BRAND.tagline}</span>
-        <h1>Empowering chefs with the finest cooking equipment.</h1>
-        <p>{BRAND.vision}</p>
-      </header>
+      <PageHeader
+        eyebrow={`Panda® — ${BRAND.tagline}`}
+        title="Empowering chefs with the finest cooking equipment."
+        intro={BRAND.vision}
+        meta={<StatMeta n="40+" label="years in New York" />}
+      />
 
       <div className="doc">
         <article className="prose">
