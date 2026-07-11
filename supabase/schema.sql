@@ -188,10 +188,20 @@ create policy "admins update tickets" on service_tickets for update using (publi
 -- ============================================================
 -- Realtime: broadcast catalog + order changes to subscribed clients
 -- ============================================================
-alter publication supabase_realtime add table products;
-alter publication supabase_realtime add table orders;
-alter publication supabase_realtime add table warranty_claims;
-alter publication supabase_realtime add table service_tickets;
+-- Idempotent: Supabase may auto-add tables to supabase_realtime, and
+-- ALTER PUBLICATION ... ADD TABLE errors if the table is already a member.
+do $$
+declare t text;
+begin
+  foreach t in array array['products','orders','warranty_claims','service_tickets'] loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;
 
 -- ============================================================
 -- After running this, seed the catalog:  npm run seed
