@@ -7,13 +7,13 @@ export default function TopBar() {
     <div className="topbar">
       <div className="wrap">
         <div>
-          Designed &amp; built in New York · <strong>40+ years</strong> · NSF · CSA · ETL Listed
+          Designed and built in New York · Serving professional kitchens <strong>nationwide</strong>
         </div>
         <div className="tb-r">
           <Link className="tb-ir" href="/investors">
             <TrendingUp /> Investor Relations
           </Link>
-          <Link href="/about">Our story</Link>
+          <Link href="/financing">Financing</Link>
           <Link href="/contact">
             Spec support: <strong>{COMPANY.mainPhone}</strong>
           </Link>
