@@ -274,8 +274,8 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:var(--s6
 
 .foot-grid{display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr 1fr 1fr;gap:var(--s5);padding-bottom:var(--s5)}
 .foot-brand{max-width:280px}
-footer .brand-logo{height:54px;width:116px;background-position:left center}
-.foot-brand .brand{display:inline-block}
+footer .brand-logo{height:48px;width:52px;background:url(/logo-mark.png) left center/contain no-repeat}
+.foot-brand .brand{display:block;line-height:0;margin-bottom:16px}
 footer .fabout{color:var(--muted);font-size:13.5px;margin:14px 0 16px;line-height:1.6}
 footer .faddr{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 10px}
 footer .fphone{font-family:var(--disp);font-weight:700;font-size:16px}
