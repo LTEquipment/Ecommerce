@@ -96,7 +96,7 @@ export default function CheckoutFlow() {
   if (items.length === 0) {
     return (
       <div className="wrap">
-        <header className="page-header"><span className="eyebrow">Checkout</span><h1>Checkout</h1></header>
+        <header className="page-header"><div className="ph-main"><span className="eyebrow">Checkout</span><h1>Checkout</h1></div></header>
         <div className="emptybox">
           <Cart />
           <div className="m">Your cart is empty</div>

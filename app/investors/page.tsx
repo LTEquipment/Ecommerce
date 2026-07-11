@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHeader, { StatMeta } from "@/components/PageHeader";
 import { BRAND } from "@/lib/brand";
 import { COMPANY, telHref } from "@/lib/company";
 import { TrendingUp, ArrowRight, FileText, Shield, Package } from "@/components/icons";
@@ -24,17 +25,12 @@ export default function InvestorsPage() {
     <div className="wrap content">
       <Breadcrumbs items={[{ label: "Investor Relations" }]} />
 
-      <div className="lede-head">
-        <span className="eyebrow">
-          <TrendingUp style={{ width: 14, height: 14, display: "inline", verticalAlign: "-2px", marginRight: 6 }} />
-          Investor Relations
-        </span>
-        <h1>Building L&amp;T for the public markets.</h1>
-        <p>
-          For over 40 years, L&amp;T Restaurant Equipment has designed and manufactured the Panda®
-          line in New York. As we prepare for our next chapter — including a public listing — this
-          is where we&apos;ll share our story, performance and governance with prospective investors.
-        </p>
+      <PageHeader
+        eyebrow="Investor Relations"
+        title="Building L&T for the public markets."
+        intro="For over 40 years, L&T Restaurant Equipment has designed and manufactured the Panda® line in New York. As we prepare for our next chapter — including a public listing — this is where we'll share our story, performance and governance with prospective investors."
+        meta={<StatMeta n="40+" label="years profitable" />}
+      >
         <div className="hero-cta" style={{ marginTop: "var(--s4)" }}>
           <Link className="btn btn-primary btn-lg" href="/contact"><FileText /> Contact IR</Link>
           <Link className="btn btn-line btn-lg" href="/about">Read our story <ArrowRight /></Link>
@@ -43,7 +39,7 @@ export default function InvestorsPage() {
           This page is a concept and does not constitute an offer to sell or a solicitation of an
           offer to buy any securities.
         </p>
-      </div>
+      </PageHeader>
 
       {/* Highlights */}
       <section id="highlights" style={{ padding: "var(--s5) 0" }}>

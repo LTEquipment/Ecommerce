@@ -14,7 +14,7 @@ export default function CartView() {
   if (items.length === 0) {
     return (
       <div className="wrap">
-        <header className="page-header"><span className="eyebrow">Cart</span><h1>Your cart</h1></header>
+        <header className="page-header"><div className="ph-main"><span className="eyebrow">Cart</span><h1>Your cart</h1></div></header>
         <div className="emptybox">
           <Cart />
           <div className="m">Your cart is empty</div>

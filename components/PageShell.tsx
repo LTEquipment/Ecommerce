@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Breadcrumbs from "./Breadcrumbs";
+import PageHeader from "./PageHeader";
 import HelpAside, { type TocItem } from "./HelpAside";
 
 export default function PageShell({
@@ -22,11 +23,7 @@ export default function PageShell({
   return (
     <div className="wrap content">
       <Breadcrumbs items={[{ label: title }]} />
-      <header className="page-header">
-        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-        <h1>{title}</h1>
-        {intro && <p>{intro}</p>}
-      </header>
+      <PageHeader eyebrow={eyebrow} title={title} intro={intro} />
       <div className="doc">
         <article className="prose">{children}</article>
         <aside className="doc-aside">{aside ?? <HelpAside sections={sections} />}</aside>

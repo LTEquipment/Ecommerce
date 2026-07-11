@@ -1,5 +1,6 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ContactForm from "@/components/ContactForm";
+import PageHeader from "@/components/PageHeader";
 import { COMPANY, telHref } from "@/lib/company";
 import { Phone, Mail, MapPin, Clock, ArrowRight } from "@/components/icons";
 
@@ -11,11 +12,11 @@ export default function ContactPage() {
   return (
     <div className="wrap content">
       <Breadcrumbs items={[{ label: "Contact" }]} />
-      <header className="page-header">
-        <span className="eyebrow">We&apos;re here to help</span>
-        <h1>Talk to a spec specialist.</h1>
-        <p>Bulk and contract pricing, custom wok chambers, freight questions — reach the team directly.</p>
-      </header>
+      <PageHeader
+        eyebrow="We're here to help"
+        title="Talk to a spec specialist."
+        intro="Bulk and contract pricing, custom wok chambers, freight questions — reach the team directly."
+      />
 
       <div className="contact-grid">
         <ContactForm />

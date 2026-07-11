@@ -1,6 +1,7 @@
 import { getCategories, getProducts } from "@/lib/catalog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Catalog from "@/components/Catalog";
+import PageHeader, { StatMeta } from "@/components/PageHeader";
 
 export const metadata = { title: "All Equipment — L&T" };
 export const dynamic = "force-dynamic";
@@ -11,11 +12,12 @@ export default async function ProductsPage() {
     <>
       <div className="wrap">
         <Breadcrumbs items={[{ label: "All equipment" }]} />
-        <header className="page-header">
-          <span className="eyebrow">The full line</span>
-          <h1>All equipment</h1>
-          <p>Every Panda® range, steamer, roaster, cooler and smallware — filter by department, price and availability.</p>
-        </header>
+        <PageHeader
+          eyebrow="The full line"
+          title="All equipment"
+          intro="Every Panda® range, steamer, roaster, cooler and smallware — filter by department, price and availability."
+          meta={<StatMeta n={products.length} label="products" />}
+        />
       </div>
       <Catalog categories={categories} products={products} title="" />
     </>

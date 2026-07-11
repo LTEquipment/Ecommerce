@@ -483,11 +483,29 @@ footer .fphone a:hover{color:var(--red)}
 .content{padding:var(--space-section) 0}
 
 /* ---------- page masthead (content pages + catalog headers share this) ---------- */
-.page-header,.content .lede-head{padding:var(--s5) 0 var(--s4);margin-bottom:var(--s6);border-bottom:1px solid var(--line)}
+.page-header,.content .lede-head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s5);flex-wrap:wrap;
+  padding:var(--s5) 0 var(--s4);margin-bottom:var(--s6);border-bottom:1px solid var(--line)}
+.page-header .ph-main{max-width:62ch}
 .page-header .eyebrow,.content .lede-head .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--red)}
 .page-header .eyebrow::before,.content .lede-head .eyebrow::before{content:"";width:18px;height:2px;background:var(--red);border-radius:2px}
 .page-header h1,.content .lede-head h1{font-family:var(--disp);font-weight:800;font-size:var(--t-title);line-height:1.06;letter-spacing:-.02em;margin:var(--s2) 0 var(--s3);max-width:22ch}
 .page-header p,.content .lede-head p{font-size:var(--t-lg);color:var(--ink-2);line-height:1.55;max-width:58ch;margin:0}
+
+/* masthead right-side element */
+.ph-meta{flex:0 0 auto;padding-bottom:6px}
+.ph-call{display:inline-flex;align-items:center;gap:11px;background:var(--white);border:1px solid var(--line);border-radius:var(--rl);padding:12px 16px;box-shadow:var(--shadow);transition:border-color var(--ease)}
+.ph-call:hover{border-color:var(--line-2)}
+.ph-call svg{width:20px;height:20px;color:var(--red);flex:0 0 auto}
+.ph-call b{display:block;font-family:var(--disp);font-size:16px;font-weight:800;color:var(--ink);line-height:1.15}
+.ph-call small{font-size:11.5px;color:var(--muted)}
+.ph-stat{text-align:right}
+.ph-stat b{display:block;font-family:var(--disp);font-size:clamp(30px,3vw,38px);font-weight:800;color:var(--ink);line-height:1;letter-spacing:-.02em}
+.ph-stat span{font-size:12px;color:var(--muted)}
+@media(max-width:560px){
+  .page-header,.content .lede-head{align-items:flex-start}
+  .ph-meta{padding-bottom:0}
+  .ph-stat{text-align:left}
+}
 
 /* ---------- two-column document body (policy / content pages) ---------- */
 .doc{display:grid;grid-template-columns:minmax(0,1fr) var(--rail);column-gap:var(--s7);align-items:start}

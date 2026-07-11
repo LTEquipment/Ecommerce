@@ -1,4 +1,5 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHeader from "@/components/PageHeader";
 import HelpAside from "@/components/HelpAside";
 
 export const metadata = { title: "FAQ — L&T" };
@@ -32,11 +33,11 @@ export default function FaqPage() {
   return (
     <div className="wrap content">
       <Breadcrumbs items={[{ label: "FAQ" }]} />
-      <header className="page-header">
-        <span className="eyebrow">Help</span>
-        <h1>Frequently asked questions</h1>
-        <p>Answers on ordering, freight, custom builds, trade accounts and support.</p>
-      </header>
+      <PageHeader
+        eyebrow="Help"
+        title="Frequently asked questions"
+        intro="Answers on ordering, freight, custom builds, trade accounts and support."
+      />
 
       <div className="doc">
         <article className="prose faq">
