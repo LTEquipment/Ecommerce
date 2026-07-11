@@ -198,10 +198,6 @@ export default function Header() {
             </Link>
           ))}
           <Link href="/locations">Locations</Link>
-          <span className="spacer" />
-          <span className="phone">
-            Order by phone: <b>{COMPANY.mainPhone}</b>
-          </span>
         </div>
       </div>
     </header>
