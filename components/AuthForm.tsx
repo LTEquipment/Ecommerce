@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import Breadcrumbs from "./Breadcrumbs";
-import { Check } from "./icons";
+import { ILLUS } from "@/lib/illus";
 
 const BULLETS = [
-  "Order history and one-click reorder",
-  "Warranty claims and service tickets",
-  "Reorder replacement parts fast",
+  "Order history · one-click reorder",
+  "Warranty claims · service tickets",
+  "Replacement parts, shipped fast",
   "Trade pricing for approved dealers",
 ];
 
@@ -61,13 +61,19 @@ export default function AuthForm() {
       <div className="wrap"><Breadcrumbs items={[{ label: "Sign in" }]} /></div>
       <div className="auth">
         <aside className="brandside">
-          <span className="eyebrow">Your account</span>
-          <h2>One login for everything.</h2>
-          <ul>
-            {BULLETS.map((b) => (
-              <li key={b}><Check /> {b}</li>
-            ))}
-          </ul>
+          <div className="bs-illus" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ILLUS.range }} />
+          <div className="bs-top">
+            <span className="bs-rule" />
+            <span className="bs-kick">Panda&reg; · Made in New York</span>
+          </div>
+          <div className="bs-cap">
+            <h2>Your account,<br />one sign-in.</h2>
+            <ul>
+              {BULLETS.map((b) => (
+                <li key={b}>{b}</li>
+              ))}
+            </ul>
+          </div>
         </aside>
 
         <div className="card">

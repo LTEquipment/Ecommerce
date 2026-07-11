@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Fragment, type SVGProps } from "react";
 import { COMPANY, SOCIALS, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
-import { TrendingUp, ArrowRight, XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu } from "./icons";
+import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu } from "./icons";
 
 const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => JSX.Element> = {
   TikTok,
@@ -17,18 +17,6 @@ export default function Footer() {
   return (
     <footer>
       <div className="wrap">
-        {/* Investor Relations callout */}
-        <div className="ir-callout">
-          <div>
-            <span className="eyebrow"><TrendingUp style={{ width: 14, height: 14, display: "inline", verticalAlign: "-2px", marginRight: 6 }} /> Investor Relations</span>
-            <h3>We&apos;re building L&amp;T for the public markets.</h3>
-            <p>Four decades of Made-in-New-York manufacturing, a growing national footprint, and a brand trusted by the kitchens you know. Explore our investor relations.</p>
-          </div>
-          <Link className="btn" href="/investors">
-            Investor relations <ArrowRight />
-          </Link>
-        </div>
-
         <div className="foot-grid">
           <div className="foot-brand">
             <Link className="brand" href="/">

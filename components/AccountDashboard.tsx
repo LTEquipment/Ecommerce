@@ -7,7 +7,12 @@ import { useAuth } from "./AuthProvider";
 import { useStore } from "./StoreProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
-import { LogOut, Package, Shield, Chat } from "./icons";
+import { LogOut, Package, Shield, Chat, Google, Facebook } from "./icons";
+
+const OAUTH = [
+  { id: "google" as const, label: "Google", Icon: Google },
+  { id: "facebook" as const, label: "Facebook", Icon: Facebook },
+];
 
 type Order = {
   id: string;
@@ -28,6 +33,66 @@ function tone(status: string): string {
   return "info"; // submitted | open
 }
 const pretty = (s: string) => s.replace(/_/g, " ");
+
+// A single editable field row (Yamibuy-style): label + value + inline "Edit".
+// Clicking the action swaps the value for an input with Save / Cancel.
+function ProfileRow({
+  label,
+  value,
+  placeholder,
+  action = "Edit",
+  type = "text",
+  onSave,
+}: {
+  label: string;
+  value: string;
+  placeholder?: string;
+  action?: string;
+  type?: string;
+  onSave: (v: string) => Promise<boolean>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState("");
+  const [busy, setBusy] = useState(false);
+  const isPw = type === "password";
+
+  const start = () => { setVal(isPw ? "" : value); setEditing(true); };
+  const save = async () => {
+    setBusy(true);
+    const ok = await onSave(val.trim());
+    setBusy(false);
+    if (ok) setEditing(false);
+  };
+
+  return (
+    <div className="prow">
+      <div className="prow-l">
+        <label>{label}</label>
+        {editing ? (
+          <input
+            className="prow-input"
+            type={isPw ? "password" : type}
+            value={val}
+            autoFocus
+            placeholder={isPw ? "New password" : placeholder}
+            onChange={(e) => setVal(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") save(); if (e.key === "Escape") setEditing(false); }}
+          />
+        ) : (
+          <b className={!isPw && !value ? "muted" : ""}>{isPw ? "••••••••" : value || placeholder || "None"}</b>
+        )}
+      </div>
+      {editing ? (
+        <div className="prow-actions">
+          <button className="linklike" onClick={save} disabled={busy}>{busy ? "Saving…" : "Save"}</button>
+          <button className="prow-cancel" onClick={() => setEditing(false)}>Cancel</button>
+        </div>
+      ) : (
+        <button className="prow-edit" onClick={start}>{action}</button>
+      )}
+    </div>
+  );
+}
 
 export default function AccountDashboard() {
   const { user, loading, configured, displayName, signOut, role, dealerStatus, isDealer } = useAuth();
@@ -50,6 +115,75 @@ export default function AccountDashboard() {
   const [message, setMessage] = useState("");
 
   const dealerPending = role === "dealer" && dealerStatus === "pending";
+
+  // Editable profile fields live in Supabase user_metadata.
+  const meta = (user?.user_metadata ?? {}) as Record<string, string>;
+  const company = meta.company || "";
+  const fullName = meta.full_name || "";
+  const phone = meta.phone || "";
+  const avatarUrl = meta.avatar_url || "";
+  const initial = displayName?.[0]?.toUpperCase() || "L";
+  const identities = user?.identities ?? [];
+
+  const [uploading, setUploading] = useState(false);
+  const onAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/avatar", { method: "POST", body: fd });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) { setUploading(false); return toast(json.error || "Upload failed"); }
+    const supabase = getBrowserSupabase();
+    if (supabase) await supabase.auth.updateUser({ data: { ...meta, avatar_url: json.url } });
+    setUploading(false);
+    toast("Photo updated.");
+  };
+
+  const linkProvider = async (provider: "google" | "facebook") => {
+    const supabase = getBrowserSupabase();
+    if (!supabase) return;
+    const { error } = await supabase.auth.linkIdentity({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/account` },
+    });
+    if (error) toast(/enabled|disabled|provider|manual/i.test(error.message) ? `${provider} isn't enabled in Supabase yet.` : error.message);
+  };
+  const unlinkProvider = async (provider: string) => {
+    const supabase = getBrowserSupabase();
+    const identity = identities.find((i) => i.provider === provider);
+    if (!supabase || !identity) return;
+    const { error } = await supabase.auth.unlinkIdentity(identity);
+    toast(error ? error.message : `${provider} unlinked.`);
+  };
+
+  const updateMeta = async (patch: Record<string, string>): Promise<boolean> => {
+    const supabase = getBrowserSupabase();
+    if (!supabase) return false;
+    const { error } = await supabase.auth.updateUser({ data: { ...meta, ...patch } });
+    if (error) { toast(error.message); return false; }
+    toast("Profile updated.");
+    return true;
+  };
+  const changeEmail = async (email: string): Promise<boolean> => {
+    const supabase = getBrowserSupabase();
+    if (!supabase || !email) return false;
+    const { error } = await supabase.auth.updateUser({ email });
+    if (error) { toast(error.message); return false; }
+    toast("Check your new email to confirm the change.");
+    return true;
+  };
+  const changePassword = async (password: string): Promise<boolean> => {
+    const supabase = getBrowserSupabase();
+    if (!supabase) return false;
+    if (password.length < 6) { toast("Password must be at least 6 characters."); return false; }
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) { toast(error.message); return false; }
+    toast("Password updated.");
+    return true;
+  };
 
   useEffect(() => {
     if (!loading && configured && !user) router.replace("/login?next=/account");
@@ -142,10 +276,9 @@ export default function AccountDashboard() {
   return (
     <div className="wrap">
       <div className="account">
-        <h1>Your account</h1>
         <aside className="acct-side">
           <div className="who">
-            <span className="ava">{displayName?.[0]?.toUpperCase() || "L"}</span>
+            <span className="ava">{avatarUrl ? <img src={avatarUrl} alt="" /> : initial}</span>
             <div style={{ minWidth: 0 }}><b>{displayName}</b><span>{whoSub}</span></div>
           </div>
           <nav>
@@ -168,28 +301,68 @@ export default function AccountDashboard() {
         <div className="acct-main">
           {tab === "profile" && (
             <div className="panel">
-              <div className="panel-head"><h2>Profile</h2><button className="btn btn-primary" onClick={() => toast("Profile saved.")}>Save changes</button></div>
+              <h2 className="ai-title">Account information</h2>
               {dealerPending && (
                 <div className="msg info">Your <b>trade account is under review</b>. Contract pricing unlocks once L&amp;T approves it — usually within one business day.</div>
               )}
-              <div className="field-row">
-                <div className="field"><label>{role === "dealer" ? "Dealer / company" : "Company / kitchen"}</label><input defaultValue={displayName} /></div>
-                <div className="field"><label>Email</label><input defaultValue={user.email} disabled /></div>
-              </div>
-              {isDealer ? (
-                <>
-                  <p className="note">Your <b>contract pricing</b> is applied automatically at checkout. Price lists, spec sheets and multi-site billing are managed with your dedicated account manager.</p>
-                  <div className="dealer-links">
-                    <Link href="/products">Volume price list</Link>
-                    <Link href="/vendors">Spec sheets &amp; resources</Link>
-                    <Link href="/contact">Contact your account manager</Link>
+
+              <div className="prof-grid">
+                <section className="prof-col">
+                  <h3 className="prof-h">Profile</h3>
+                  <div className="prof-id">
+                    <span className="prof-ava">{avatarUrl ? <img src={avatarUrl} alt="" /> : initial}</span>
+                    <div style={{ minWidth: 0 }}>
+                      <label className="prof-photo">
+                        {uploading ? "Uploading…" : "Change photo"}
+                        <input type="file" accept="image/*" onChange={onAvatar} hidden disabled={uploading} />
+                      </label>
+                      <span className="prof-photo-hint">JPG or PNG · up to 5MB</span>
+                    </div>
                   </div>
-                </>
-              ) : dealerPending ? (
-                <p className="note">Buying for a single kitchen? You&apos;re all set — browse and order at list price while your trade account is reviewed.</p>
-              ) : (
-                <p className="note">Buying for a business or multiple locations? <Link href="/contact" style={{ color: "var(--red)", fontWeight: 600 }}>Ask about a trade account</Link> for contract pricing.</p>
-              )}
+                  <ProfileRow label="Company / kitchen" value={company} placeholder="Add your company" onSave={(v) => updateMeta({ company: v })} />
+                  <ProfileRow label="Contact name" value={fullName} placeholder="Add a contact name" onSave={(v) => updateMeta({ full_name: v })} />
+                  <div className="prow">
+                    <div className="prow-l"><label>Account type</label><b>{isDealer ? "Dealer" : dealerPending ? "Trade — under review" : "Customer"}</b></div>
+                  </div>
+                </section>
+
+                <section className="prof-col">
+                  <h3 className="prof-h">Login &amp; security</h3>
+                  <ProfileRow label="Email" value={user.email || ""} type="email" action="Change" onSave={changeEmail} />
+                  <ProfileRow label="Password" value="set" type="password" action="Change" onSave={changePassword} />
+                  <ProfileRow label="Phone" value={phone} placeholder="None" action={phone ? "Change" : "Add"} onSave={(v) => updateMeta({ phone: v })} />
+
+                  <h3 className="prof-h" style={{ marginTop: "var(--s5)" }}>Link your account</h3>
+                  {OAUTH.map(({ id, label, Icon }) => {
+                    const linked = identities.some((i) => i.provider === id);
+                    return (
+                      <div className="prow link-row" key={id}>
+                        <div className="prow-l"><span className="link-ic"><Icon /></span><b>{label}</b></div>
+                        <button className="prow-edit" onClick={() => (linked ? unlinkProvider(id) : linkProvider(id))}>
+                          {linked ? "Unlink" : "Link"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </section>
+              </div>
+
+              <div className="prof-foot">
+                {isDealer ? (
+                  <>
+                    <p className="note" style={{ marginTop: 0 }}>Your <b>contract pricing</b> is applied automatically at checkout. Price lists and multi-site billing are managed with your account manager.</p>
+                    <div className="dealer-links">
+                      <Link href="/products">Volume price list</Link>
+                      <Link href="/vendors">Spec sheets &amp; resources</Link>
+                      <Link href="/contact">Contact your account manager</Link>
+                    </div>
+                  </>
+                ) : dealerPending ? (
+                  <p className="note" style={{ marginTop: 0 }}>Buying for a single kitchen? You&apos;re all set — order at list price while your trade account is reviewed.</p>
+                ) : (
+                  <p className="note" style={{ marginTop: 0 }}>Buying for a business or multiple locations? <Link href="/contact" style={{ color: "var(--red)", fontWeight: 600 }}>Ask about a trade account</Link> for contract pricing.</p>
+                )}
+              </div>
             </div>
           )}
 
