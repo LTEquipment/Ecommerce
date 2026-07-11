@@ -7,7 +7,7 @@ import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import { COMPANY, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
-import { Search, Close, User, Package, LogOut } from "./icons";
+import { Search, Close, User, Package, LogOut, Shield } from "./icons";
 
 export default function MobileNav() {
   const { navOpen, closeNav, query, setQuery } = useStore();
@@ -64,6 +64,7 @@ export default function MobileNav() {
             <>
               <Link href="/account" onClick={closeNav}><User /> {displayName}</Link>
               <Link href="/account?tab=orders" onClick={closeNav}><Package /> Orders</Link>
+              <Link href="/account?tab=service" onClick={closeNav}><Shield /> Warranty &amp; service</Link>
               <button
                 onClick={() => { closeNav(); signOut(); }}
                 style={{ display: "flex", width: "100%", alignItems: "center", gap: 12, padding: 12, borderRadius: 8, fontSize: 15 }}
@@ -74,7 +75,7 @@ export default function MobileNav() {
           ) : (
             <>
               <Link href="/login" onClick={closeNav}><User /> Sign in</Link>
-              <Link href="/register" onClick={closeNav}>Create trade account</Link>
+              <Link href="/login?mode=register&trade=1" onClick={closeNav}>Create trade account</Link>
             </>
           )}
 

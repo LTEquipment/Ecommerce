@@ -79,7 +79,7 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
           <div className="assurance">
             <div className="a"><Truck /> Free freight on orders over $999 · palletized delivery</div>
             <div className="a"><Shield /> NSF / CSA / ETL listed · line-tested warranty</div>
-            <div className="a"><Card /> Trade accounts &amp; financing available — <Link href="/register" style={{ color: "var(--red)", fontWeight: 600 }}>apply</Link></div>
+            <div className="a"><Card /> Trade accounts &amp; financing available — <Link href="/login?mode=register&trade=1" style={{ color: "var(--red)", fontWeight: 600 }}>apply</Link></div>
           </div>
         </div>
       </div>

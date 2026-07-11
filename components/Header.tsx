@@ -9,7 +9,7 @@ import { money } from "@/lib/format";
 import { COMPANY } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
 import { ILLUS } from "@/lib/illus";
-import { Search, User, Cart, Menu, ChevronDown, Package, LogOut, FileText, TrendingUp } from "./icons";
+import { Search, User, Cart, Menu, ChevronDown, Package, LogOut, FileText, TrendingUp, Shield } from "./icons";
 
 const NAV = CATEGORIES.slice(0, 6);
 
@@ -112,6 +112,9 @@ export default function Header() {
                   </Link>
                   <Link href="/account?tab=orders" role="menuitem" onClick={() => setMenuOpen(false)}>
                     <Package /> Orders
+                  </Link>
+                  <Link href="/account?tab=service" role="menuitem" onClick={() => setMenuOpen(false)}>
+                    <Shield /> Warranty &amp; service
                   </Link>
                   {isAdmin && (
                     <Link href="/admin" role="menuitem" onClick={() => setMenuOpen(false)}>

@@ -73,6 +73,12 @@ export const Mail = (p: P) => (
 export const Clock = (p: P) => (
   <svg {...base} strokeWidth={1.8} {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
 );
+export const Wrench = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><path d="M14.5 6.5a3.5 3.5 0 0 0-4.7 4.4l-6 6a1.8 1.8 0 0 0 2.6 2.6l6-6a3.5 3.5 0 0 0 4.4-4.7l-2.2 2.2-2.1-.6-.6-2.1z" /></svg>
+);
+export const Store = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><path d="M4 9l1-5h14l1 5M4 9h16v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-4 0zM5 12v8h14v-8" /></svg>
+);
 export const TrendingUp = (p: P) => (
   <svg {...base} strokeWidth={1.9} {...p}><path d="M3 17l6-6 4 4 8-8" /><path d="M17 7h4v4" /></svg>
 );

@@ -3,6 +3,10 @@ export type Location = {
   name: string;
   address: string;
   phone: string;
+  // Approximate map coordinates (neighborhood-accurate). "Get directions" uses
+  // the exact address, so navigation is precise regardless of pin placement.
+  lat: number;
+  lng: number;
 };
 
 export const COMPANY = {
@@ -18,24 +22,32 @@ export const COMPANY = {
       name: "L&T Restaurant Equipment Inc.",
       address: "280 Taylor St, Staten Island, NY 10310",
       phone: "(917) 204-1697",
+      lat: 40.6317,
+      lng: -74.1145,
     },
     {
       kind: "Showroom",
       name: "Manhattan Showroom",
       address: "62 Allen St, New York, NY 10002",
       phone: "(917) 204-1697",
+      lat: 40.7178,
+      lng: -73.9912,
     },
     {
       kind: "Showroom",
       name: "Brooklyn Showroom",
       address: "6816 Bay Parkway, Brooklyn, NY 11204",
       phone: "(718) 567-8658",
+      lat: 40.6053,
+      lng: -73.9962,
     },
     {
       kind: "Showroom",
       name: "Flushing Showroom",
       address: "134-38 33rd Ave, Flushing, NY 11354",
       phone: "(917) 204-1697",
+      lat: 40.7664,
+      lng: -73.8355,
     },
   ] as Location[],
 };
