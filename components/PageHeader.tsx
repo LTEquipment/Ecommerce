@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { COMPANY, telHref } from "@/lib/company";
 import { Phone } from "./icons";
 
-/** Default right-side element: a spec-support call chip. */
+/** Spec-support call chip (styled for the dark hero). */
 function CallMeta() {
   return (
     <a className="ph-call" href={telHref(COMPANY.mainPhone)}>
@@ -15,7 +15,7 @@ function CallMeta() {
   );
 }
 
-/** A big-number stat for the header's right side. */
+/** A big-number stat for the hero. */
 export function StatMeta({ n, label, sub }: { n: string | number; label: string; sub?: string }) {
   return (
     <div className="ph-stat">
@@ -30,25 +30,36 @@ export default function PageHeader({
   title,
   intro,
   meta,
+  image,
   children,
 }: {
   eyebrow?: string;
   title: string;
   intro?: string;
-  /** Right-side element. Defaults to a call chip. Pass null to omit. */
+  /** Facts/CTA element shown under the intro. Pass a CallMeta by default. */
   meta?: ReactNode;
-  /** Extra left-column content below the intro (e.g. CTAs). */
+  /** Optional product/photo shown in a card on the right (catalog pages). */
+  image?: string;
+  /** Extra content under the intro (e.g. CTAs), above meta. */
   children?: ReactNode;
 }) {
+  const showCall = meta === undefined && !children;
   return (
-    <header className="page-header">
-      <div className="ph-main">
-        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-        <h1>{title}</h1>
-        {intro && <p>{intro}</p>}
-        {children}
+    <header className={`page-hero${image ? "" : " no-visual"}`}>
+      <div className="page-hero-inner">
+        <div className="ph-text">
+          {eyebrow && <span className="eyebrow">{eyebrow}</span>}
+          <h1>{title}</h1>
+          {intro && <p>{intro}</p>}
+          {children}
+          {(meta || showCall) && <div className="ph-foot">{meta ?? <CallMeta />}</div>}
+        </div>
+        {image && (
+          <div className="ph-visual">
+            <img src={image} alt="" />
+          </div>
+        )}
       </div>
-      {meta !== null && <div className="ph-meta">{meta ?? <CallMeta />}</div>}
     </header>
   );
 }

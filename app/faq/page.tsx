@@ -37,6 +37,7 @@ export default function FaqPage() {
         eyebrow="Help"
         title="Frequently asked questions"
         intro="Answers on ordering, freight, custom builds, trade accounts and support."
+        meta={null}
       />
 
       <div className="doc">
