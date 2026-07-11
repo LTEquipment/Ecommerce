@@ -8,6 +8,7 @@ import { useAuth } from "./AuthProvider";
 import { money } from "@/lib/format";
 import { COMPANY } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
+import { ILLUS } from "@/lib/illus";
 import { Search, User, Cart, Menu, ChevronDown, Package, LogOut, FileText, TrendingUp } from "./icons";
 
 const NAV = CATEGORIES.slice(0, 6);
@@ -17,14 +18,40 @@ export default function Header() {
   const { user, isAdmin, displayName, signOut } = useAuth();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [deptOpen, setDeptOpen] = useState(false);
+  const [deptPos, setDeptPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   const acctRef = useRef<HTMLDivElement>(null);
+  const deptRef = useRef<HTMLDivElement>(null);
+  const deptBtnRef = useRef<HTMLButtonElement>(null);
+
+  const toggleDept = () => {
+    const next = !deptOpen;
+    if (next && deptBtnRef.current) {
+      const r = deptBtnRef.current.getBoundingClientRect();
+      setDeptPos({ left: r.left, top: r.bottom + 4 });
+    }
+    setDeptOpen(next);
+  };
+
+  useEffect(() => {
+    if (!deptOpen) return;
+    const close = () => setDeptOpen(false);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => { window.removeEventListener("scroll", close, true); window.removeEventListener("resize", close); };
+  }, [deptOpen]);
 
   useEffect(() => {
     const h = (e: MouseEvent) => {
       if (acctRef.current && !acctRef.current.contains(e.target as Node)) setMenuOpen(false);
+      if (deptRef.current && !deptRef.current.contains(e.target as Node)) setDeptOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setMenuOpen(false); setDeptOpen(false); }
     };
     document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", esc); };
   }, []);
 
   const submitSearch = (e: React.FormEvent) => {
@@ -136,10 +163,32 @@ export default function Header() {
 
       <div className="navrow">
         <div className="wrap">
-          <Link className="all" href="/products">
-            <Menu style={{ width: 16, height: 16 }} />
-            All Departments
-          </Link>
+          <div className="all-wrap" ref={deptRef}>
+            <button
+              ref={deptBtnRef}
+              className={`all${deptOpen ? " open" : ""}`}
+              onClick={toggleDept}
+              aria-haspopup="true"
+              aria-expanded={deptOpen}
+            >
+              <Menu style={{ width: 16, height: 16 }} />
+              All Departments
+              <ChevronDown style={{ width: 14, height: 14 }} />
+            </button>
+            {deptOpen && (
+              <div className="dept-menu" role="menu" style={{ left: deptPos.left, top: deptPos.top }}>
+                {CATEGORIES.map((c) => (
+                  <Link key={c.id} href={`/category/${c.id}`} className="dept-mi" role="menuitem" onClick={() => setDeptOpen(false)}>
+                    <span className="dmi-ic" dangerouslySetInnerHTML={{ __html: ILLUS[c.art] }} />
+                    <span className="dmi-t"><b>{c.name}</b><span>{c.count}</span></span>
+                  </Link>
+                ))}
+                <Link href="/products" className="dept-all" onClick={() => setDeptOpen(false)}>
+                  View all equipment →
+                </Link>
+              </div>
+            )}
+          </div>
           {NAV.map((c) => (
             <Link key={c.id} href={`/category/${c.id}`}>
               {c.name}
