@@ -61,6 +61,7 @@ export default function Footer() {
             <Link href="/financing">Financing &amp; pricing</Link>
             <Link href="/shipping">Shipping &amp; freight</Link>
             <Link href="/returns">Returns</Link>
+            <Link href="/vendors">Become a vendor</Link>
           </div>
           <div className="fcol">
             <h5>Support</h5>
@@ -79,6 +80,9 @@ export default function Footer() {
           <div className="fcol">
             <h5>Company</h5>
             <Link href="/about">About us</Link>
+            <Link href="/leadership">Leadership</Link>
+            <Link href="/press">Press</Link>
+            <Link href="/sustainability">Sustainability</Link>
             <Link href="/careers">Careers</Link>
             <Link href="/locations">Showrooms</Link>
             <Link href="/contact">Contact</Link>

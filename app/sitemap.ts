@@ -5,7 +5,8 @@ const BASE = "https://www.ltfse.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPaths = [
-    "", "/products", "/about", "/locations", "/contact", "/investors",
+    "", "/products", "/about", "/leadership", "/press", "/sustainability",
+    "/vendors", "/locations", "/contact", "/investors",
     "/faq", "/shipping", "/returns", "/warranty", "/financing", "/careers",
     "/privacy", "/terms", "/cookies", "/accessibility", "/login", "/register", "/cart",
   ];
