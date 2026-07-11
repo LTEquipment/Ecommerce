@@ -18,7 +18,6 @@ export default async function CategoryPage({ params }: { params: { id: string } 
   const inCat = products.filter((p) => p.cat === cat.id);
   const count = inCat.length;
   const inStock = inCat.filter((p) => p.stock === "in").length;
-  const featured = inCat.find((p) => p.images[0])?.images[0];
   return (
     <>
       <div className="wrap">
@@ -27,7 +26,6 @@ export default async function CategoryPage({ params }: { params: { id: string } 
           eyebrow={cat.count}
           title={cat.name}
           intro={cat.blurb}
-          image={featured}
           meta={<StatMeta n={count} label="products" sub={`${inStock} in stock`} />}
         />
       </div>

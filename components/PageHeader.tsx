@@ -1,24 +1,20 @@
 import type { ReactNode } from "react";
 import { COMPANY, telHref } from "@/lib/company";
-import { Phone } from "./icons";
 
-/** Spec-support call chip (styled for the dark hero). */
-function CallMeta() {
+/** Right-side spec-support line (label over bold phone). */
+function CallLine() {
   return (
-    <a className="ph-call" href={telHref(COMPANY.mainPhone)}>
-      <Phone />
-      <span className="ph-call-t">
-        <b>{COMPANY.mainPhone}</b>
-        <small>Spec support &amp; quotes</small>
-      </span>
+    <a className="phead-call" href={telHref(COMPANY.mainPhone)}>
+      <small>Spec support &amp; quotes</small>
+      <b>{COMPANY.mainPhone}</b>
     </a>
   );
 }
 
-/** A big-number stat for the hero. */
+/** Big-number stat for the header's right side. */
 export function StatMeta({ n, label, sub }: { n: string | number; label: string; sub?: string }) {
   return (
-    <div className="ph-stat">
+    <div className="phead-stat">
       <b>{n}</b>
       <span>{label}{sub ? ` · ${sub}` : ""}</span>
     </div>
@@ -30,36 +26,31 @@ export default function PageHeader({
   title,
   intro,
   meta,
-  image,
   children,
 }: {
   eyebrow?: string;
   title: string;
   intro?: string;
-  /** Facts/CTA element shown under the intro. Pass a CallMeta by default. */
+  /** Right-side content. Omit for a default call line; pass null for no right column. */
   meta?: ReactNode;
-  /** Optional product/photo shown in a card on the right (catalog pages). */
-  image?: string;
-  /** Extra content under the intro (e.g. CTAs), above meta. */
+  /** Extra left-column content under the intro (e.g. CTAs). */
   children?: ReactNode;
 }) {
-  const showCall = meta === undefined && !children;
+  const hasSide = meta !== null;
   return (
-    <header className={`page-hero${image ? "" : " no-visual"}`}>
-      <div className="page-hero-inner">
-        <div className="ph-text">
-          {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-          <h1>{title}</h1>
-          {intro && <p>{intro}</p>}
-          {children}
-          {(meta || showCall) && <div className="ph-foot">{meta ?? <CallMeta />}</div>}
-        </div>
-        {image && (
-          <div className="ph-visual">
-            <img src={image} alt="" />
-          </div>
-        )}
+    <header className={`phead${hasSide ? "" : " no-side"}`}>
+      <div className="phead-main">
+        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
+        <h1>{title}</h1>
+        {intro && <p>{intro}</p>}
+        {children}
       </div>
+      {hasSide && (
+        <div className="phead-side">
+          {meta}
+          <CallLine />
+        </div>
+      )}
     </header>
   );
 }

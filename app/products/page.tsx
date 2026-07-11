@@ -16,7 +16,6 @@ export default async function ProductsPage() {
           eyebrow="The full line"
           title="All equipment"
           intro="Every Panda® range, steamer, roaster, cooler and smallware — filter by department, price and availability."
-          image={products.find((p) => p.images[0])?.images[0]}
           meta={<StatMeta n={products.length} label="products" />}
         />
       </div>
