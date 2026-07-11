@@ -285,6 +285,7 @@ footer .fphone a:hover{color:var(--red)}
 .socials a{width:34px;height:34px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;color:var(--muted);transition:all .18s}
 .socials a:hover{border-color:var(--ink);color:var(--ink);background:var(--white)}
 .socials svg{width:16px;height:16px}
+.soc-div{width:1px;height:20px;background:var(--line-2);margin:0 5px;align-self:center;flex:0 0 auto}
 .fcol h5{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);margin:0 0 13px}
 .fcol a{display:block;color:var(--muted);font-size:13.5px;padding:5px 0;transition:color .15s}
 .fcol a:hover{color:var(--red)}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { SVGProps } from "react";
+import { Fragment, type SVGProps } from "react";
 import { COMPANY, SOCIALS, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
 import { TrendingUp, ArrowRight, XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu } from "./icons";
@@ -95,12 +95,15 @@ export default function Footer() {
             </span>
           </div>
           <div className="socials" aria-label="Follow L&T">
-            {SOCIALS.map((s) => {
+            {SOCIALS.map((s, i) => {
               const Icon = SOCIAL_ICON[s.name];
               return (
-                <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name}>
-                  <Icon />
-                </a>
+                <Fragment key={s.name}>
+                  {i === 4 && <span className="soc-div" aria-hidden="true" />}
+                  <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name}>
+                    <Icon />
+                  </a>
+                </Fragment>
               );
             })}
           </div>
