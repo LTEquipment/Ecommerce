@@ -3,6 +3,7 @@ import { Fragment, type SVGProps } from "react";
 import { COMPANY, SOCIALS, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
 import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu } from "./icons";
+import CookiePrefsButton from "./CookiePrefsButton";
 
 const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => JSX.Element> = {
   TikTok,
@@ -86,6 +87,7 @@ export default function Footer() {
             <Link href="/accessibility">Accessibility</Link>
             <Link href="/investors">Investor Relations</Link>
             <a href="/sitemap.xml">Sitemap</a>
+            <CookiePrefsButton />
           </div>
           <div className="fb-base">
             <div className="fb-copy">
