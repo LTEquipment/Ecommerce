@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import { useLiveProduct } from "@/lib/useLiveProducts";
 import { money } from "@/lib/format";
+import { COMPANY, telHref } from "@/lib/company";
 import { ILLUS } from "@/lib/illus";
 import { Star, Plus, Truck, Shield, Card } from "./icons";
 import type { Product } from "@/lib/types";
@@ -93,6 +94,12 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
                 <div className="v">{v}</div>
               </div>
             ))}
+          </div>
+          <div className="spec-aside">
+            <h3>Need a hand speccing this?</h3>
+            <p>Our New York team can confirm dimensions, gas type, freight and custom options for your kitchen.</p>
+            <a className="btn btn-line btn-block" href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a>
+            <div className="certline"><span>NSF</span><span>CSA</span><span>ETL</span></div>
           </div>
         </div>
       )}

@@ -7,7 +7,7 @@ export default function RelatedProducts({ products }: { products: Product[] }) {
     <section>
       <div className="wrap">
         <div className="sec-head"><h2>You might also need</h2></div>
-        <div className="grid">
+        <div className="grid grid-4">
           {products.map((p) => (
             <ProductCard p={p} key={p.slug} />
           ))}

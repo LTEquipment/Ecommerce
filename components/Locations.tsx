@@ -1,6 +1,54 @@
-import { COMPANY, telHref } from "@/lib/company";
+import { COMPANY, telHref, type Location } from "@/lib/company";
+import { ArrowRight } from "./icons";
 
-export default function Locations({ hideHead = false }: { hideHead?: boolean }) {
+function LocCard({ l }: { l: Location }) {
+  const isHq = /HQ|Factory/i.test(l.kind);
+  const dir = "https://maps.google.com/?q=" + encodeURIComponent(l.address);
+  return (
+    <div className={`loc${isHq ? " hq" : ""}`}>
+      <div className="kind">{l.kind}</div>
+      <div className="lname">{l.name}</div>
+      <div className="laddr">{l.address}</div>
+      <div className="lhours">Mon–Fri 8–6 · Sat 9–2</div>
+      <div className="lphone"><a href={telHref(l.phone)}>{l.phone}</a></div>
+      <a className="ldir" href={dir} target="_blank" rel="noopener noreferrer">
+        Get directions <ArrowRight />
+      </a>
+    </div>
+  );
+}
+
+export default function Locations({
+  hideHead = false,
+  split = false,
+}: {
+  hideHead?: boolean;
+  split?: boolean;
+}) {
+  if (split) {
+    return (
+      <section className="locations">
+        <div className="wrap">
+          <div className="loc-split">
+            <div className="locgrid" style={{ gridTemplateColumns: "repeat(2,1fr)" }}>
+              {COMPANY.locations.map((l) => (
+                <LocCard l={l} key={l.name + l.address} />
+              ))}
+            </div>
+            <div className="loc-map">
+              <iframe
+                src={`https://www.google.com/maps?q=${encodeURIComponent(COMPANY.hqAddress)}&output=embed`}
+                title="L&T Restaurant Equipment — headquarters"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="locations" className="locations">
       <div className="wrap">
@@ -14,14 +62,7 @@ export default function Locations({ hideHead = false }: { hideHead?: boolean }) 
         )}
         <div className="locgrid">
           {COMPANY.locations.map((l) => (
-            <div className="loc" key={l.name + l.address}>
-              <div className="kind">{l.kind}</div>
-              <div className="lname">{l.name}</div>
-              <div className="laddr">{l.address}</div>
-              <div className="lphone">
-                <a href={telHref(l.phone)}>{l.phone}</a>
-              </div>
-            </div>
+            <LocCard l={l} key={l.name + l.address} />
           ))}
         </div>
       </div>

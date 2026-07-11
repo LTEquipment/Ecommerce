@@ -120,7 +120,12 @@ export default function Catalog({
             </div>
             <div className="grid">
               {list.length === 0 ? (
-                <div className="empty">No products match these filters.</div>
+                <div className="emptybox" style={{ gridColumn: "1/-1" }}>
+                  <Filter />
+                  <div className="m">No products match these filters</div>
+                  <div className="s">Try widening your price range or turning off “in stock only”.</div>
+                  <button className="btn btn-line" onClick={clearFilters}>Clear all filters</button>
+                </div>
               ) : (
                 list.map((p) => <ProductCard p={p} key={p.slug} />)
               )}

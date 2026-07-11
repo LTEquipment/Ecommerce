@@ -14,10 +14,11 @@ export default function CartView() {
   if (items.length === 0) {
     return (
       <div className="wrap">
-        <div className="page-head"><h1>Your cart</h1></div>
-        <div className="empty" style={{ background: "var(--white)", border: "1px solid var(--line)", borderRadius: "var(--rl)" }}>
-          <Cart style={{ width: 40, height: 40, margin: "0 auto 14px", color: "var(--line-2)" }} />
-          <p style={{ margin: "0 0 18px" }}>Your cart is empty.</p>
+        <header className="page-header"><span className="eyebrow">Cart</span><h1>Your cart</h1></header>
+        <div className="emptybox">
+          <Cart />
+          <div className="m">Your cart is empty</div>
+          <div className="s">Browse the catalog to add equipment to your order.</div>
           <Link className="btn btn-primary" href="/products">Browse equipment <ArrowRight /></Link>
         </div>
       </div>
@@ -55,6 +56,14 @@ export default function CartView() {
 
         <div className="summary">
           <h2>Order summary</h2>
+          {subtotal > 0 && subtotal < 999 ? (
+            <div className="freight-nudge">
+              Add <b>{money(999 - subtotal)}</b> more for free freight
+              <span className="fbar"><i style={{ width: `${Math.min(100, (subtotal / 999) * 100)}%` }} /></span>
+            </div>
+          ) : subtotal >= 999 ? (
+            <div className="freight-nudge met">✓ You’ve unlocked free freight</div>
+          ) : null}
           <div className="line"><span>Subtotal ({count} item{count > 1 ? "s" : ""})</span><b>{money(subtotal)}</b></div>
           <div className="line"><span>Freight {subtotal >= 999 ? "(free over $999)" : ""}</span><b>{freight ? money(freight) : "FREE"}</b></div>
           <div className="line"><span>Tax</span><span>Calculated at checkout</span></div>

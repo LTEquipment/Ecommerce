@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
+import { Package } from "@/components/icons";
 
 export const metadata = { title: "Returns & Refunds — L&T" };
 
@@ -11,6 +12,10 @@ export default function ReturnsPage() {
       eyebrow="Policy"
       intro="Our return policy for stocked commercial equipment and smallwares."
     >
+      <div className="callout">
+        <Package />
+        <p><strong>30-day returns</strong> on new, unused stock items in original packaging. Custom-built equipment is final sale.</p>
+      </div>
       <h2>Return window</h2>
       <p>
         Stock items in new, unused, resalable condition may be returned within <strong>30 days</strong> of
@@ -43,7 +48,7 @@ export default function ReturnsPage() {
         Call <a href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a> or email{" "}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> with your order number to request an RMA.
       </p>
-      <p className="muted">Policy shown for a concept build.</p>
+      <p className="doc-note">Policy shown for a concept build.</p>
     </PageShell>
   );
 }

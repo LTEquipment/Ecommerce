@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
+import { Truck } from "@/components/icons";
 
 export const metadata = { title: "Shipping & Freight — L&T" };
 
@@ -11,6 +12,10 @@ export default function ShippingPage() {
       eyebrow="Delivery"
       intro="How L&T gets heavy commercial equipment to your door — fast, palletized and inspected."
     >
+      <div className="callout">
+        <Truck />
+        <p><strong>Free freight on every order over $999.</strong> In-stock equipment ships in 24–48 hours from New York.</p>
+      </div>
       <h2>Freight rates</h2>
       <ul>
         <li><strong>Free freight</strong> on orders over $999 (contiguous U.S.).</li>
@@ -38,7 +43,7 @@ export default function ShippingPage() {
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>. Sign in to{" "}
         <Link href="/account">your account</Link> to track an order.
       </p>
-      <p className="muted">Freight rates and lead times are estimates for a concept build.</p>
+      <p className="doc-note">Freight rates and lead times are estimates for a concept build.</p>
     </PageShell>
   );
 }

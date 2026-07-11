@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
+import { Shield } from "@/components/icons";
 
 export const metadata = { title: "Warranty & Parts — L&T" };
 
@@ -11,6 +12,10 @@ export default function WarrantyPage() {
       eyebrow="Support"
       intro="Every Panda® unit is line-tested and backed by a warranty, with parts and service from our New York factory."
     >
+      <div className="callout">
+        <Shield />
+        <p><strong>One-year parts &amp; labor warranty</strong> on Panda®-built equipment, with parts and service direct from our factory.</p>
+      </div>
       <h2>Coverage</h2>
       <p>
         Panda®-manufactured equipment carries a <strong>one-year parts and labor warranty</strong> against
@@ -42,7 +47,7 @@ export default function WarrantyPage() {
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> with your model number and order details.
         See our <Link href="/locations">locations</Link> for in-person service.
       </p>
-      <p className="muted">Warranty terms shown for a concept build.</p>
+      <p className="doc-note">Warranty terms shown for a concept build.</p>
     </PageShell>
   );
 }

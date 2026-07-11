@@ -18,11 +18,11 @@ export default async function CategoryPage({ params }: { params: { id: string } 
     <>
       <div className="wrap">
         <Breadcrumbs items={[{ label: "Departments", href: "/products" }, { label: cat.name }]} />
-        <div className="page-head">
+        <header className="page-header">
           <span className="eyebrow">{cat.count}</span>
           <h1>{cat.name}</h1>
           <p>{cat.blurb}</p>
-        </div>
+        </header>
       </div>
       <Catalog categories={categories} products={products} title="" lockedCat={cat.id} />
     </>

@@ -46,7 +46,7 @@ export default function PrivacyPage() {
       <p>
         {COMPANY.legalName}, {COMPANY.hqAddress}. Questions? <Link href="/contact">Contact us</Link>.
       </p>
-      <p className="muted">This policy is provided for a concept build and is not legal advice.</p>
+      <p className="doc-note">This policy is provided for a concept build and is not legal advice.</p>
     </PageShell>
   );
 }

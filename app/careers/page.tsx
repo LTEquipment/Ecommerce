@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY } from "@/lib/company";
+import { MapPin } from "@/components/icons";
 
 export const metadata = { title: "Careers — L&T" };
 
@@ -26,13 +27,15 @@ export default function CareersPage() {
       </p>
 
       <h2>Open teams</h2>
-      <ul>
+      <div className="rolegrid">
         {ROLES.map((r) => (
-          <li key={r.team}>
-            <strong>{r.team}</strong> — {r.roles} · <span className="muted">{r.loc}</span>
-          </li>
+          <div className="rolecard" key={r.team}>
+            <h3>{r.team}</h3>
+            <p className="roles">{r.roles}</p>
+            <span className="rloc"><MapPin /> {r.loc}</span>
+          </div>
         ))}
-      </ul>
+      </div>
 
       <h2>Apply</h2>
       <p>
