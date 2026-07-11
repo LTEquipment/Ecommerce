@@ -272,8 +272,9 @@ footer{background:var(--white);border-top:1px solid var(--line);padding:var(--s6
 .ir-callout .btn:hover{background:var(--panel-2)}
 .ir-callout .btn svg{width:15px;height:15px}
 
-.foot-grid{display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr 1fr 1fr;gap:var(--s5);padding-bottom:var(--s5)}
-.foot-brand{max-width:280px}
+.foot-grid{display:grid;grid-template-columns:1fr 1.618fr;gap:var(--s6);padding-bottom:var(--s5);align-items:start}
+.foot-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s4)}
+.foot-brand{max-width:32ch}
 footer .brand-logo{height:48px;width:52px;background:url(/logo-mark.png) left center/contain no-repeat}
 .foot-brand .brand{display:block;line-height:0;margin-bottom:16px}
 footer .fabout{color:var(--muted);font-size:13.5px;margin:14px 0 16px;line-height:1.6}
@@ -784,8 +785,9 @@ footer .fphone a:hover{color:var(--red)}
   .band .wrap{grid-template-columns:1fr;gap:var(--s5);padding:var(--s6) var(--s4)}
   .pdp,.cartpage,.checkout,.account,.contact-grid{grid-template-columns:1fr;gap:var(--s5)}
   .summary,.facets{position:static}
-  .foot-grid{grid-template-columns:1.4fr 1fr 1fr 1fr;gap:var(--s5)}
-  .foot-brand{grid-column:1/-1;max-width:none;display:flex;flex-direction:column}
+  .foot-grid{grid-template-columns:1fr;gap:var(--s6)}
+  .foot-brand{max-width:none}
+  .foot-nav{grid-template-columns:repeat(3,1fr)}
   .qcta,.brand .wordmark{display:none}
   .ir-callout{padding:var(--s5)}
 }
@@ -798,7 +800,7 @@ footer .fphone a:hover{color:var(--red)}
   .navrow{display:none}
   .trust .wrap{grid-template-columns:repeat(2,1fr)}.trust .t:nth-child(odd){border-left:0}
   .depts{grid-template-columns:repeat(2,1fr)}
-  .foot-grid{grid-template-columns:1fr 1fr}
+  .foot-nav{grid-template-columns:repeat(3,1fr)}
   .filters-toggle{display:inline-flex}
   .facets{display:none;background:var(--white);border:1px solid var(--line);border-radius:var(--rl);padding:18px 20px;margin-bottom:18px}
   .facets.open{display:block}
@@ -810,7 +812,7 @@ footer .fphone a:hover{color:var(--red)}
   .trust .wrap{grid-template-columns:1fr}.trust .t{border-left:0!important;border-bottom:1px solid var(--line)}
   .locations .locgrid{grid-template-columns:1fr}
   .signup .box{padding:var(--s5) var(--s4)}.np{width:100%}.np input{flex:1;width:auto}
-  .foot-grid{grid-template-columns:1fr 1fr}
+  .foot-nav{grid-template-columns:repeat(2,1fr)}
   .topbar .tb-r a:not(:last-child){display:none}
   .card h3{min-height:0}
   section{padding:var(--s5) 0}
