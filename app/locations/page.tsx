@@ -8,13 +8,13 @@ export default function LocationsPage() {
     <>
       <div className="wrap content" style={{ paddingBottom: 0 }}>
         <Breadcrumbs items={[{ label: "Locations" }]} />
-        <div className="lede-head" style={{ marginBottom: 0 }}>
+        <header className="page-header" style={{ marginBottom: 0 }}>
           <span className="eyebrow">Visit or call</span>
           <h1>Showrooms &amp; factory across New York.</h1>
           <p>See the equipment in person, or call the line for spec support and contract pricing.</p>
-        </div>
+        </header>
       </div>
-      <Locations hideHead />
+      <Locations hideHead split />
     </>
   );
 }

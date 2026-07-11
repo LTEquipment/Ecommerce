@@ -6,7 +6,7 @@ import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
-import { Check, ArrowRight, Shield } from "./icons";
+import { Check, ArrowRight, Shield, Cart } from "./icons";
 
 const STEPS = ["Contact", "Shipping", "Payment", "Review"];
 
@@ -96,9 +96,11 @@ export default function CheckoutFlow() {
   if (items.length === 0) {
     return (
       <div className="wrap">
-        <div className="page-head"><h1>Checkout</h1></div>
-        <div className="empty" style={{ background: "var(--white)", border: "1px solid var(--line)", borderRadius: "var(--rl)" }}>
-          <p style={{ margin: "0 0 18px" }}>Your cart is empty.</p>
+        <header className="page-header"><span className="eyebrow">Checkout</span><h1>Checkout</h1></header>
+        <div className="emptybox">
+          <Cart />
+          <div className="m">Your cart is empty</div>
+          <div className="s">Add equipment to your cart before checking out.</div>
           <Link className="btn btn-primary" href="/products">Browse equipment <ArrowRight /></Link>
         </div>
       </div>
@@ -118,7 +120,8 @@ export default function CheckoutFlow() {
           <div className="steps">
             {STEPS.map((s, i) => (
               <div key={s} className={`step${i === step ? " on" : i < step ? " done" : ""}`}>
-                {i + 1}. {s}
+                <span className="num">{i < step ? <Check /> : i + 1}</span>
+                {s}
               </div>
             ))}
           </div>
@@ -197,6 +200,21 @@ export default function CheckoutFlow() {
 
         <div className="summary">
           <h2>Summary</h2>
+          <div className="sum-items">
+            {items.map(({ product: p, qty }) => (
+              <div className="sum-item" key={p.sku}>
+                <span className="th">{p.images[0] ? <img src={p.images[0]} alt="" /> : null}</span>
+                <span className="nm">{p.name}<span className="qn"> · Qty {qty}</span></span>
+                <span className="lp">{money(p.price * qty)}</span>
+              </div>
+            ))}
+          </div>
+          {subtotal < 999 && (
+            <div className="freight-nudge">
+              Add <b>{money(999 - subtotal)}</b> more for free freight
+              <span className="fbar"><i style={{ width: `${Math.min(100, (subtotal / 999) * 100)}%` }} /></span>
+            </div>
+          )}
           <div className="line"><span>Subtotal ({count})</span><b>{money(subtotal)}</b></div>
           <div className="line"><span>Freight</span><b>{freight ? money(freight) : "FREE"}</b></div>
           <div className="line"><span>Tax (est.)</span><b>{money(tax)}</b></div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "./AuthProvider";
+import { Check } from "./icons";
 
 export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   const { signIn, signUp, configured } = useAuth();
@@ -40,6 +41,16 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
 
   return (
     <div className="auth">
+      <aside className="brandside">
+        <span className="eyebrow">Trade accounts</span>
+        <h2>{mode === "login" ? "Welcome back to L&T." : "Equip your kitchen with trade pricing."}</h2>
+        <ul>
+          <li><Check /> Contract &amp; volume pricing across the full Panda® line</li>
+          <li><Check /> Order history and fast reorder</li>
+          <li><Check /> 0% APR financing for approved accounts</li>
+          <li><Check /> NSF · CSA · ETL-certified equipment</li>
+        </ul>
+      </aside>
       <div className="card">
         <h1>{mode === "login" ? "Sign in" : "Create trade account"}</h1>
         <p className="sub">

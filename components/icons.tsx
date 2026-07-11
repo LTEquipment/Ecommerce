@@ -70,6 +70,9 @@ export const Phone = (p: P) => (
 export const Mail = (p: P) => (
   <svg {...base} strokeWidth={1.8} {...p}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
 );
+export const Clock = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+);
 export const TrendingUp = (p: P) => (
   <svg {...base} strokeWidth={1.9} {...p}><path d="M3 17l6-6 4 4 8-8" /><path d="M17 7h4v4" /></svg>
 );

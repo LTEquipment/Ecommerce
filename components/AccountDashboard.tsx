@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "./AuthProvider";
+import { useStore } from "./StoreProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
-import { LogOut } from "./icons";
+import { LogOut, Package } from "./icons";
 
 type Order = {
   id: string;
@@ -18,6 +19,7 @@ type Order = {
 
 export default function AccountDashboard() {
   const { user, loading, configured, displayName, signOut } = useAuth();
+  const { toast } = useStore();
   const router = useRouter();
   const params = useSearchParams();
   const tab = params.get("tab") === "orders" ? "orders" : "profile";
@@ -76,37 +78,49 @@ export default function AccountDashboard() {
       <div className="account">
         <h1>Your account</h1>
         <aside className="acct-side">
-          <div className="who"><b>{displayName}</b><span>{user.email}</span></div>
+          <div className="who">
+            <span className="ava">{displayName?.[0]?.toUpperCase() || "L"}</span>
+            <div style={{ minWidth: 0 }}><b>{displayName}</b><span>{user.email}</span></div>
+          </div>
           <nav>
             <button className={tab === "profile" ? "on" : ""} onClick={() => router.push("/account")}>Profile</button>
             <button className={tab === "orders" ? "on" : ""} onClick={() => router.push("/account?tab=orders")}>
-              Orders <span>{orders?.length ?? "·"}</span>
+              <span>Orders</span><span className="cnt">{orders?.length ?? "·"}</span>
             </button>
-            <button onClick={() => { signOut(); router.push("/"); }}><span style={{ display: "flex", gap: 8, alignItems: "center" }}><LogOut style={{ width: 16, height: 16 }} /> Sign out</span></button>
+            <button className="signout" onClick={() => { signOut(); router.push("/"); }}>
+              <span style={{ display: "flex", gap: 8, alignItems: "center" }}><LogOut style={{ width: 16, height: 16 }} /> Sign out</span>
+            </button>
           </nav>
         </aside>
 
         <div className="acct-main">
           {tab === "profile" ? (
             <div className="panel">
-              <h2 style={{ marginTop: 0 }}>Profile</h2>
-              <div className="field"><label>Company / kitchen</label><input defaultValue={displayName} /></div>
-              <div className="field"><label>Email</label><input defaultValue={user.email} disabled /></div>
-              <p style={{ fontSize: 13, color: "var(--muted)" }}>Contract pricing and multi-unit billing are set up by your account manager — <Link href="/contact" style={{ color: "var(--red)", fontWeight: 600 }}>get in touch</Link>.</p>
+              <div className="panel-head"><h2>Profile</h2><button className="btn btn-primary" onClick={() => toast("Profile saved.")}>Save changes</button></div>
+              <div className="field-row">
+                <div className="field"><label>Company / kitchen</label><input defaultValue={displayName} /></div>
+                <div className="field"><label>Email</label><input defaultValue={user.email} disabled /></div>
+              </div>
+              <p className="note">Contract pricing and multi-unit billing are set up by your account manager — <Link href="/contact" style={{ color: "var(--red)", fontWeight: 600 }}>get in touch</Link>.</p>
             </div>
           ) : (
             <div className="panel">
-              <h2 style={{ marginTop: 0 }}>Orders</h2>
+              <div className="panel-head"><h2>Orders</h2></div>
               {orders === null ? (
-                <p style={{ color: "var(--muted)" }}>Loading orders…</p>
+                <div>{[0, 1, 2].map((i) => <div key={i} className="skel skel-order" />)}</div>
               ) : orders.length === 0 ? (
-                <p style={{ color: "var(--muted)" }}>No orders yet. <Link href="/products" style={{ color: "var(--red)", fontWeight: 600 }}>Start shopping</Link>.</p>
+                <div className="emptybox">
+                  <Package />
+                  <div className="m">No orders yet</div>
+                  <div className="s">Orders you place will appear here with live status.</div>
+                  <Link className="btn btn-primary" href="/products">Start shopping</Link>
+                </div>
               ) : (
                 orders.map((o) => (
                   <div className="order" key={o.id}>
                     <div className="oh">
                       <span>#{o.id.slice(0, 8)} · {new Date(o.created_at).toLocaleDateString()}</span>
-                      <span className="ostatus">{o.status}</span>
+                      <span className={`ostatus ${o.status}`}>{o.status}</span>
                     </div>
                     <div style={{ fontSize: 13.5, color: "var(--ink-2)" }}>
                       {(o.order_items ?? []).map((it, i) => (

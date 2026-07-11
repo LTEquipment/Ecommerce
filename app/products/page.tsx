@@ -11,11 +11,11 @@ export default async function ProductsPage() {
     <>
       <div className="wrap">
         <Breadcrumbs items={[{ label: "All equipment" }]} />
-        <div className="page-head">
+        <header className="page-header">
           <span className="eyebrow">The full line</span>
           <h1>All equipment</h1>
           <p>Every Panda® range, steamer, roaster, cooler and smallware — filter by department, price and availability.</p>
-        </div>
+        </header>
       </div>
       <Catalog categories={categories} products={products} title="" />
     </>

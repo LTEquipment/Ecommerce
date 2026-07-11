@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
+import { Card } from "@/components/icons";
 
 export const metadata = { title: "Trade Accounts & Financing — L&T" };
 
@@ -11,6 +12,10 @@ export default function FinancingPage() {
       eyebrow="Ordering"
       intro="Open a trade account for contract pricing, terms and financing built for multi-unit operators."
     >
+      <div className="callout">
+        <Card />
+        <p><strong>0% APR financing</strong> for approved trade accounts, plus contract pricing across the full Panda® line.</p>
+      </div>
       <h2>Trade accounts</h2>
       <ul>
         <li>Contract and volume pricing across the full Panda® line.</li>
@@ -38,7 +43,7 @@ export default function FinancingPage() {
         Call <a href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a> or email{" "}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
       </p>
-      <p className="muted">Financing subject to credit approval. Illustrative for a concept build.</p>
+      <p className="doc-note">Financing subject to credit approval. Illustrative for a concept build.</p>
     </PageShell>
   );
 }
