@@ -23,7 +23,7 @@ export default function PageShell({
   return (
     <div className="wrap content">
       <Breadcrumbs items={[{ label: title }]} />
-      <PageHeader eyebrow={eyebrow} title={title} intro={intro} />
+      <PageHeader eyebrow={eyebrow} title={title} intro={intro} meta={null} />
       <div className="doc">
         <article className="prose">{children}</article>
         <aside className="doc-aside">{aside ?? <HelpAside sections={sections} />}</aside>
