@@ -33,4 +33,16 @@ export const BRAND = {
     "Tao Group", "Quanjude", "Meizhou Dongpo", "Little Sheep Hot Pot",
     "Nan Xiang Xiao Long Bao", "Szechuan Mountain House", "Resort World", "Spice World",
   ],
+  team: [
+    { name: "Jeremy Pan", role: "Creative Director", region: "Brooklyn, NY" },
+    { name: "Minny Zhang", role: "Director of Operations", region: "Manhattan, NY" },
+    { name: "Leo Ma", role: "Director of Productions", region: "Brooklyn, NY" },
+    { name: "Robert Bradlow", role: "Senior Business Consultant", region: "Manhattan, NY" },
+  ],
+  milestones: [
+    { year: "2024", text: "Exhibited at the National Restaurant Association Show — new Panda® automation." },
+    { year: "2024", text: "Launched the OptiSpace interchangeable multipurpose cooker line." },
+    { year: "2023", text: "Opened a 20,000+ sq ft manufacturing & storage facility in Brooklyn." },
+    { year: "2022", text: "Debuted the AI Commercial Cooking Robot and auto stir-fry machines." },
+  ],
 };
