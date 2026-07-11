@@ -7,7 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPaths = [
     "", "/products", "/about", "/locations", "/contact", "/investors",
     "/faq", "/shipping", "/returns", "/warranty", "/financing", "/careers",
-    "/privacy", "/terms", "/login", "/register", "/cart",
+    "/privacy", "/terms", "/cookies", "/accessibility", "/login", "/register", "/cart",
   ];
 
   const staticEntries: MetadataRoute.Sitemap = staticPaths.map((p) => ({
