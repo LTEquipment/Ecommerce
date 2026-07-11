@@ -41,6 +41,16 @@ create policy "create tickets" on service_tickets for insert with check (auth.ui
 drop policy if exists "admins update tickets" on service_tickets;
 create policy "admins update tickets" on service_tickets for update using (public.is_admin());
 
--- Live status updates
-alter publication supabase_realtime add table warranty_claims;
-alter publication supabase_realtime add table service_tickets;
+-- Live status updates (idempotent — ADD TABLE errors if already a member)
+do $$
+declare t text;
+begin
+  foreach t in array array['warranty_claims','service_tickets'] loop
+    if not exists (
+      select 1 from pg_publication_tables
+      where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+    ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;
