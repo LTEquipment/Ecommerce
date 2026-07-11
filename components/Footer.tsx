@@ -87,25 +87,32 @@ export default function Footer() {
         </div>
 
         <div className="foot-bot">
-          <div className="fb-left">
-            <span>© 2026 {COMPANY.legalName} — concept build</span>
-            <span className="foot-legal">
-              <Link href="/privacy">Privacy</Link>
-              <Link href="/terms">Terms</Link>
-            </span>
+          <div className="fb-legal">
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Use</Link>
+            <Link href="/cookies">Cookie Policy</Link>
+            <Link href="/accessibility">Accessibility</Link>
+            <Link href="/investors">Investor Relations</Link>
+            <a href="/sitemap.xml">Sitemap</a>
           </div>
-          <div className="socials" aria-label="Follow L&T">
-            {SOCIALS.map((s, i) => {
-              const Icon = SOCIAL_ICON[s.name];
-              return (
-                <Fragment key={s.name}>
-                  {i === 4 && <span className="soc-div" aria-hidden="true" />}
-                  <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name}>
-                    <Icon />
-                  </a>
-                </Fragment>
-              );
-            })}
+          <div className="fb-base">
+            <div className="fb-copy">
+              <span>© 2026 {COMPANY.legalName} All rights reserved.</span>
+              <span className="fb-certs">NSF · CSA · ETL Listed · Designed &amp; made in New York</span>
+            </div>
+            <div className="socials" aria-label="Follow L&T">
+              {SOCIALS.map((s, i) => {
+                const Icon = SOCIAL_ICON[s.name];
+                return (
+                  <Fragment key={s.name}>
+                    {i === 4 && <span className="soc-div" aria-hidden="true" />}
+                    <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name}>
+                      <Icon />
+                    </a>
+                  </Fragment>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
