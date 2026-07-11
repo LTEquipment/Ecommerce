@@ -9,6 +9,7 @@ import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import Toast from "@/components/Toast";
+import CookieConsent from "@/components/CookieConsent";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
             <CartDrawer />
             <Toast />
+            <CookieConsent />
           </StoreProvider>
         </AuthProvider>
       </body>

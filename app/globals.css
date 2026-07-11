@@ -302,7 +302,28 @@ footer .fphone a:hover{color:var(--red)}
 .fb-legal{display:flex;flex-wrap:wrap;gap:9px 20px;font-size:12.5px}
 .fb-legal a{color:var(--ink-2);font-weight:500;position:relative}
 .fb-legal a:hover{color:var(--red)}
-.fb-legal a:not(:last-child)::after{content:"";position:absolute;right:-11px;top:3px;bottom:3px;width:1px;background:var(--line)}
+.fb-legal a:not(:last-child)::after,.fb-legal button:not(:last-child)::after{content:"";position:absolute;right:-11px;top:3px;bottom:3px;width:1px;background:var(--line)}
+.fb-legal button{color:var(--ink-2);font-weight:500;position:relative;background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.fb-legal button:hover{color:var(--red)}
+
+/* cookie consent banner */
+.cookie{position:fixed;left:0;right:0;bottom:0;z-index:85;background:var(--white);border-top:1px solid var(--line);box-shadow:0 -10px 34px -20px rgba(17,19,22,.4)}
+.cookie-inner{max-width:var(--maxw);margin:0 auto;padding:var(--s4);display:flex;align-items:center;justify-content:space-between;gap:var(--s5);flex-wrap:wrap}
+.cookie-txt{flex:1;min-width:280px;max-width:66ch}
+.cookie-txt>b{font-size:15px;display:block;margin-bottom:3px;color:var(--ink)}
+.cookie-txt p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0}
+.cookie-txt a{color:var(--red);font-weight:600}
+.cookie-actions{display:flex;gap:10px;flex-wrap:wrap;flex:0 0 auto}
+.cookie-actions .btn{white-space:nowrap;padding:10px 16px;font-size:13.5px}
+.cookie-prefs{flex:1;min-width:280px}
+.cookie-prefs>b{font-size:15px;display:block;margin-bottom:6px;color:var(--ink)}
+.cookie-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.cookie-row span{display:flex;flex-direction:column;gap:2px}
+.cookie-row b{font-size:13.5px;color:var(--ink);font-weight:600}
+.cookie-row em{font-style:normal;font-size:12px;color:var(--muted);line-height:1.45}
+.cookie-row input{width:18px;height:18px;accent-color:var(--red);margin-top:2px;flex:0 0 auto;cursor:pointer}
+.cookie-row input:disabled{cursor:not-allowed;opacity:.6}
+@media(max-width:640px){.cookie-inner{flex-direction:column;align-items:stretch}.cookie-actions{justify-content:stretch}.cookie-actions .btn{flex:1}}
 .fb-base{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-top:var(--s4);border-top:1px solid var(--line)}
 .fb-copy{display:flex;flex-direction:column;gap:3px}
 .fb-copy span:first-child{color:var(--ink-2);font-weight:500}
