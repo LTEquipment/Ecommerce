@@ -57,7 +57,7 @@ export default function Footer() {
           </div>
           <div className="fcol">
             <h5>Ordering</h5>
-            <Link href="/register">Trade accounts</Link>
+            <Link href="/login?mode=register&trade=1">Trade accounts</Link>
             <Link href="/financing">Financing &amp; pricing</Link>
             <Link href="/shipping">Shipping &amp; freight</Link>
             <Link href="/returns">Returns</Link>
@@ -105,6 +105,7 @@ export default function Footer() {
               <span className="fb-certs">NSF · CSA · ETL Listed · Designed &amp; made in New York</span>
             </div>
             <div className="socials" aria-label="Follow L&T">
+              <span className="soc-label">Follow us</span>
               {SOCIALS.map((s, i) => {
                 const Icon = SOCIAL_ICON[s.name];
                 return (

@@ -22,7 +22,7 @@ export default function FinancingPage() {
         <li>Order history, saved carts and faster checkout.</li>
         <li>A dedicated account manager for spec support and custom builds.</li>
       </ul>
-      <p><Link href="/register">Open a trade account →</Link></p>
+      <p><Link href="/login?mode=register&trade=1">Open a trade account →</Link></p>
 
       <h2>Financing</h2>
       <p>

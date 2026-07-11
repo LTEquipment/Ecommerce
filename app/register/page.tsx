@@ -1,12 +1,5 @@
-import { Suspense } from "react";
-import AuthForm from "@/components/AuthForm";
-
-export const metadata = { title: "Create account — L&T" };
+import { redirect } from "next/navigation";
 
 export default function RegisterPage() {
-  return (
-    <Suspense fallback={<div className="auth"><div className="card">Loading…</div></div>}>
-      <AuthForm mode="register" />
-    </Suspense>
-  );
+  redirect("/login");
 }

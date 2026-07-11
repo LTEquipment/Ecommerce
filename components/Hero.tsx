@@ -33,7 +33,7 @@ export default function Hero() {
           <Link className="btn btn-primary btn-lg" href="/products">
             Shop all equipment <ArrowRight />
           </Link>
-          <Link className="btn btn-line-light btn-lg" href="/register">
+          <Link className="btn btn-line-light btn-lg" href="/login?mode=register&trade=1">
             Open a trade account
           </Link>
         </div>

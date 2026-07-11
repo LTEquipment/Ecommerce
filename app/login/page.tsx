@@ -6,7 +6,7 @@ export const metadata = { title: "Sign in — L&T" };
 export default function LoginPage() {
   return (
     <Suspense fallback={<div className="auth"><div className="card">Loading…</div></div>}>
-      <AuthForm mode="login" />
+      <AuthForm />
     </Suspense>
   );
 }

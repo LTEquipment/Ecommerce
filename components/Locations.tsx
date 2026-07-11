@@ -1,5 +1,6 @@
 import { COMPANY, telHref, type Location } from "@/lib/company";
 import { ArrowRight } from "./icons";
+import LocationsMap from "./LocationsMap";
 
 function LocCard({ l }: { l: Location }) {
   const isHq = /HQ|Factory/i.test(l.kind);
@@ -36,12 +37,7 @@ export default function Locations({
               ))}
             </div>
             <div className="loc-map">
-              <iframe
-                src={`https://www.google.com/maps?q=${encodeURIComponent(COMPANY.hqAddress)}&output=embed`}
-                title="L&T Restaurant Equipment — headquarters"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+              <LocationsMap />
             </div>
           </div>
         </div>
@@ -65,6 +61,7 @@ export default function Locations({
             <LocCard l={l} key={l.name + l.address} />
           ))}
         </div>
+        <LocationsMap />
       </div>
     </section>
   );

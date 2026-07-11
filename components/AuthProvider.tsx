@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { getBrowserSupabase, supabaseConfigured } from "@/lib/supabase/browser";
+import type { AccountRole, DealerStatus } from "@/lib/roles";
 
 type Result = { error?: string; needsConfirm?: boolean };
 
@@ -20,9 +21,12 @@ type Auth = {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  role: AccountRole;
+  dealerStatus: DealerStatus;
+  isDealer: boolean; // dealer AND approved — safe to show contract pricing
   displayName: string;
   signIn: (email: string, password: string) => Promise<Result>;
-  signUp: (email: string, password: string, company?: string) => Promise<Result>;
+  signUp: (email: string, password: string, company?: string, isTrade?: boolean) => Promise<Result>;
   signOut: () => Promise<void>;
 };
 
@@ -76,13 +80,20 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(
-    async (email: string, password: string, company?: string): Promise<Result> => {
+    async (email: string, password: string, company?: string, isTrade = false): Promise<Result> => {
       const supabase = getBrowserSupabase();
       if (!supabase) return { error: NOT_CONFIGURED };
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { company: company ?? "" } },
+        options: {
+          data: {
+            company: company ?? "",
+            role: isTrade ? "dealer" : "customer",
+            // Trade accounts start pending L&T review; pricing unlocks on approval.
+            dealer_status: isTrade ? "pending" : null,
+          },
+        },
       });
       if (error) return { error: error.message };
       // If email confirmation is on, there is no active session yet.
@@ -106,12 +117,19 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return user.email?.split("@")[0] ?? "Account";
   }, [user]);
 
+  const role = ((user?.user_metadata?.role as AccountRole) || "customer");
+  const dealerStatus = ((user?.user_metadata?.dealer_status as DealerStatus) ?? null);
+  const isDealer = role === "dealer" && dealerStatus === "approved";
+
   const value: Auth = {
     configured: supabaseConfigured,
     loading,
     user,
     session,
     isAdmin,
+    role,
+    dealerStatus,
+    isDealer,
     displayName,
     signIn,
     signUp,
