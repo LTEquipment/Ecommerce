@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import { useLiveProduct } from "@/lib/useLiveProducts";
+import { recordView } from "@/lib/recentlyViewed";
 import { money } from "@/lib/format";
 import { COMPANY, telHref } from "@/lib/company";
 import { ILLUS } from "@/lib/illus";
@@ -17,6 +18,8 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
   const [qty, setQty] = useState(1);
   const inStock = p.stock === "in";
   const specs = Object.entries(p.specs);
+
+  useEffect(() => { recordView(initial); }, [initial.slug]);
 
   return (
     <div className="wrap">

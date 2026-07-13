@@ -1404,3 +1404,9 @@ body.scrolled > header{box-shadow:0 6px 22px -14px rgba(17,19,22,.42)}
 
 /* keyboard focus rings (a11y) — interactive elements only; inputs keep their own focus border */
 a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:3px}
+
+/* recently viewed strip */
+.recently{border-top:1px solid var(--line);margin-top:var(--s6);padding-top:var(--s2)}
+.recently .sec-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
+.recently-clear{font-size:12.5px;font-weight:600;color:var(--muted)}
+.recently-clear:hover{color:var(--red)}
