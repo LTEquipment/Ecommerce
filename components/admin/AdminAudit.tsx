@@ -7,7 +7,12 @@ import { FileText } from "../icons";
 type Entry = { id: string; actor_email: string | null; action: string; target: string | null; detail: string | null; created_at: string };
 
 const LABEL: Record<string, string> = {
+  "product.create": "Product",
   "product.update": "Product",
+  "product.delete": "Product",
+  "category.create": "Category",
+  "category.update": "Category",
+  "category.delete": "Category",
   "order.status": "Order",
   "claim.status": "Warranty",
   "ticket.status": "Ticket",
@@ -17,8 +22,8 @@ const LABEL: Record<string, string> = {
   "admin.revoke": "Admin",
 };
 function tone(a: string) {
-  if (a === "admin.grant" || a === "dealer.approve") return "ok";
-  if (a === "admin.revoke" || a === "dealer.reject") return "mut";
+  if (a === "admin.grant" || a === "dealer.approve" || a === "product.create" || a === "category.create") return "ok";
+  if (a === "admin.revoke" || a === "dealer.reject" || a === "product.delete" || a === "category.delete") return "mut";
   return "info";
 }
 
