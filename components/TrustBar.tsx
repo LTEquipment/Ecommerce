@@ -21,8 +21,8 @@ export default function TrustBar() {
         <div className="t">
           <Card />
           <div>
-            <div className="tt">0% APR financing</div>
-            <div className="ts">For approved trade accounts</div>
+            <div className="tt">Buy now, pay later</div>
+            <div className="ts">Monthly payments with Affirm</div>
           </div>
         </div>
         <div className="t">
@@ -36,3 +36,4 @@ export default function TrustBar() {
     </div>
   );
 }
+
