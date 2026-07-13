@@ -37,13 +37,6 @@ export default function Hero() {
             Open a trade account
           </Link>
         </div>
-        <div className="vhero-meta">
-          <span><b>40+</b> years made in New York</span>
-          <span className="dot" />
-          <span><b>NSF · CSA · ETL</b> listed</span>
-          <span className="dot" />
-          <span>Ships in <b>24–48h</b></span>
-        </div>
       </div>
       <a className="vhero-scroll" href="#catalog" aria-label="Scroll to catalog">
         <span />
