@@ -33,6 +33,7 @@ function rowToProduct(r: any): Product {
     was: r.was_price != null ? Number(r.was_price) : undefined,
     images: r.images ?? [],
     specs: r.specs ?? {},
+    documents: Array.isArray(r.documents) ? r.documents : [],
     description: r.description ?? undefined,
     brand: r.brand ?? undefined,
     rating: Number(r.rating ?? 4.7),

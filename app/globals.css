@@ -1432,16 +1432,29 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
 .lightbox-thumbs button.on,.lightbox-thumbs button:hover{opacity:1;border-color:#fff}
 .lightbox-thumbs img{width:100%;height:100%;object-fit:contain}
 
-/* PDP resources & downloads */
-.resources{border-top:1px solid var(--line);margin-top:var(--s6);padding-top:var(--s5)}
-.resources .sec-head{margin-bottom:var(--s4)}
-.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:var(--s3)}
-.res-card{display:flex;align-items:center;gap:13px;padding:14px 16px;background:var(--white);border:1px solid var(--line);border-radius:var(--rl);text-align:left;width:100%;transition:border-color var(--ease),box-shadow var(--ease)}
-.res-card:hover{border-color:var(--line-2);box-shadow:var(--shadow)}
-.res-ic{flex:0 0 auto;width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);color:var(--red)}
-.res-ic svg{width:20px;height:20px}
-.res-txt{display:flex;flex-direction:column;gap:1px;min-width:0}
-.res-txt b{font-size:14px;font-weight:600;color:var(--ink)}
-.res-txt span{font-size:12px;color:var(--muted)}
-.res-note{font-size:13px;color:var(--muted);margin:var(--s4) 0 0;line-height:1.5}
-.res-note a{color:var(--red);font-weight:600}
+/* PDP resources panel (in the spec aside) */
+.spec-aside{display:flex;flex-direction:column}
+.aside-block h3{font-family:var(--disp);font-size:16px;margin:0 0 10px}
+.aside-help{border-top:1px solid var(--line);margin-top:var(--s4);padding-top:var(--s4)}
+.res-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.res-row{display:flex;align-items:center;gap:11px;padding:9px 11px;border:1px solid var(--line);border-radius:var(--r);background:var(--white);text-align:left;width:100%;transition:border-color var(--ease),box-shadow var(--ease)}
+.res-row:hover{border-color:var(--line-2);box-shadow:var(--shadow)}
+.res-row-ic{flex:0 0 auto;width:34px;height:34px;display:grid;place-items:center;border-radius:6px;background:var(--paper);color:var(--red)}
+.res-row-ic svg{width:17px;height:17px}
+.res-row-txt{display:flex;flex-direction:column;min-width:0}
+.res-row-txt b{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res-row-txt span{font-size:11px;color:var(--muted)}
+.res-panel-note{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+.res-panel-note a{color:var(--red);font-weight:600}
+
+/* admin — product documents editor */
+.pe-docs{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.pe-doc-row{display:grid;grid-template-columns:1fr 1.2fr 34px;gap:8px;align-items:center}
+.pe-doc-row input{border:1.5px solid var(--line-2);border-radius:var(--r);padding:8px 10px;font-size:13px;background:var(--white);width:100%;font-family:inherit}
+.pe-doc-row input:focus{outline:0;border-color:var(--red)}
+.pe-doc-file{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pe-doc-file:hover{color:var(--red)}
+.pe-doc-presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
+.pe-preset{font-size:12px;font-weight:600;color:var(--ink-2);border:1.5px solid var(--line-2);border-radius:999px;padding:6px 12px;background:var(--white);transition:all var(--ease)}
+.pe-preset:hover{border-color:var(--ink);color:var(--ink)}
+.pe-preset:disabled{opacity:.5}

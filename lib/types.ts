@@ -2,6 +2,9 @@ export type ArtKey =
   | "range" | "fridge" | "fryer" | "table" | "rice"
   | "wok" | "lamp" | "sink" | "oven" | "rack";
 
+/** A downloadable product document. */
+export type ProductDoc = { label: string; url: string };
+
 export type Category = {
   id: string;
   name: string;
@@ -29,6 +32,8 @@ export type Product = {
   images: string[];
   /** Key → value spec sheet */
   specs: Record<string, string>;
+  /** Downloadable documents (manuals, warranty, brochures…) — admin-managed */
+  documents?: ProductDoc[];
   description?: string;
   /** Manufacturer / brand, e.g. "Panda®", "Dukers" */
   brand?: string;

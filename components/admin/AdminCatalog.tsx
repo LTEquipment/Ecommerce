@@ -17,7 +17,7 @@ function rowToProduct(r: any): ProductRow {
     slug: r.slug, sku: r.sku, name: r.name, category_id: r.category_id ?? null,
     art: r.art ?? "range", brand: r.brand ?? "", description: r.description ?? "",
     price: Number(r.price), was_price: r.was_price != null ? Number(r.was_price) : null,
-    images: r.images ?? [], specs: r.specs ?? {}, rating: Number(r.rating ?? 4.7), reviews: r.reviews ?? 0,
+    images: r.images ?? [], specs: r.specs ?? {}, documents: Array.isArray(r.documents) ? r.documents : [], rating: Number(r.rating ?? 4.7), reviews: r.reviews ?? 0,
     badge: r.badge ?? "", stock: r.stock ?? "in",
     stock_qty: r.stock_qty ?? 0, low_stock: r.low_stock ?? 5, sort: r.sort ?? 0,
   };
