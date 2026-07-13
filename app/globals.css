@@ -194,9 +194,6 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 .hero-cta{display:flex;gap:var(--s3);flex-wrap:wrap;align-items:center;justify-content:center}
 .btn-line-light{border:1.5px solid rgba(255,255,255,.42);color:#fff;background:rgba(255,255,255,.05)}
 .btn-line-light:hover{border-color:#fff;background:rgba(255,255,255,.12)}
-.vhero-meta{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:var(--s5);font-size:13.5px;color:rgba(255,255,255,.72)}
-.vhero-meta b{color:#fff;font-weight:700}
-.vhero-meta .dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.35)}
 .vhero-scroll{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:2;width:26px;height:42px;
   border:1.5px solid rgba(255,255,255,.4);border-radius:14px;display:grid;justify-items:center;padding-top:8px}
 .vhero-scroll span{width:3px;height:8px;border-radius:2px;background:rgba(255,255,255,.7);animation:scrolldot 1.6s infinite}
