@@ -207,7 +207,7 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 
 .trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--white)}
 .trust .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
-.trust .t{display:flex;align-items:center;justify-content:center;gap:14px;padding:var(--s5) 10px}
+.trust .t{display:flex;align-items:center;justify-content:flex-start;gap:14px;padding:var(--s5) var(--s4)}
 .trust .t + .t{border-left:1px solid var(--line)}
 .trust .t svg{width:27px;height:27px;color:var(--ink);flex:0 0 auto}
 .trust .tt{font-weight:600;font-size:15px}
