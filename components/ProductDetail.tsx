@@ -8,7 +8,7 @@ import { recordView } from "@/lib/recentlyViewed";
 import { money } from "@/lib/format";
 import { COMPANY, telHref } from "@/lib/company";
 import { ILLUS } from "@/lib/illus";
-import { Star, Plus, Truck, Shield, Card, Search, Close } from "./icons";
+import { Star, Plus, Truck, Shield, Card, Search, Close, FileText } from "./icons";
 import type { Product } from "@/lib/types";
 
 export default function ProductDetail({ p: initial }: { p: Product }) {
@@ -27,6 +27,33 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
   const onMove = (e: React.MouseEvent<HTMLElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     setOrigin(`${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`);
+  };
+
+  // Generate a real, printable spec sheet (print-to-PDF) from the product data.
+  const printSpecSheet = () => {
+    const esc = (s: unknown) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c] as string));
+    const rows = Object.entries(p.specs).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join("");
+    const win = window.open("", "_blank", "width=820,height=1040");
+    if (!win) return;
+    win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(p.sku)} — Spec Sheet</title><style>
+      *{box-sizing:border-box} body{font-family:Inter,-apple-system,system-ui,sans-serif;color:#17191C;margin:44px;font-size:13px;line-height:1.5}
+      .hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #17191C;padding-bottom:16px}
+      .co{font-weight:800;font-size:16px;letter-spacing:-.01em} .co-sub{color:#6C737A;font-size:11px;margin-top:2px}
+      .doc{text-align:right;font-size:11px;color:#6C737A;text-transform:uppercase;letter-spacing:.08em}
+      .brand{color:#BE1E2D;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;margin-top:22px}
+      h1{font-size:23px;margin:3px 0 2px;letter-spacing:-.02em} .sku{color:#6C737A} .price{font-size:22px;font-weight:800;margin-top:14px}
+      table{width:100%;border-collapse:collapse;margin-top:20px} td{padding:9px 11px;border-bottom:1px solid #E2E5E8}
+      td:first-child{color:#6C737A;width:42%} .cert{margin-top:26px;padding-top:14px;border-top:1px solid #E2E5E8;color:#6C737A;font-size:11px}
+      @media print{body{margin:24px}}
+    </style></head><body>
+      <div class="hdr"><div><div class="co">L&amp;T Restaurant Equipment</div><div class="co-sub">Panda® · Designed &amp; built in New York · ltfse.com · (917) 204-1697</div></div><div class="doc">Spec Sheet<br>${new Date().toLocaleDateString()}</div></div>
+      <div class="brand">${esc(p.brand || "Panda®")}</div><h1>${esc(p.name)}</h1><div class="sku">Model ${esc(p.sku)}</div><div class="price">${esc(money(p.price))}</div>
+      ${rows ? `<table>${rows}</table>` : ""}
+      <div class="cert">NSF · CSA · ETL listed · Line-tested warranty · Palletized freight nationwide</div>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 350);
   };
 
   useEffect(() => { recordView(initial); }, [initial.slug]);
@@ -136,6 +163,33 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
           </div>
         </div>
       )}
+
+      <section className="resources">
+        <div className="sec-head"><h2>Resources &amp; downloads</h2></div>
+        <div className="res-grid">
+          <button type="button" className="res-card" onClick={printSpecSheet}>
+            <span className="res-ic"><FileText /></span>
+            <span className="res-txt"><b>Spec sheet</b><span>PDF · print or save</span></span>
+          </button>
+          <a className="res-card" href="/warranty">
+            <span className="res-ic"><Shield /></span>
+            <span className="res-txt"><b>Warranty &amp; parts</b><span>Coverage &amp; service</span></span>
+          </a>
+          <a className="res-card" href="/financing">
+            <span className="res-ic"><Card /></span>
+            <span className="res-txt"><b>Financing &amp; terms</b><span>0% APR options</span></span>
+          </a>
+          <a className="res-card" href="/shipping">
+            <span className="res-ic"><Truck /></span>
+            <span className="res-txt"><b>Freight &amp; delivery</b><span>Palletized shipping</span></span>
+          </a>
+          <a className="res-card" href={`/contact?ref=${encodeURIComponent(p.sku)}`}>
+            <span className="res-ic"><FileText /></span>
+            <span className="res-txt"><b>Manuals &amp; CAD</b><span>On request</span></span>
+          </a>
+        </div>
+        <p className="res-note">Installation manuals, CAD drawings and submittal sheets for {p.sku} are available on request — <a href={`/contact?ref=${encodeURIComponent(p.sku)}`}>ask our New York team</a>.</p>
+      </section>
 
       {lightbox && p.images[active] && (
         <div className="lightbox" role="dialog" aria-modal="true" aria-label={p.name} onClick={() => setLightbox(false)}>
