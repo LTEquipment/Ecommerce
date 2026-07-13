@@ -32,7 +32,7 @@ export default function Signup() {
       <div className="wrap">
         <div className="box">
           <div>
-            <h3>Restock alerts &amp; contract pricing</h3>
+            <h3>Subscribe to our newsletter</h3>
             <p>New arrivals, clearance and volume price breaks — sent weekly.</p>
           </div>
           <form className="np" onSubmit={submit}>

@@ -31,8 +31,10 @@ export default function LocationsMap() {
       });
       mapRef.current = map;
 
-      // CARTO Positron: a clean, light, low-colour basemap that matches the site.
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      // CARTO Positron (label-free): a clean, low-colour basemap. Labels are
+      // dropped so the map reads as a calm monochrome atlas (CSS desaturates the
+      // tiles) and the branded pins carry the only colour — the list names each site.
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
         subdomains: "abcd",
         maxZoom: 20,
       }).addTo(map);
