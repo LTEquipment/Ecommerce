@@ -1,5 +1,15 @@
 import { BRAND } from "@/lib/brand";
 
+// Certification marks. The images live in /public/certs — replace those SVGs
+// with the OFFICIAL logo files from each body's brand portal (NSF, CSA Group,
+// Intertek ETL, Energy Star). The layout picks them up automatically.
+const CERTS = [
+  { key: "nsf", name: "NSF/ANSI 4", sub: "Sanitation certified" },
+  { key: "csa", name: "CSA Approved", sub: "Gas & electrical safety" },
+  { key: "etl", name: "ETL Listed", sub: "Intertek verified" },
+  { key: "energy-star", name: "Energy Star", sub: "On qualifying models" },
+];
+
 export default function Band() {
   return (
     <div className="band">
@@ -25,22 +35,13 @@ export default function Band() {
         <div className="certs">
           <div className="ct">Every product, certified &amp; listed</div>
           <div className="certgrid">
-            <div className="cert">
-              <div className="cbadge">NSF</div>
-              <div><div className="cn">NSF/ANSI 4</div><div className="cs">Sanitation certified</div></div>
-            </div>
-            <div className="cert">
-              <div className="cbadge">CSA</div>
-              <div><div className="cn">CSA Approved</div><div className="cs">Gas &amp; electrical safety</div></div>
-            </div>
-            <div className="cert">
-              <div className="cbadge">ETL</div>
-              <div><div className="cn">ETL Listed</div><div className="cs">Intertek verified</div></div>
-            </div>
-            <div className="cert">
-              <div className="cbadge" style={{ fontSize: 9 }}>E★</div>
-              <div><div className="cn">Energy Star</div><div className="cs">On qualifying models</div></div>
-            </div>
+            {CERTS.map((c) => (
+              <div className="cert" key={c.key}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="clogo" src={`/certs/${c.key}.svg`} alt={`${c.name} — ${c.sub}`} width={52} height={25} />
+                <div><div className="cn">{c.name}</div><div className="cs">{c.sub}</div></div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
