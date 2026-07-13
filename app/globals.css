@@ -1391,7 +1391,7 @@ footer .fphone a:hover{color:var(--red)}
 [id]{scroll-margin-top:calc(var(--header-h) + 12px)}
 
 /* scroll-progress bar + scroll-condensed header shadow */
-#scroll-progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--red);z-index:100;transition:width .12s linear;pointer-events:none}
+#scroll-progress{position:fixed;top:0;left:0;height:3px;width:100%;transform:scaleX(0);transform-origin:0 50%;background:var(--red);z-index:100;pointer-events:none;will-change:transform}
 body.scrolled > header{box-shadow:0 6px 22px -14px rgba(17,19,22,.42)}
 
 /* reveal-on-scroll (added by SiteFx; only present when motion is allowed) */

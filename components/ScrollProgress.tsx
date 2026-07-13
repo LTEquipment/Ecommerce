@@ -6,19 +6,28 @@ import { useEffect } from "react";
 export default function ScrollProgress() {
   useEffect(() => {
     const bar = document.getElementById("scroll-progress");
-    const onScroll = () => {
-      const h = document.documentElement;
-      const max = h.scrollHeight - h.clientHeight;
-      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
-      if (bar) bar.style.width = pct + "%";
-      document.body.classList.toggle("scrolled", h.scrollTop > 8);
+    let raf = 0;
+
+    const update = () => {
+      raf = 0;
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      const y = window.scrollY || doc.scrollTop;
+      const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+      // scaleX is GPU-composited — tracks scroll 1:1 with no layout/paint lag.
+      if (bar) bar.style.transform = `scaleX(${p})`;
+      document.body.classList.toggle("scrolled", y > 8);
     };
-    onScroll();
+
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
