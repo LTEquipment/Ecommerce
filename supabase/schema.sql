@@ -185,6 +185,23 @@ create policy "create tickets" on service_tickets for insert with check (auth.ui
 drop policy if exists "admins update tickets" on service_tickets;
 create policy "admins update tickets" on service_tickets for update using (public.is_admin());
 
+-- ---------- Audit log (admin actions) ----------
+create table if not exists audit_log (
+  id          uuid primary key default gen_random_uuid(),
+  actor_id    uuid references auth.users(id) on delete set null,
+  actor_email text,
+  action      text not null,
+  target      text,
+  detail      text,
+  created_at  timestamptz not null default now()
+);
+create index if not exists audit_log_created_idx on audit_log (created_at desc);
+alter table audit_log enable row level security;
+drop policy if exists "admins read audit" on audit_log;
+create policy "admins read audit" on audit_log for select using (public.is_admin());
+drop policy if exists "admins write audit" on audit_log;
+create policy "admins write audit" on audit_log for insert with check (public.is_admin());
+
 -- ============================================================
 -- Realtime: broadcast catalog + order changes to subscribed clients
 -- ============================================================
@@ -193,7 +210,7 @@ create policy "admins update tickets" on service_tickets for update using (publi
 do $$
 declare t text;
 begin
-  foreach t in array array['products','orders','warranty_claims','service_tickets'] loop
+  foreach t in array array['products','orders','warranty_claims','service_tickets','audit_log'] loop
     if not exists (
       select 1 from pg_publication_tables
       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
