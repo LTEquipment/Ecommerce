@@ -3,6 +3,7 @@ import { getProduct, getRelated, getCategory } from "@/lib/catalog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductDetail from "@/components/ProductDetail";
 import RelatedProducts from "@/components/RelatedProducts";
+import RecentlyViewed from "@/components/RecentlyViewed";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       </div>
       <ProductDetail p={p} />
       <RelatedProducts products={related} />
+      <RecentlyViewed excludeSlug={p.slug} />
     </>
   );
 }
