@@ -14,8 +14,9 @@ export default function ScrollProgress() {
       const max = doc.scrollHeight - doc.clientHeight;
       const y = window.scrollY || doc.scrollTop;
       const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
-      // scaleX is GPU-composited — tracks scroll 1:1 with no layout/paint lag.
-      if (bar) bar.style.transform = `scaleX(${p})`;
+      // Plain width (no transform layer, no transition) — one crisp line,
+      // updated per-frame via rAF so it still tracks scroll 1:1.
+      if (bar) bar.style.width = `${(p * 100).toFixed(2)}%`;
       document.body.classList.toggle("scrolled", y > 8);
     };
 
