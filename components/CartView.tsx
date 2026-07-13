@@ -34,7 +34,7 @@ export default function CartView() {
             {items.map(({ product: p, qty: q }) => (
               <div className="cart-line" key={p.sku}>
                 <Link href={`/products/${p.slug}`} className="thumb">
-                  {p.images[0] ? <img src={p.images[0]} alt={p.name} /> : <span dangerouslySetInnerHTML={{ __html: ILLUS[p.art] }} />}
+                  {p.images[0] ? <img src={p.images[0]} alt={p.name} loading="lazy" decoding="async" /> : <span dangerouslySetInnerHTML={{ __html: ILLUS[p.art] }} />}
                 </Link>
                 <div className="cl-main">
                   <div className="cl-sku">Model {p.sku}</div>

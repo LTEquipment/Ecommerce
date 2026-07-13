@@ -278,7 +278,7 @@ export default function AccountDashboard() {
       <div className="account">
         <aside className="acct-side">
           <div className="who">
-            <span className="ava">{avatarUrl ? <img src={avatarUrl} alt="" /> : initial}</span>
+            <span className="ava">{avatarUrl ? <img src={avatarUrl} alt="" loading="lazy" decoding="async" /> : initial}</span>
             <div style={{ minWidth: 0 }}><b>{displayName}</b><span>{whoSub}</span></div>
           </div>
           <nav>
@@ -310,7 +310,7 @@ export default function AccountDashboard() {
                 <section className="prof-col">
                   <h3 className="prof-h">Profile</h3>
                   <div className="prof-id">
-                    <span className="prof-ava">{avatarUrl ? <img src={avatarUrl} alt="" /> : initial}</span>
+                    <span className="prof-ava">{avatarUrl ? <img src={avatarUrl} alt="" loading="lazy" decoding="async" /> : initial}</span>
                     <div style={{ minWidth: 0 }}>
                       <label className="prof-photo">
                         {uploading ? "Uploading…" : "Change photo"}
