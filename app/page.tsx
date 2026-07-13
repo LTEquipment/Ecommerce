@@ -4,6 +4,7 @@ import TrustBar from "@/components/TrustBar";
 import Departments from "@/components/Departments";
 import Catalog from "@/components/Catalog";
 import Band from "@/components/Band";
+import Customers from "@/components/Customers";
 import Locations from "@/components/Locations";
 import Signup from "@/components/Signup";
 
@@ -18,6 +19,7 @@ export default async function Home() {
       <Departments categories={categories} />
       <Catalog categories={categories} products={products} anchor="catalog" />
       <Band />
+      <Customers />
       <Locations />
       <Signup />
     </>
