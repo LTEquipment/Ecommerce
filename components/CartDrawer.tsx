@@ -41,7 +41,7 @@ export default function CartDrawer() {
               <div className="ditem" key={p.sku}>
                 <Link href={`/products/${p.slug}`} className="thumb" onClick={closeCart}>
                   {p.images[0] ? (
-                    <img src={p.images[0]} alt={p.name} />
+                    <img src={p.images[0]} alt={p.name} loading="lazy" decoding="async" />
                   ) : (
                     <span dangerouslySetInnerHTML={{ __html: ILLUS[p.art] }} />
                   )}

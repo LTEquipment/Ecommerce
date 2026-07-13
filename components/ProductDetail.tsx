@@ -38,7 +38,7 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
                   onClick={() => setActive(i)}
                   aria-label={`Image ${i + 1}`}
                 >
-                  <img src={src} alt="" />
+                  <img src={src} alt="" loading="lazy" decoding="async" />
                 </button>
               ))}
             </div>
