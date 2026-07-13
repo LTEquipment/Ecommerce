@@ -31,7 +31,7 @@ export default function SiteFx() {
         entries.forEach((e) => {
           if (e.isIntersecting) { e.target.classList.add("in"); io!.unobserve(e.target); }
         });
-      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.04 });
+      }, { rootMargin: "0px 0px 12% 0px", threshold: 0 }); // fire slightly early so fast scrolls never show a blank
       document.querySelectorAll("main section, main .band").forEach((el) => {
         const top = el.getBoundingClientRect().top;
         if (top < window.innerHeight * 0.92) el.classList.add("reveal", "in"); // already visible → no motion, no flicker
