@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import Toast from "@/components/Toast";
 import CookieConsent from "@/components/CookieConsent";
+import SiteChrome from "@/components/SiteChrome";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -55,14 +56,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <StoreProvider>
-            <TopBar />
-            <Header />
-            <MobileNav />
+            <SiteChrome>
+              <TopBar />
+              <Header />
+              <MobileNav />
+            </SiteChrome>
             <main>{children}</main>
-            <Footer />
-            <CartDrawer />
+            <SiteChrome>
+              <Footer />
+              <CartDrawer />
+              <CookieConsent />
+            </SiteChrome>
             <Toast />
-            <CookieConsent />
           </StoreProvider>
         </AuthProvider>
       </body>
