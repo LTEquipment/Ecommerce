@@ -10,10 +10,12 @@ type Tab = "catalog" | "orders" | "customers" | "service" | "inbox";
 type Data = {
   revenue: number; orders: number; products: number; inStock: number; customers: number;
   dealers: number; pendingDealers: number; openClaims: number; openTickets: number;
+  invEnabled: boolean; lowStock: number; outOfStock: number;
   revTrend: { label: string; value: number }[];
   orderStatus: { label: string; value: number; color: string }[];
   categories: { label: string; value: number }[];
   stock: { label: string; value: number; color: string }[];
+  lowList: { name: string; sku: string; qty: number; out: boolean }[];
   recentOrders: { created_at: string; status: string; total: number }[];
 };
 
@@ -25,7 +27,7 @@ export default function AdminAnalytics({ go }: { go: (t: Tab) => void }) {
     if (!sb) return;
     (async () => {
       const [prodRes, catRes, orderRes, claimRes, ticketRes, custRes] = await Promise.all([
-        sb.from("products").select("category_id, price, stock"),
+        sb.from("products").select("*"),
         sb.from("categories").select("id, name"),
         sb.from("orders").select("total, status, created_at").order("created_at", { ascending: false }),
         sb.from("warranty_claims").select("status"),
@@ -62,6 +64,20 @@ export default function AdminAnalytics({ go }: { go: (t: Tab) => void }) {
 
       const inStock = products.filter((p) => p.stock === "in").length;
 
+      // Inventory — only when the stock_qty column exists (migration run).
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      const invEnabled = products.length > 0 && "stock_qty" in (products[0] as object);
+      const qtyOf = (p: any) => Number(p.stock_qty ?? 0);
+      const lowOf = (p: any) => Number(p.low_stock ?? 5);
+      const lowList = invEnabled
+        ? products.filter((p) => qtyOf(p) <= lowOf(p))
+            .map((p) => ({ name: p.name as string, sku: p.sku as string, qty: qtyOf(p), out: qtyOf(p) <= 0 }))
+            .sort((a, b) => a.qty - b.qty)
+        : [];
+      /* eslint-enable @typescript-eslint/no-explicit-any */
+      const outOfStock = lowList.filter((x) => x.out).length;
+      const lowStock = lowList.length - outOfStock;
+
       setD({
         revenue: orders.reduce((a, o) => a + Number(o.total || 0), 0),
         orders: orders.length,
@@ -72,6 +88,7 @@ export default function AdminAnalytics({ go }: { go: (t: Tab) => void }) {
         pendingDealers: customers.filter((c) => c.dealerStatus === "pending").length,
         openClaims: (claimRes.data ?? []).filter((c: { status: string }) => !["resolved", "rejected"].includes(c.status)).length,
         openTickets: (ticketRes.data ?? []).filter((t: { status: string }) => !["resolved", "closed"].includes(t.status)).length,
+        invEnabled, lowStock, outOfStock, lowList,
         revTrend: buckets.map(({ label, value }) => ({ label, value })),
         orderStatus: [
           { label: "Submitted", value: sc.submitted || 0, color: "#BA7517" },
@@ -81,10 +98,16 @@ export default function AdminAnalytics({ go }: { go: (t: Tab) => void }) {
           { label: "Cancelled", value: sc.cancelled || 0, color: "#888780" },
         ],
         categories: cats.map((c) => ({ label: c.name, value: catCount[c.id] || 0 })).filter((c) => c.value > 0).sort((a, b) => b.value - a.value),
-        stock: [
-          { label: "In stock", value: inStock, color: "#17191C" },
-          { label: "Backorder", value: products.length - inStock, color: "#BE1E2D" },
-        ],
+        stock: invEnabled
+          ? [
+              { label: "Healthy", value: products.length - lowStock - outOfStock, color: "#17191C" },
+              { label: "Low", value: lowStock, color: "#BA7517" },
+              { label: "Out", value: outOfStock, color: "#BE1E2D" },
+            ]
+          : [
+              { label: "In stock", value: inStock, color: "#17191C" },
+              { label: "Backorder", value: products.length - inStock, color: "#BE1E2D" },
+            ],
         recentOrders: orders.slice(0, 6),
       });
     })();
@@ -97,6 +120,7 @@ export default function AdminAnalytics({ go }: { go: (t: Tab) => void }) {
     { label: "Orders", value: String(d.orders), tab: "orders" },
     { label: "Customers", value: String(d.customers), sub: `${d.dealers} dealers`, tab: "customers" },
     { label: "Products", value: String(d.products), sub: `${d.inStock} in stock`, tab: "catalog" },
+    ...(d.invEnabled ? [{ label: "Low stock", value: String(d.lowStock + d.outOfStock), sub: `${d.outOfStock} out · ${d.lowStock} low`, hot: d.lowStock + d.outOfStock > 0, tab: "catalog" as Tab }] : []),
     { label: "Open service", value: String(d.openClaims + d.openTickets), sub: `${d.openClaims} claims · ${d.openTickets} tickets`, hot: d.openClaims + d.openTickets > 0, tab: "service" },
     { label: "Trade requests", value: String(d.pendingDealers), sub: "pending review", hot: d.pendingDealers > 0, tab: "customers" },
   ];
@@ -127,6 +151,23 @@ export default function AdminAnalytics({ go }: { go: (t: Tab) => void }) {
           <Donut segments={d.stock} centerValue={String(d.products)} centerLabel="SKUs" />
         </ChartCard>
       </div>
+
+      {d.invEnabled && d.lowList.length > 0 && (
+        <>
+          <div className="admin-sec-head" style={{ marginTop: "var(--s5)" }}>
+            <h2 className="admin-h">Low &amp; out of stock <span className="admin-count">{d.lowList.length}</span></h2>
+            <button className="admin-link-btn" onClick={() => go("catalog")}>Manage inventory →</button>
+          </div>
+          <div className="sub-list">
+            {d.lowList.slice(0, 8).map((x, i) => (
+              <div className="sub-row" key={i}>
+                <span>{x.name} <span className="mut-sku">{x.sku}</span></span>
+                <span className={`pill ${x.out ? "mut" : "warn"}`}>{x.out ? "Out of stock" : `${x.qty} left`}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className="admin-sec-head" style={{ marginTop: "var(--s5)" }}><h2 className="admin-h">Recent orders</h2></div>
       {d.recentOrders.length === 0 ? (

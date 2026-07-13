@@ -31,6 +31,15 @@ export const Plus = (p: P) => (
 export const Close = (p: P) => (
   <svg {...base} {...p}><path d="M6 6l12 12M18 6 6 18" /></svg>
 );
+export const Pencil = (p: P) => (
+  <svg {...base} strokeWidth={1.9} {...p}><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z" /><path d="M14 7l3 3" /></svg>
+);
+export const Trash = (p: P) => (
+  <svg {...base} strokeWidth={1.9} {...p}><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M7 7l1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12" /></svg>
+);
+export const Image = (p: P) => (
+  <svg {...base} strokeWidth={1.9} {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9.5" r="1.5" /><path d="M4 17l4.5-4.5a2 2 0 0 1 2.8 0L20 21" /></svg>
+);
 export const Filter = (p: P) => (
   <svg {...base} {...p}><path d="M4 6h16M7 12h10M10 18h4" /></svg>
 );
