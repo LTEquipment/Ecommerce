@@ -7,7 +7,7 @@ import { useStore } from "../StoreProvider";
 import { useAuth } from "../AuthProvider";
 import { money } from "@/lib/format";
 import { Close, Plus, Trash, Image as ImageIcon, Star } from "../icons";
-import type { ArtKey } from "@/lib/types";
+import type { ArtKey, ProductDoc } from "@/lib/types";
 
 export type ProductRow = {
   slug: string;
@@ -21,6 +21,7 @@ export type ProductRow = {
   was_price: number | null;
   images: string[];
   specs: Record<string, string>;
+  documents: ProductDoc[];
   rating: number;
   reviews: number;
   badge: string;
@@ -33,11 +34,12 @@ export type ProductRow = {
 export type CatOption = { id: string; name: string };
 
 const ART_KEYS: ArtKey[] = ["range", "fridge", "fryer", "table", "rice", "wok", "lamp", "sink", "oven", "rack"];
+const DOC_PRESETS = ["Spec sheet", "Manual", "Warranty", "Elevation chart", "Brochure", "Compatibility"];
 
 export function emptyProduct(sort = 0): ProductRow {
   return {
     slug: "", sku: "", name: "", category_id: null, art: "range", brand: "", description: "",
-    price: 0, was_price: null, images: [], specs: {}, rating: 4.7, reviews: 0,
+    price: 0, was_price: null, images: [], specs: {}, documents: [], rating: 4.7, reviews: 0,
     badge: "", stock: "in", stock_qty: 0, low_stock: 5, sort,
   };
 }
@@ -60,6 +62,9 @@ export default function ProductEditor({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const docRef = useRef<HTMLInputElement>(null);
+  const [pendingLabel, setPendingLabel] = useState("");
+  const [docUploading, setDocUploading] = useState(false);
 
   const set = <K extends keyof ProductRow>(k: K, v: ProductRow[K]) => setP((prev) => ({ ...prev, [k]: v }));
 
@@ -98,6 +103,31 @@ export default function ProductEditor({
   const removeImg = (i: number) => set("images", p.images.filter((_, j) => j !== i));
   const makePrimary = (i: number) => set("images", [p.images[i], ...p.images.filter((_, j) => j !== i)]);
 
+  // Documents
+  const pickDoc = (label: string) => { setPendingLabel(label); docRef.current?.click(); };
+  const onDocPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    setDocUploading(true);
+    const fd = new FormData();
+    fd.append("file", f);
+    fd.append("slug", p.slug || p.sku || "misc");
+    const res = await fetch("/api/admin/product-doc", { method: "POST", body: fd });
+    const json = await res.json().catch(() => ({}));
+    setDocUploading(false);
+    if (!res.ok) { toast(json.error || "Upload failed"); return; }
+    set("documents", [...(p.documents ?? []), { label: pendingLabel || f.name.replace(/\.[^.]+$/, ""), url: json.url as string }]);
+    setPendingLabel("");
+  };
+  const editDocLabel = (i: number, label: string) => set("documents", (p.documents ?? []).map((x, j) => (j === i ? { ...x, label } : x)));
+  const removeDoc = (i: number) => set("documents", (p.documents ?? []).filter((_, j) => j !== i));
+  const addDocUrl = () => {
+    const label = window.prompt("Document label (e.g. Manual):"); if (!label) return;
+    const url = window.prompt("Document URL:"); if (!url) return;
+    set("documents", [...(p.documents ?? []), { label: label.trim(), url: url.trim() }]);
+  };
+
   const save = async () => {
     const sb = getBrowserSupabase();
     if (!sb) return toast("Backend not connected");
@@ -112,7 +142,7 @@ export default function ProductEditor({
       slug, sku: p.sku.trim(), name: p.name.trim(), category_id: p.category_id || null,
       art: p.art || "range", brand: p.brand?.trim() || null, description: p.description?.trim() || null,
       price: Number(p.price), was_price: p.was_price != null && p.was_price !== 0 ? Number(p.was_price) : null,
-      images: p.images, specs: specObj, rating: Number(p.rating) || 4.7, reviews: Number(p.reviews) || 0,
+      images: p.images, specs: specObj, documents: p.documents ?? [], rating: Number(p.rating) || 4.7, reviews: Number(p.reviews) || 0,
       badge: p.badge || "", stock: p.stock || "in", stock_qty: Number(p.stock_qty) || 0,
       low_stock: Number(p.low_stock) || 0, sort: Number(p.sort) || 0,
     };
@@ -125,13 +155,14 @@ export default function ProductEditor({
 
     if (error) {
       // stock_qty/low_stock columns may not exist yet (migration not run) — retry without them.
-      if (/stock_qty|low_stock|column/.test(error.message)) {
+      if (/stock_qty|low_stock|documents|column/.test(error.message)) {
         const safe = { ...row } as Record<string, unknown>;
         delete safe.stock_qty;
         delete safe.low_stock;
+        delete safe.documents;
         const retry = isNew ? await sb.from("products").insert(safe) : await sb.from("products").update(safe).eq("slug", slug);
         if (retry.error) return toast(retry.error.message.includes("duplicate") ? "That slug already exists — pick another." : retry.error.message);
-        toast("Saved — run the inventory migration to enable stock quantities.");
+        toast("Saved — run the migrations to enable stock quantities & documents.");
       } else {
         return toast(error.message.includes("duplicate") ? "That slug already exists — pick another." : error.message);
       }
@@ -240,6 +271,31 @@ export default function ProductEditor({
             </div>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPick} />
             <button className="pe-link" onClick={addUrl}>+ Add by URL / path</button>
+          </section>
+
+          {/* Documents */}
+          <section className="pe-sec">
+            <h3>Documents <span className="pe-note">PDFs &amp; downloads shown on the product page</span></h3>
+            {(p.documents ?? []).length > 0 && (
+              <div className="pe-docs">
+                {(p.documents ?? []).map((d, i) => (
+                  <div className="pe-doc-row" key={i}>
+                    <input value={d.label} onChange={(e) => editDocLabel(i, e.target.value)} placeholder="Label" />
+                    <a className="pe-doc-file" href={d.url} target="_blank" rel="noreferrer" title={d.url}>{d.url.split("/").pop()}</a>
+                    <button className="pe-spec-x" onClick={() => removeDoc(i)} aria-label="Remove document"><Close /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="pe-doc-presets">
+              {DOC_PRESETS.map((label) => (
+                <button key={label} type="button" className="pe-preset" disabled={docUploading} onClick={() => pickDoc(label)}>+ {label}</button>
+              ))}
+              <button type="button" className="pe-preset" disabled={docUploading} onClick={() => pickDoc("")}>+ Other</button>
+            </div>
+            <input ref={docRef} type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,application/pdf,image/*" hidden onChange={onDocPick} />
+            <button className="pe-link" onClick={addDocUrl}>+ Add by URL</button>
+            {docUploading && <span className="pe-hint" style={{ marginLeft: 10 }}>Uploading…</span>}
           </section>
 
           {/* Specs */}

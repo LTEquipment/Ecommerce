@@ -156,40 +156,31 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
             ))}
           </div>
           <div className="spec-aside">
-            <h3>Need a hand speccing this?</h3>
-            <p>Our New York team can confirm dimensions, gas type, freight and custom options for your kitchen.</p>
-            <a className="btn btn-line btn-block" href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a>
-            <div className="certline"><span>NSF</span><span>CSA</span><span>ETL</span></div>
+            <div className="aside-block">
+              <h3>Resources &amp; downloads</h3>
+              <div className="res-list">
+                <button type="button" className="res-row" onClick={printSpecSheet}>
+                  <span className="res-row-ic"><FileText /></span>
+                  <span className="res-row-txt"><b>Spec sheet</b><span>Print or save PDF</span></span>
+                </button>
+                {(p.documents ?? []).map((d, i) => (
+                  <a key={i} className="res-row" href={d.url} target="_blank" rel="noreferrer">
+                    <span className="res-row-ic"><FileText /></span>
+                    <span className="res-row-txt"><b>{d.label}</b><span>Download</span></span>
+                  </a>
+                ))}
+              </div>
+              <p className="res-panel-note">Need a manual, CAD or submittal we don&apos;t list? <a href={`/contact?ref=${encodeURIComponent(p.sku)}`}>Request it →</a></p>
+            </div>
+            <div className="aside-block aside-help">
+              <h3>Need a hand speccing this?</h3>
+              <p>Our New York team can confirm dimensions, gas type, freight and custom options for your kitchen.</p>
+              <a className="btn btn-line btn-block" href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a>
+              <div className="certline"><span>NSF</span><span>CSA</span><span>ETL</span></div>
+            </div>
           </div>
         </div>
       )}
-
-      <section className="resources">
-        <div className="sec-head"><h2>Resources &amp; downloads</h2></div>
-        <div className="res-grid">
-          <button type="button" className="res-card" onClick={printSpecSheet}>
-            <span className="res-ic"><FileText /></span>
-            <span className="res-txt"><b>Spec sheet</b><span>PDF · print or save</span></span>
-          </button>
-          <a className="res-card" href="/warranty">
-            <span className="res-ic"><Shield /></span>
-            <span className="res-txt"><b>Warranty &amp; parts</b><span>Coverage &amp; service</span></span>
-          </a>
-          <a className="res-card" href="/financing">
-            <span className="res-ic"><Card /></span>
-            <span className="res-txt"><b>Financing &amp; terms</b><span>0% APR options</span></span>
-          </a>
-          <a className="res-card" href="/shipping">
-            <span className="res-ic"><Truck /></span>
-            <span className="res-txt"><b>Freight &amp; delivery</b><span>Palletized shipping</span></span>
-          </a>
-          <a className="res-card" href={`/contact?ref=${encodeURIComponent(p.sku)}`}>
-            <span className="res-ic"><FileText /></span>
-            <span className="res-txt"><b>Manuals &amp; CAD</b><span>On request</span></span>
-          </a>
-        </div>
-        <p className="res-note">Installation manuals, CAD drawings and submittal sheets for {p.sku} are available on request — <a href={`/contact?ref=${encodeURIComponent(p.sku)}`}>ask our New York team</a>.</p>
-      </section>
 
       {lightbox && p.images[active] && (
         <div className="lightbox" role="dialog" aria-modal="true" aria-label={p.name} onClick={() => setLightbox(false)}>
