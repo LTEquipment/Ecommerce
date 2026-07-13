@@ -97,6 +97,12 @@ export const XSocial = (p: P) => (
 export const Facebook = (p: P) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.6 4.5-4.6 1.3 0 2.6.2 2.6.2v2.9h-1.5c-1.4 0-1.9.9-1.9 1.8V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0 0 24 12z" /></svg>
 );
+export const Cookie = (p: P) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5z" />
+    <path d="M8.5 8.5v.01M15.5 15.5v.01M11.5 12v.01M10.5 16.5v.01M7 13v.01" />
+  </svg>
+);
 export const Google = (p: P) => (
   <svg viewBox="0 0 24 24" {...p}>
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.19 3.32v2.77h3.54c2.08-1.92 3.29-4.74 3.29-8.1z" />

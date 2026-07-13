@@ -307,16 +307,22 @@ footer .fphone a:hover{color:var(--red)}
 .fb-legal button:hover{color:var(--red)}
 
 /* cookie consent banner */
-.cookie{position:fixed;left:0;right:0;bottom:0;z-index:85;background:var(--white);border-top:1px solid var(--line);box-shadow:0 -10px 34px -20px rgba(17,19,22,.4)}
+.cookie{position:fixed;left:0;right:0;bottom:0;z-index:85;background:var(--white);border-top:2px solid var(--red);box-shadow:0 -12px 40px -18px rgba(17,19,22,.45)}
 .cookie-inner{max-width:var(--maxw);margin:0 auto;padding:var(--s4);display:flex;align-items:center;justify-content:space-between;gap:var(--s5);flex-wrap:wrap}
-.cookie-txt{flex:1;min-width:280px;max-width:66ch}
-.cookie-txt>b{font-size:15px;display:block;margin-bottom:3px;color:var(--ink)}
+.cookie-lead{display:flex;align-items:center;gap:15px;flex:1;min-width:280px}
+.cookie-ic{width:46px;height:46px;border-radius:12px;background:var(--red-tint);color:var(--red);display:grid;place-items:center;flex:0 0 auto}
+.cookie-ic svg{width:23px;height:23px}
+.cookie-txt{min-width:0;max-width:64ch}
+.cookie-txt>b{font-size:15.5px;display:block;margin-bottom:2px;color:var(--ink)}
 .cookie-txt p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0}
 .cookie-txt a{color:var(--red);font-weight:600}
-.cookie-actions{display:flex;gap:10px;flex-wrap:wrap;flex:0 0 auto}
+.cookie-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex:0 0 auto}
 .cookie-actions .btn{white-space:nowrap;padding:10px 16px;font-size:13.5px}
+.cookie-link{background:none;border:0;padding:2px 4px;font:inherit;font-weight:600;font-size:13.5px;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.cookie-link:hover{color:var(--red);text-decoration:underline}
 .cookie-prefs{flex:1;min-width:280px}
-.cookie-prefs>b{font-size:15px;display:block;margin-bottom:6px;color:var(--ink)}
+.cookie-prefs-head{display:flex;align-items:center;gap:13px;margin-bottom:var(--s3)}
+.cookie-prefs-head b{font-size:15.5px;color:var(--ink)}
 .cookie-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
 .cookie-row span{display:flex;flex-direction:column;gap:2px}
 .cookie-row b{font-size:13.5px;color:var(--ink);font-weight:600}

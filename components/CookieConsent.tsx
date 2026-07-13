@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Cookie } from "./icons";
 
 type Prefs = { necessary: true; analytics: boolean; marketing: boolean };
 const KEY = "lt-cookie-consent";
@@ -54,16 +55,18 @@ export default function CookieConsent() {
       <div className="cookie-inner">
         {!managing ? (
           <>
-            <div className="cookie-txt">
-              <b>We value your privacy</b>
-              <p>
-                We use cookies to run the site, remember your cart, and understand how it&apos;s used.
-                You can accept all, reject non-essential, or choose what to allow. See our{" "}
-                <Link href="/cookies">Cookie Policy</Link>.
-              </p>
+            <div className="cookie-lead">
+              <span className="cookie-ic" aria-hidden="true"><Cookie /></span>
+              <div className="cookie-txt">
+                <b>We value your privacy</b>
+                <p>
+                  We use cookies to run the site, remember your cart, and understand how it&apos;s used.
+                  See our <Link href="/cookies">Cookie Policy</Link>.
+                </p>
+              </div>
             </div>
             <div className="cookie-actions">
-              <button className="btn btn-line" onClick={() => setManaging(true)}>Manage preferences</button>
+              <button className="cookie-link" onClick={() => setManaging(true)}>Manage preferences</button>
               <button className="btn btn-line" onClick={rejectAll}>Reject non-essential</button>
               <button className="btn btn-primary" onClick={acceptAll}>Accept all</button>
             </div>
@@ -71,7 +74,10 @@ export default function CookieConsent() {
         ) : (
           <>
             <div className="cookie-prefs">
-              <b>Manage cookie preferences</b>
+              <div className="cookie-prefs-head">
+                <span className="cookie-ic" aria-hidden="true"><Cookie /></span>
+                <b>Manage cookie preferences</b>
+              </div>
               <label className="cookie-row">
                 <span><b>Strictly necessary</b><em>Required to run the site and remember your cart — always on.</em></span>
                 <input type="checkbox" checked disabled aria-label="Strictly necessary (always on)" />
