@@ -19,6 +19,28 @@ function LocCard({ l }: { l: Location }) {
   );
 }
 
+function LocRow({ l, n }: { l: Location; n: number }) {
+  const isHq = /HQ|Factory/i.test(l.kind);
+  const dir = "https://maps.google.com/?q=" + encodeURIComponent(l.address);
+  return (
+    <li className={`locrow${isHq ? " hq" : ""}`}>
+      <span className="locrow-n">{String(n).padStart(2, "0")}</span>
+      <div className="locrow-body">
+        <span className="kind">{l.kind}</span>
+        <h3 className="lname">{l.name}</h3>
+        <p className="laddr">{l.address}</p>
+        <p className="lhours">Mon–Fri 8–6 · Sat 9–2</p>
+        <div className="locrow-actions">
+          <a className="lphone" href={telHref(l.phone)}>{l.phone}</a>
+          <a className="ldir" href={dir} target="_blank" rel="noopener noreferrer">
+            Get directions <ArrowRight />
+          </a>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 export default function Locations({
   hideHead = false,
   split = false,
@@ -49,19 +71,23 @@ export default function Locations({
     <section id="locations" className="locations">
       <div className="wrap">
         {!hideHead && (
-          <div className="sec-head">
+          <div className="sec-head loc-head">
             <div>
               <span className="eyebrow">Visit or call</span>
               <h2>NYC showrooms &amp; factory, one line to call.</h2>
             </div>
           </div>
         )}
-        <div className="locgrid">
-          {COMPANY.locations.map((l) => (
-            <LocCard l={l} key={l.name + l.address} />
-          ))}
+        <div className="loc-atlas">
+          <ol className="loc-list">
+            {COMPANY.locations.map((l, i) => (
+              <LocRow l={l} n={i + 1} key={l.name + l.address} />
+            ))}
+          </ol>
+          <div className="loc-atlas-map">
+            <LocationsMap />
+          </div>
         </div>
-        <LocationsMap />
       </div>
     </section>
   );

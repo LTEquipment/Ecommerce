@@ -12,37 +12,46 @@ const CERTS = [
 
 export default function Band() {
   return (
-    <div className="band">
+    <div className="band band-home">
       <div className="wrap">
-        <div>
+        <div className="band-head">
           <span className="eyebrow">Why operators buy from us</span>
-          <h2>Designed, built and serviced in New York.</h2>
-          <p>{BRAND.story}</p>
-          <p>
-            From the first spec conversation to the end of a product&apos;s lifetime, one account
-            team stays with you — bespoke wok chambers, transparent freight, and volume pricing
-            for multi-unit operators.
-          </p>
-          <div className="stats">
-            {BRAND.stats.map((s) => (
-              <div className="s" key={s.label}>
-                <div className="n">{s.value}</div>
-                <div className="l">{s.label}</div>
-              </div>
-            ))}
+          <div className="band-head-grid">
+            <h2>Designed, built and serviced in New York.</h2>
+            <div className="band-lead">
+              <p>{BRAND.story}</p>
+              <p>
+                From the first spec conversation to the end of a product&apos;s lifetime, one account
+                team stays with you — bespoke wok chambers, transparent freight, and volume pricing
+                for multi-unit operators.
+              </p>
+            </div>
           </div>
         </div>
+
+        <div className="stats">
+          {BRAND.stats.map((s) => (
+            <div className="s" key={s.label}>
+              <div className="n">{s.value}</div>
+              <div className="l">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
         <div className="certs">
           <div className="ct">Every product, certified &amp; listed</div>
-          <div className="certgrid">
+          <ul className="certlist">
             {CERTS.map((c) => (
-              <div className="cert" key={c.key}>
+              <li className="certrow" key={c.key}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="clogo" src={`/certs/${c.key}.svg`} alt={`${c.name} — ${c.sub}`} width={52} height={25} />
-                <div><div className="cn">{c.name}</div><div className="cs">{c.sub}</div></div>
-              </div>
+                <div className="ctext">
+                  <span className="cn">{c.name}</span>
+                  <span className="cs">{c.sub}</span>
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
     </div>
