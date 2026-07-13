@@ -1458,3 +1458,22 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
 .pe-preset{font-size:12px;font-weight:600;color:var(--ink-2);border:1.5px solid var(--line-2);border-radius:999px;padding:6px 12px;background:var(--white);transition:all var(--ease)}
 .pe-preset:hover{border-color:var(--ink);color:var(--ink)}
 .pe-preset:disabled{opacity:.5}
+
+/* ============================================================
+   PDP polish — tidier rhythm, aligned buy row, sticky info
+   ============================================================ */
+.pdp{gap:var(--s5)}
+.gallery .main img{padding:var(--s4)}
+.pinfo{position:sticky;top:var(--sticky-top);align-self:start}
+.pinfo h1{margin:10px 0 6px}
+.pinfo .sku{margin-bottom:16px}
+.pinfo .rate{margin-bottom:18px}
+.pinfo .priced{margin:0 0 8px}
+.pinfo .stock{margin:0 0 22px}
+.pinfo .desc{margin:0 0 24px}
+.buy-row{align-items:center;margin:0}
+.buy-row .btn{flex:1;height:52px;padding-top:0;padding-bottom:0}
+.pinfo .qtybox{height:52px}
+.pinfo .qtybox button{height:52px}
+.pinfo .assurance{margin-top:24px;padding-top:22px}
+@media(max-width:1080px){.pinfo{position:static}}
