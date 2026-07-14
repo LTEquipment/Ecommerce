@@ -100,6 +100,7 @@ export default function Footer() {
             <Link href="/terms">Terms of Use</Link>
             <Link href="/cookies">Cookie Policy</Link>
             <Link href="/accessibility">Accessibility</Link>
+            <Link href="/supply-chain">Supply Chain Transparency</Link>
             <Link href="/investors">Investor Relations</Link>
             <a href="/sitemap.xml">Sitemap</a>
             <CookiePrefsButton />
