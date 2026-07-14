@@ -10,7 +10,6 @@ import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import Toast from "@/components/Toast";
 import CookieConsent from "@/components/CookieConsent";
-import BackToTop from "@/components/BackToTop";
 import ScrollProgress from "@/components/ScrollProgress";
 import SiteFx from "@/components/SiteFx";
 import SiteChrome from "@/components/SiteChrome";
@@ -71,7 +70,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Footer />
               <CartDrawer />
               <CookieConsent />
-              <BackToTop />
             </SiteChrome>
             <Toast />
           </StoreProvider>

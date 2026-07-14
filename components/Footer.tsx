@@ -2,8 +2,9 @@ import Link from "next/link";
 import { Fragment, type SVGProps, type ReactElement } from "react";
 import { COMPANY, SOCIALS, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
-import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu } from "./icons";
+import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu, Phone, Chat } from "./icons";
 import CookiePrefsButton from "./CookiePrefsButton";
+import BackToTop from "./BackToTop";
 
 const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => ReactElement> = {
   TikTok,
@@ -17,6 +18,20 @@ const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => ReactElement> 
 export default function Footer() {
   return (
     <footer>
+      <div className="support-bar">
+        <div className="wrap support-bar-in">
+          <div className="support-info">
+            <span className="support-lead">Our specialists are here to help</span>
+            <a className="support-contact" href={telHref(COMPANY.mainPhone)}>
+              <Phone /> {COMPANY.mainPhone}
+            </a>
+            <Link className="support-contact" href="/contact">
+              <Chat /> Contact us
+            </Link>
+          </div>
+          <BackToTop />
+        </div>
+      </div>
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
