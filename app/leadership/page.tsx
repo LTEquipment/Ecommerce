@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import PageHeader from "@/components/PageHeader";
+import EditorialHero from "@/components/EditorialHero";
 import { BRAND } from "@/lib/brand";
-import { MapPin } from "@/components/icons";
+import { MapPin, ArrowRight } from "@/components/icons";
 
 export const metadata = { title: "Leadership — L&T Restaurant Equipment" };
 
@@ -11,37 +11,44 @@ const initials = (name: string) =>
 
 export default function LeadershipPage() {
   return (
-    <div className="wrap content">
-      <Breadcrumbs items={[{ label: "About", href: "/about" }, { label: "Leadership" }]} />
-      <PageHeader
-        eyebrow="Our team"
+    <>
+      <EditorialHero
+        kicker="Our team"
         title="Leadership"
-        intro="The people building L&T for its next chapter — decades of manufacturing, design and service experience across New York."
-        meta={null}
-      />
+        lede="The people building L&T for its next chapter — decades of manufacturing, design and service experience across New York."
+      >
+        <Link className="btn btn-line-light btn-lg" href="/careers">
+          Join the team <ArrowRight />
+        </Link>
+      </EditorialHero>
 
-      <div className="team-grid">
-        {BRAND.team.map((t) => (
-          <div className="team-card" key={t.name}>
-            <span className="team-ava">{initials(t.name)}</span>
-            <div className="team-name">{t.name}</div>
-            <div className="team-role">{t.role}</div>
-            <div className="team-region"><MapPin /> {t.region}</div>
+      <div className="wrap content" style={{ paddingTop: "var(--s6)" }}>
+        <Breadcrumbs items={[{ label: "About", href: "/about" }, { label: "Leadership" }]} />
+
+        <section className="ir-sec" style={{ borderTop: 0, paddingTop: "var(--s2)" }}>
+          <span className="ss-lab">The team</span>
+          <div className="team-grid">
+            {BRAND.team.map((t) => (
+              <div className="team-card" key={t.name}>
+                <span className="team-ava">{initials(t.name)}</span>
+                <div className="team-name">{t.name}</div>
+                <div className="team-role">{t.role}</div>
+                <div className="team-region"><MapPin /> {t.region}</div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </section>
 
-      <section className="section">
-        <div className="prose">
-          <h2>Governance</h2>
-          <p>
-            L&T is a founder-led company. Ahead of a public listing we&apos;re formalizing our board,
-            audit and compensation practices — read more on{" "}
-            <Link href="/investors#governance">corporate governance</Link>, or explore{" "}
+        <section className="pgsec">
+          <span className="pg-eyebrow">Governance</span>
+          <h2>A founder-led company.</h2>
+          <p className="pg-body">
+            L&amp;T is a founder-led company. As we grow, we&apos;re formalizing our board, audit and
+            compensation practices. Explore{" "}
             <Link href="/careers">careers</Link> to join the team.
           </p>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </>
   );
 }
