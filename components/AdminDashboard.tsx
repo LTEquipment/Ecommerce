@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type SVGProps, type ReactNode } from "react";
+import { useEffect, useState, type SVGProps, type ReactNode, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./AuthProvider";
@@ -14,7 +14,7 @@ import AdminInbox from "./admin/AdminInbox";
 import AdminAudit from "./admin/AdminAudit";
 
 type Tab = "analytics" | "catalog" | "orders" | "customers" | "service" | "inbox" | "audit";
-type IconC = (p: SVGProps<SVGSVGElement>) => JSX.Element;
+type IconC = (p: SVGProps<SVGSVGElement>) => ReactElement;
 const TABS: { id: Tab; label: string; Icon: IconC }[] = [
   { id: "analytics", label: "Analytics", Icon: TrendingUp },
   { id: "catalog", label: "Catalog", Icon: Package },

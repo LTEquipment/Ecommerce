@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Fragment, type SVGProps } from "react";
+import { Fragment, type SVGProps, type ReactElement } from "react";
 import { COMPANY, SOCIALS, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
 import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu } from "./icons";
 import CookiePrefsButton from "./CookiePrefsButton";
 
-const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => JSX.Element> = {
+const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => ReactElement> = {
   TikTok,
   Facebook,
   Pinterest,

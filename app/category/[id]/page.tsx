@@ -6,13 +6,15 @@ import PageHeader, { StatMeta } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const cat = await getCategory(params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const cat = await getCategory(id);
   return { title: cat ? `${cat.name} — L&T` : "Category — L&T" };
 }
 
-export default async function CategoryPage({ params }: { params: { id: string } }) {
-  const cat = await getCategory(params.id);
+export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const cat = await getCategory(id);
   if (!cat) notFound();
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
   const inCat = products.filter((p) => p.cat === cat.id);

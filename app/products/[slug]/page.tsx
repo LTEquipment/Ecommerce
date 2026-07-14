@@ -7,13 +7,15 @@ import RecentlyViewed from "@/components/RecentlyViewed";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const p = await getProduct(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const p = await getProduct(slug);
   return { title: p ? `${p.name} — L&T` : "Product — L&T" };
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const p = await getProduct(params.slug);
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const p = await getProduct(slug);
   if (!p) notFound();
   const [cat, related] = await Promise.all([getCategory(p.cat), getRelated(p.slug, 4)]);
   return (

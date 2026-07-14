@@ -10,7 +10,7 @@ function serviceClient(): SupabaseClient {
 
 // Only real admins (present in the `admins` table) may hit these endpoints.
 async function requireAdmin() {
-  const sb = getServerSupabase();
+  const sb = await getServerSupabase();
   if (!sb) return null;
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return null;

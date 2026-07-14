@@ -5,7 +5,7 @@ import { getServerSupabase } from "@/lib/supabase/server";
 // Uploads a profile photo to the public "avatars" bucket. Runs server-side with
 // the service-role key (bypasses storage RLS) after verifying the signed-in user.
 export async function POST(req: Request) {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
   if (!supabase) return NextResponse.json({ error: "Backend not connected" }, { status: 500 });
 
   const { data: { user } } = await supabase.auth.getUser();

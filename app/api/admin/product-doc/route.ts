@@ -5,7 +5,7 @@ import { getServerSupabase } from "@/lib/supabase/server";
 // Uploads a product document (PDF etc.) to the public "product-docs" bucket.
 // Service-role key (bypasses storage RLS) after verifying the caller is an admin.
 export async function POST(req: Request) {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
   if (!supabase) return NextResponse.json({ error: "Backend not connected" }, { status: 500 });
 
   const { data: { user } } = await supabase.auth.getUser();

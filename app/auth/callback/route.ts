@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next") || "/account";
   if (code) {
-    const supabase = getServerSupabase();
+    const supabase = await getServerSupabase();
     if (supabase) await supabase.auth.exchangeCodeForSession(code);
   }
   return NextResponse.redirect(new URL(next, url.origin));
