@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
-import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
 import { Check, ArrowRight, Shield, Cart } from "./icons";
 
@@ -35,43 +34,23 @@ export default function CheckoutFlow() {
 
   const placeOrder = async () => {
     setPlacing(true);
-    const orderNo =
-      "LT-" + Date.now().toString().slice(-8);
+    const orderNo = "LT-" + Date.now().toString().slice(-8);
     let saved = false;
-    const supabase = getBrowserSupabase();
-    if (supabase && user) {
+    // Order creation is server-side: /api/orders recomputes every price and total
+    // from the catalog and forces payment_status='pending'. The client sends only
+    // the SKUs, quantities and chosen method — never prices or payment state.
+    if (user) {
       try {
-        await supabase.from("customers").upsert(
-          { id: user.id, company: f.company || null, price_list_id: null },
-          { onConflict: "id" }
-        );
-        const paidNow = method === "card" || method === "affirm";
-        const orderRow = {
-          customer_id: user.id, status: "submitted", subtotal, freight, total,
-          // Card & Affirm settle the merchant immediately (demo captures them now;
-          // the real Stripe/Affirm webhook confirms once keys are set). Wire stays pending.
-          payment_method: method,
-          payment_status: paidNow ? "paid" : "pending",
-          paid_at: paidNow ? new Date().toISOString() : null,
-          amount_paid: paidNow ? total : 0,
-        };
-        let order: { id: string } | null = null;
-        let error: { message: string } | null = null;
-        ({ data: order, error } = await supabase.from("orders").insert(orderRow).select("id").single());
-        if (error && /payment_|amount_paid|paid_at|column/.test(error.message)) {
-          // payments migration not run yet — fall back to a core order insert
-          ({ data: order, error } = await supabase
-            .from("orders").insert({ customer_id: user.id, status: "submitted", subtotal, freight, total })
-            .select("id").single());
-        }
-        if (!error && order) {
-          await supabase.from("order_items").insert(
-            items.map(({ product: p, qty }) => ({
-              order_id: order.id, sku: p.sku, name: p.name, unit_price: p.price, qty,
-            }))
-          );
-          saved = true;
-        }
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: items.map(({ product: p, qty }) => ({ sku: p.sku, qty })),
+            payment_method: method,
+            company: f.company || null,
+          }),
+        });
+        saved = res.ok;
       } catch {
         /* fall back to demo confirmation */
       }
