@@ -125,11 +125,10 @@ export default function SustainabilityPage() {
           <span className="pg-eyebrow">Reporting &amp; goals</span>
           <h2>Measured, not marketed.</h2>
           <p className="pg-body">
-            As we prepare for our next chapter — including a public listing — we&apos;re formalizing
-            our environmental and community reporting alongside our governance framework. We will
-            publish measurable targets and progress here as they are set, rather than make claims we
-            can&apos;t yet stand behind. For governance and investor detail, see{" "}
-            <Link href="/investors#governance">corporate governance</Link>.
+            As we grow, we&apos;re formalizing our environmental and community reporting alongside
+            our governance framework. We will publish measurable targets and progress here as they
+            are set, rather than make claims we can&apos;t yet stand behind. For our current
+            disclosures, see <Link href="/supply-chain">supply chain transparency</Link>.
           </p>
         </section>
 
