@@ -362,6 +362,8 @@ footer .fphone a:hover{color:var(--red)}
 .fb-legal a:not(:last-child)::after,.fb-legal button:not(:last-child)::after{content:"";position:absolute;right:-11px;top:3px;bottom:3px;width:1px;background:var(--line)}
 .fb-legal button{color:var(--ink-2);font-weight:500;position:relative;background:none;border:0;padding:0;font:inherit;cursor:pointer}
 .fb-legal button:hover{color:var(--red)}
+.privacy-choices{display:inline-flex;align-items:center;gap:7px}
+.privacy-choices .pc-icon{width:31px;height:15.5px;flex:0 0 auto;display:block}
 
 /* cookie consent banner */
 /* Cookie consent — centred Privacy Preference Center modal */
