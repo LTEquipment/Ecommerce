@@ -41,29 +41,17 @@ const PRINCIPLES = [
 export default function SustainabilityPage() {
   return (
     <>
-      {/* Dark editorial hero — type-forward, spec-sheet footer */}
-      <section className="ed-hero">
-        <div className="wrap ed-hero-in">
-          <div className="ed-hero-top">
-            <span className="tag">Sustainability</span>
-            <span className="meta">L&amp;T · Designed &amp; built in New York</span>
-          </div>
-          <h1 className="ed-hero-h">Built to outlast.</h1>
-          <p className="ed-hero-lede">
-            The most sustainable equipment is the equipment that lasts — built to run for decades,
-            made close to the kitchens it serves, and engineered to use less energy on every line.
-          </p>
+      {/* Full-bleed video hero — just the wordmark */}
+      <section className="pg-hero">
+        <video className="pg-hero-bg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+          <source src="/videos/sustainability.mp4" type="video/mp4" />
+        </video>
+        <div className="wrap pg-hero-inner">
+          <span className="eyebrow">Built to last</span>
+          <h1>Sustainability</h1>
           <div className="hero-cta">
             <Link className="btn btn-primary btn-lg" href="/products">Explore the equipment <ArrowRight /></Link>
             <Link className="btn btn-line-light btn-lg" href="/contact">Talk to our team</Link>
-          </div>
-          <div className="ed-hero-foot">
-            {FACTS.map((f) => (
-              <div className="f" key={f.label}>
-                <div className="fn">{f.value}</div>
-                <div className="fl">{f.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -79,6 +67,16 @@ export default function SustainabilityPage() {
             every day.
           </p>
         </section>
+
+        {/* Technical data strip */}
+        <div className="ss-data">
+          {FACTS.map((f) => (
+            <div className="d" key={f.label}>
+              <div className="n">{f.value}</div>
+              <div className="l">{f.label}</div>
+            </div>
+          ))}
+        </div>
 
         {/* Numbered principles index */}
         <span className="ss-lab">Four principles</span>
