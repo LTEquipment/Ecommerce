@@ -6,7 +6,9 @@ import { getServerSupabase } from "@/lib/supabase/server";
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/account";
+  const rawNext = url.searchParams.get("next") || "/account";
+  // Only internal, non-protocol-relative paths — prevents open-redirect to attacker sites.
+  const next = /^\/(?!\/)/.test(rawNext) ? rawNext : "/account";
   if (code) {
     const supabase = await getServerSupabase();
     if (supabase) await supabase.auth.exchangeCodeForSession(code);

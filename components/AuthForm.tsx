@@ -17,7 +17,9 @@ export default function AuthForm() {
   const { signIn, signUp, configured } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") || "/account";
+  // Only allow internal, non-protocol-relative paths — never redirect off-site.
+  const rawNext = params.get("next") || "/account";
+  const next = /^\/(?!\/)/.test(rawNext) ? rawNext : "/account";
 
   const [mode, setMode] = useState<"login" | "register">(
     params.get("mode") === "register" ? "register" : "login"

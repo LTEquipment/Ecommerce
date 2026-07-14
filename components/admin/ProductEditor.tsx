@@ -6,6 +6,7 @@ import { logAudit } from "@/lib/audit";
 import { useStore } from "../StoreProvider";
 import { useAuth } from "../AuthProvider";
 import { money } from "@/lib/format";
+import { safeHref } from "@/lib/safeHref";
 import { Close, Plus, Trash, Image as ImageIcon, Star } from "../icons";
 import type { ArtKey, ProductDoc } from "@/lib/types";
 
@@ -98,7 +99,10 @@ export default function ProductEditor({
   };
   const addUrl = () => {
     const url = window.prompt("Paste an image URL or a /products/… path:");
-    if (url && url.trim()) set("images", [...p.images, url.trim()]);
+    if (!url || !url.trim()) return;
+    const safe = safeHref(url.trim());
+    if (!safe) return toast("That URL isn’t allowed (use http(s):// or a /path).");
+    set("images", [...p.images, safe]);
   };
   const removeImg = (i: number) => set("images", p.images.filter((_, j) => j !== i));
   const makePrimary = (i: number) => set("images", [p.images[i], ...p.images.filter((_, j) => j !== i)]);
@@ -125,7 +129,9 @@ export default function ProductEditor({
   const addDocUrl = () => {
     const label = window.prompt("Document label (e.g. Manual):"); if (!label) return;
     const url = window.prompt("Document URL:"); if (!url) return;
-    set("documents", [...(p.documents ?? []), { label: label.trim(), url: url.trim() }]);
+    const safe = safeHref(url.trim());
+    if (!safe) return toast("That URL isn’t allowed (use http(s):// or a /path).");
+    set("documents", [...(p.documents ?? []), { label: label.trim(), url: safe }]);
   };
 
   const save = async () => {
@@ -281,7 +287,7 @@ export default function ProductEditor({
                 {(p.documents ?? []).map((d, i) => (
                   <div className="pe-doc-row" key={i}>
                     <input value={d.label} onChange={(e) => editDocLabel(i, e.target.value)} placeholder="Label" />
-                    <a className="pe-doc-file" href={d.url} target="_blank" rel="noreferrer" title={d.url}>{d.url.split("/").pop()}</a>
+                    <a className="pe-doc-file" href={safeHref(d.url)} target="_blank" rel="noreferrer" title={d.url}>{d.url.split("/").pop()}</a>
                     <button className="pe-spec-x" onClick={() => removeDoc(i)} aria-label="Remove document"><Close /></button>
                   </div>
                 ))}
