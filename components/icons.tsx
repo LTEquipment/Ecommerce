@@ -22,6 +22,9 @@ export const Cart = (p: P) => (
 export const Menu = (p: P) => (
   <svg {...base} {...p}><path d="M4 7h16M4 12h16M4 17h16" /></svg>
 );
+export const Settings = (p: P) => (
+  <svg {...base} {...p}><path d="M4 6h7M15 6h5M4 12h3M11 12h9M4 18h9M17 18h3" /><circle cx="13" cy="6" r="2" /><circle cx="9" cy="12" r="2" /><circle cx="15" cy="18" r="2" /></svg>
+);
 export const ArrowRight = (p: P) => (
   <svg {...base} strokeWidth={2.2} {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>
 );

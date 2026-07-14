@@ -1,12 +1,15 @@
 import type { MetadataRoute } from "next";
 import { CATEGORIES, PRODUCTS } from "@/lib/products";
+import { getSiteSettings } from "@/lib/settings";
 
 const BASE = "https://www.ltfse.com";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { investorRelationsEnabled } = await getSiteSettings();
   const staticPaths = [
     "", "/products", "/about", "/leadership", "/press", "/sustainability",
-    "/vendors", "/locations", "/contact", "/investors",
+    "/vendors", "/locations", "/contact",
+    ...(investorRelationsEnabled ? ["/investors"] : []),
     "/faq", "/shipping", "/returns", "/warranty", "/financing", "/careers",
     "/privacy", "/terms", "/cookies", "/accessibility", "/login", "/cart",
   ];

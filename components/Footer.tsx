@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Fragment, type SVGProps, type ReactElement } from "react";
 import { COMPANY, SOCIALS, telHref } from "@/lib/company";
+import { getSiteSettings } from "@/lib/settings";
 import { CATEGORIES } from "@/lib/products";
 import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu, Phone, Chat } from "./icons";
 import CookiePrefsButton from "./CookiePrefsButton";
@@ -16,7 +17,8 @@ const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => ReactElement> 
   Xiaohongshu,
 };
 
-export default function Footer() {
+export default async function Footer() {
+  const { investorRelationsEnabled } = await getSiteSettings();
   return (
     <footer>
       <div className="support-bar">
@@ -46,12 +48,14 @@ export default function Footer() {
             marks of their respective certification bodies. All other trademarks are the property of
             their respective owners.
           </p>
-          <p>
-            Statements regarding L&amp;T&apos;s growth and plans, including any future public listing,
-            are forward-looking, reflect current expectations, and are not guarantees of future
-            results. Nothing on this site constitutes an offer to sell, or a solicitation of an offer
-            to buy, any securities.
-          </p>
+          {investorRelationsEnabled && (
+            <p>
+              Statements regarding L&amp;T&apos;s growth and plans, including any future public listing,
+              are forward-looking, reflect current expectations, and are not guarantees of future
+              results. Nothing on this site constitutes an offer to sell, or a solicitation of an offer
+              to buy, any securities.
+            </p>
+          )}
         </div>
 
         <FooterBreadcrumb />
@@ -97,13 +101,15 @@ export default function Footer() {
             <Link href="/account">Track an order</Link>
             <Link href="/contact">Spec support</Link>
           </div>
+          {investorRelationsEnabled && (
           <div className="fcol">
             <h5>Investors</h5>
             <Link href="/investors">Investor relations</Link>
             <Link href="/investors#highlights">Company highlights</Link>
             <Link href="/investors#governance">Corporate governance</Link>
-            <Link href="/contact">Contact IR</Link>
+            <Link href="/investors#contact">Contact IR</Link>
           </div>
+          )}
           <div className="fcol">
             <h5>Company</h5>
             <Link href="/about">About us</Link>
@@ -124,7 +130,7 @@ export default function Footer() {
             <Link href="/cookies">Cookie Policy</Link>
             <Link href="/accessibility">Accessibility</Link>
             <Link href="/supply-chain">Supply Chain Transparency</Link>
-            <Link href="/investors">Investor Relations</Link>
+            {investorRelationsEnabled && <Link href="/investors">Investor Relations</Link>}
             <a href="/sitemap.xml">Sitemap</a>
             <CookiePrefsButton />
           </div>
