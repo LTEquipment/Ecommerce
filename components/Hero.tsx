@@ -19,27 +19,18 @@ export default function Hero() {
       </video>
       <div className="vhero-scrim" />
       <div className="wrap vhero-inner">
-        <span className="eyebrow">Panda® — made to inspire</span>
         <h1>
-          The wok range,
+          The whole kitchen,
           <br />
-          perfected in New York.
+          perfected in New&nbsp;York.
         </h1>
-        <p className="vhero-lede">
-          Custom-built Panda® wok ranges, steamers, roasters and automation — engineered for
-          high-output Oriental cooking and shipped nationwide from our 60,000 sq ft factory.
-        </p>
-        <div className="hero-cta">
-          <Link className="btn btn-primary btn-lg" href="/products">
-            Shop all equipment <ArrowRight />
-          </Link>
-          <Link className="btn btn-line-light btn-lg" href="/login?mode=register&trade=1">
-            Open a trade account
-          </Link>
-        </div>
+        <Link className="btn btn-primary btn-lg" href="/products">
+          Shop all equipment <ArrowRight />
+        </Link>
       </div>
       <a className="vhero-scroll" href="#catalog" aria-label="Scroll to catalog">
-        <span />
+        <span className="vs-label">Scroll</span>
+        <span className="vs-line" />
       </a>
     </section>
   );
