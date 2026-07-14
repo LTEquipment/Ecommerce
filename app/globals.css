@@ -749,6 +749,19 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .ed-note{font-size:12.5px;color:var(--muted);line-height:1.55;max-width:70ch;margin:var(--s5) 0 0;padding-top:var(--s3);border-top:1px solid var(--line)}
 .gov-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--s4)}
 .gov-list span{font-size:13px;font-weight:600;color:var(--ink);border:1px solid var(--line);padding:9px 15px}
+/* Investor Relations — sub-nav + news feed */
+.ir-nav{background:var(--ink);border-top:1px solid rgba(255,255,255,.12)}
+.ir-nav-in{display:flex;flex-wrap:wrap;gap:0 var(--s5);overflow-x:auto}
+.ir-nav a{display:inline-block;white-space:nowrap;padding:15px 0;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);border-bottom:2px solid transparent;transition:color var(--ease),border-color var(--ease)}
+.ir-nav a:hover{color:#fff;border-bottom-color:var(--red)}
+.ir-sec{scroll-margin-top:96px}
+.ss-head-row{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3)}
+.ss-head-row a{font-size:13px;font-weight:600;color:var(--red);white-space:nowrap}
+.ir-news{border-top:2px solid var(--ink);margin-top:var(--s2)}
+.ir-news-item{display:grid;grid-template-columns:130px 1fr;gap:var(--s4);align-items:baseline;padding:var(--s4) 0;border-bottom:1px solid var(--line)}
+.ir-news-date{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.ir-news-item h3{font-family:var(--disp);font-weight:700;font-size:clamp(17px,1.7vw,21px);letter-spacing:-.015em;line-height:1.28;margin:0;color:var(--ink)}
+@media(max-width:640px){.ir-news-item{grid-template-columns:1fr;gap:6px}}
 /* --- industrial editorial system (sustainability & content pages) --- */
 .ss-intro{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(32px,6vw,110px);align-items:end;padding:var(--s8) 0 var(--s6)}
 .ss-intro h2{font-family:var(--disp);font-weight:800;font-size:clamp(32px,4.4vw,60px);line-height:1;letter-spacing:-.035em;margin:0;color:var(--ink)}
