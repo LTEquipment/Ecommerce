@@ -48,7 +48,6 @@ export default function ReturnsPage() {
         Call <a href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a> or email{" "}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> with your order number to request an RMA.
       </p>
-      <p className="doc-note">Policy shown for a concept build.</p>
     </PageShell>
   );
 }

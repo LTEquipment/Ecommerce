@@ -32,7 +32,7 @@ export default function AccessibilityPage() {
         <a href={`tel:+1${COMPANY.mainPhone.replace(/\D/g, "")}`}>{COMPANY.mainPhone}</a> — we aim
         to respond within two business days.
       </p>
-      <p className="doc-note">Statement provided for a concept build and reviewed periodically.</p>
+      <p className="doc-note">This statement is reviewed periodically. To report an accessibility barrier, please contact us.</p>
     </PageShell>
   );
 }

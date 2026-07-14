@@ -39,7 +39,6 @@ export default function PressPage() {
         <a href={`mailto:${COMPANY.email}?subject=Press%20kit`}>{COMPANY.email}</a> and we&apos;ll
         send materials for your story.
       </p>
-      <p className="doc-note">Newsroom shown for a concept build; milestones are illustrative.</p>
     </PageShell>
   );
 }

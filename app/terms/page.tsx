@@ -46,7 +46,6 @@ export default function TermsPage() {
 
       <h2>Contact</h2>
       <p>{COMPANY.legalName}, {COMPANY.hqAddress}. <Link href="/contact">Contact us</Link>.</p>
-      <p className="doc-note">Provided for a concept build and not legal advice.</p>
     </PageShell>
   );
 }
