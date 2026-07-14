@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/vendors", "/locations", "/contact",
     ...(investorRelationsEnabled ? ["/investors"] : []),
     "/faq", "/shipping", "/returns", "/warranty", "/financing", "/careers",
-    "/privacy", "/terms", "/cookies", "/accessibility", "/login", "/cart", "/wishlist",
+    "/privacy", "/terms", "/cookies", "/accessibility", "/login", "/cart", "/wishlist", "/compare",
   ];
 
   const staticEntries: MetadataRoute.Sitemap = staticPaths.map((p) => ({

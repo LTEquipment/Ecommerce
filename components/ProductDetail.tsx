@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import WishlistButton from "./WishlistButton";
+import CompareButton from "./CompareButton";
 import { useLiveProduct } from "@/lib/useLiveProducts";
 import { recordView } from "@/lib/recentlyViewed";
 import { money } from "@/lib/format";
@@ -145,6 +146,10 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
               <button className="btn btn-line btn-lg">Notify me when available</button>
             )}
             <WishlistButton p={p} variant="pdp" />
+          </div>
+
+          <div className="pdp-compare-row">
+            <CompareButton p={p} variant="pdp" />
           </div>
 
           <div className="assurance">
