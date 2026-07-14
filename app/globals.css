@@ -341,8 +341,10 @@ footer>.wrap{padding-top:var(--s6)}
 .foot-notes p{font-size:11px;line-height:1.55;color:rgba(255,255,255,.38);margin:0 0 9px;max-width:none}
 .foot-notes p:last-child{margin:0}
 .foot-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;padding-bottom:var(--s4);margin-bottom:var(--s4);border-bottom:1px solid rgba(255,255,255,.1)}
+.foot-crumb .fc-item{display:contents}
 .foot-crumb a{color:rgba(255,255,255,.55)}
 .foot-crumb a:hover{color:#fff}
+.foot-crumb .fc-cur{color:rgba(255,255,255,.78)}
 .foot-crumb .fc-sep{color:rgba(255,255,255,.3)}
 
 
