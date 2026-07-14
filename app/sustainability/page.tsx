@@ -58,40 +58,30 @@ export default function SustainabilityPage() {
       </section>
 
       <div className="wrap content" style={{ paddingTop: "var(--s6)" }}>
-        {/* Big-number anchors */}
-        <section style={{ padding: "0 0 var(--s5)" }}>
-          <div className="band" style={{ border: "1px solid var(--line)", borderRadius: "var(--rl)" }}>
-            <div className="wrap" style={{ padding: "var(--s5)", gridTemplateColumns: "1fr" }}>
-              <div className="stats hl-stats" style={{ marginTop: 0 }}>
-                {STATS.map((s) => (
-                  <div className="s" key={s.label}>
-                    <div className="n">{s.value}</div>
-                    <div className="l">{s.label}</div>
-                  </div>
-                ))}
+        {/* Approach + big-number anchors */}
+        <section className="pgsec">
+          <span className="pg-eyebrow">Our approach</span>
+          <h2>The most sustainable equipment is the one you don&apos;t replace.</h2>
+          <p className="pg-lead">
+            We&apos;ve built commercial kitchen equipment in New York for over 40 years — durable
+            machines that stay in service for decades, produced locally with less waste, and
+            engineered to cut the energy a kitchen burns every day.
+          </p>
+          <div className="pg-stats">
+            {STATS.map((s) => (
+              <div className="s" key={s.label}>
+                <div className="n">{s.value}</div>
+                <div className="l">{s.label}</div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Approach */}
-        <section style={{ padding: "var(--s4) 0" }}>
-          <div className="sec-head"><h2>Our approach</h2></div>
-          <div className="prose" style={{ maxWidth: "var(--measure)" }}>
-            <p>
-              We don&apos;t treat sustainability as an add-on. It&apos;s a consequence of how L&amp;T
-              has built commercial kitchen equipment in New York for over 40 years: durable machines
-              that stay in service for decades, produced locally with less waste, and designed to cut
-              the energy a kitchen burns every day. Below are the areas we focus on — and where
-              we&apos;re headed as we formalize our reporting.
-            </p>
+            ))}
           </div>
         </section>
 
         {/* Focus-area pillars */}
-        <section style={{ padding: "var(--s4) 0" }}>
-          <div className="sec-head"><h2>Focus areas</h2></div>
-          <div className="valuegrid" style={{ margin: 0 }}>
+        <section className="pgsec">
+          <span className="pg-eyebrow">Focus areas</span>
+          <h2>Where durability meets efficiency.</h2>
+          <div className="valuegrid" style={{ marginTop: "var(--s5)", marginBottom: 0 }}>
             {PILLARS.map((p) => {
               const Icon = p.icon;
               return (
@@ -106,17 +96,16 @@ export default function SustainabilityPage() {
         </section>
 
         {/* Reporting & goals — honest, no invented metrics */}
-        <section style={{ padding: "var(--s5) 0" }}>
-          <div className="sec-head"><h2>Reporting &amp; goals</h2></div>
-          <div className="prose" style={{ maxWidth: "var(--measure)" }}>
-            <p>
-              As we prepare for our next chapter — including a public listing — we&apos;re formalizing
-              our environmental reporting alongside our governance framework. We will publish
-              measurable targets and progress here as they are set, rather than make claims we
-              can&apos;t yet stand behind. For governance and investor detail, see{" "}
-              <Link href="/investors#governance">corporate governance</Link>.
-            </p>
-          </div>
+        <section className="pgsec">
+          <span className="pg-eyebrow">Reporting &amp; goals</span>
+          <h2>Measured, not marketed.</h2>
+          <p className="pg-body">
+            As we prepare for our next chapter — including a public listing — we&apos;re formalizing
+            our environmental reporting alongside our governance framework. We will publish
+            measurable targets and progress here as they are set, rather than make claims we
+            can&apos;t yet stand behind. For governance and investor detail, see{" "}
+            <Link href="/investors#governance">corporate governance</Link>.
+          </p>
         </section>
 
         {/* CTA */}
