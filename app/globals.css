@@ -302,24 +302,25 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 @media(max-width:820px){.loc-atlas{grid-template-columns:1fr;gap:var(--s5)}.loc-atlas-map{min-height:340px}}
 /* Our customers — dark logo wall */
 .customers{background:var(--ink);color:#fff}
-.cust-head{text-align:center;max-width:66ch;margin:0 auto var(--s6)}
-.cust-head .eyebrow{color:rgba(255,255,255,.5)}
-.cust-head h2{font-family:var(--disp);font-weight:700;font-size:var(--t-h2);color:#fff;margin:var(--s2) 0 var(--s3);line-height:1.05}
-.cust-head p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.6);margin:0 auto;max-width:62ch}
-.logowall{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid rgba(255,255,255,.13);border-left:1px solid rgba(255,255,255,.13)}
-.logocell{aspect-ratio:1.618/1;border-right:1px solid rgba(255,255,255,.13);border-bottom:1px solid rgba(255,255,255,.13);display:grid;place-items:center;padding:22px 20px;transition:background var(--ease)}
-.logocell:hover{background:rgba(255,255,255,.035)}
-.logo-img{max-width:80%;max-height:52%;width:auto;object-fit:contain;opacity:.72;filter:grayscale(1);transition:opacity var(--ease),filter var(--ease),transform var(--ease)}
-.logocell:hover .logo-img{opacity:1;filter:grayscale(0);transform:scale(1.06)}
-/* staggered cascade when the section scrolls into view */
-.customers.reveal .logocell{opacity:0}
-.customers.reveal.in .logocell{animation:logoIn .5s cubic-bezier(.22,.61,.36,1) both;animation-delay:calc(var(--i,0)*22ms)}
-@keyframes logoIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){.customers.reveal .logocell,.customers.reveal.in .logocell{opacity:1;transform:none;animation:none}}
-.logo-name{font-family:var(--disp);font-weight:600;font-size:13px;color:rgba(255,255,255,.5);text-align:center;line-height:1.25;letter-spacing:.01em;transition:color var(--ease)}
-.logocell:hover .logo-name{color:rgba(255,255,255,.9)}
-@media(max-width:900px){.logowall{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:560px){.logowall{grid-template-columns:repeat(2,1fr)}.logocell{padding:16px 14px}.logo-img{max-height:38px}}
+.cust-head{text-align:center;margin:0 auto var(--s6);padding:0 var(--s4)}
+.cust-label{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);margin:0}
+/* Living marquee ribbons — logos drift in alternating directions, edges dissolve into the band */
+.marquee{display:flex;flex-direction:column;gap:var(--s5);--fade:8%}
+.mq-row{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fade),#000 calc(100% - var(--fade)),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 var(--fade),#000 calc(100% - var(--fade)),transparent 100%)}
+.mq-track{display:flex;align-items:center;width:max-content;animation:mqScroll var(--dur,58s) linear infinite;will-change:transform}
+.mq-track.mq-rev{animation-direction:reverse}
+.mq-row:hover .mq-track{animation-play-state:paused}
+@keyframes mqScroll{to{transform:translateX(-50%)}}
+.mq-logo{flex:0 0 auto;height:92px;display:grid;place-items:center;padding:0 var(--s5)}
+.mq-logo .logo-img{max-height:62px;max-width:240px;width:auto;object-fit:contain;opacity:.66;filter:grayscale(1);transition:opacity var(--ease),filter var(--ease),transform var(--ease)}
+.mq-logo:hover .logo-img{opacity:1;filter:grayscale(0);transform:scale(1.1)}
+.mq-logo .logo-name{font-family:var(--disp);font-weight:600;font-size:13px;color:rgba(255,255,255,.55);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){
+  .mq-row{-webkit-mask-image:none;mask-image:none;overflow:visible}
+  .mq-track{animation:none;flex-wrap:wrap;justify-content:center;width:auto}
+  .mq-dup{display:none}
+}
+@media(max-width:560px){.mq-logo{height:66px;padding:0 var(--s4)}.mq-logo .logo-img{max-height:46px;max-width:170px}}
 
 /* ---------- signup ---------- */
 .signup .box{border:1px solid var(--line);background:var(--white);border-radius:var(--rl);padding:var(--s6);
