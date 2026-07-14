@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
+import CompareTray from "@/components/CompareTray";
 import Toast from "@/components/Toast";
 import CookieConsent from "@/components/CookieConsent";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -69,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <SiteChrome>
               <Footer />
               <CartDrawer />
+              <CompareTray />
               <CookieConsent />
             </SiteChrome>
             <Toast />

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import WishlistButton from "./WishlistButton";
+import CompareButton from "./CompareButton";
 import { ILLUS } from "@/lib/illus";
 import { money } from "@/lib/format";
 import { Star, Plus } from "./icons";
@@ -46,6 +47,7 @@ export default function ProductCard({ p }: { p: Product }) {
         >
           {inStock ? (<><Plus /> Add to cart</>) : "Notify me"}
         </button>
+        <CompareButton p={p} variant="card" />
       </div>
     </div>
   );
