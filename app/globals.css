@@ -719,8 +719,7 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .shero{position:relative;min-height:clamp(600px,90vh,940px);display:flex;overflow:hidden;background:var(--ink)}
 .shero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 .shero-scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,.14) 22%,rgba(0,0,0,.12) 46%,rgba(0,0,0,.55) 82%,rgba(0,0,0,.85) 100%)}
-.shero-grid{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;justify-content:space-between;padding-top:var(--s5);padding-bottom:var(--s6)}
-.shero-top{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);padding-bottom:var(--s4);border-bottom:1px solid rgba(255,255,255,.24);color:rgba(255,255,255,.85);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.shero-grid{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;justify-content:flex-end;padding-top:var(--s6);padding-bottom:var(--s6)}
 .shero-main{margin-top:auto}
 .shero-kicker{display:inline-flex;align-items:center;gap:15px;color:#fff;font-weight:700;font-size:12px;letter-spacing:.26em;text-transform:uppercase}
 .shero-kicker::before{content:"";width:46px;height:2px;background:var(--red)}
@@ -728,7 +727,7 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .shero-foot{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--s4) var(--s5);margin-top:var(--s5)}
 .shero-lede{color:rgba(255,255,255,.92);font-size:clamp(16px,1.4vw,20px);line-height:1.5;max-width:40ch;margin:0}
 .shero-cta{display:flex;gap:12px;flex-wrap:wrap}
-@media(max-width:640px){.shero-title{font-size:clamp(52px,15vw,80px)}.shero-top-r{display:none}.shero-foot{flex-direction:column;align-items:flex-start;gap:var(--s4)}}
+@media(max-width:640px){.shero-title{font-size:clamp(52px,15vw,80px)}.shero-foot{flex-direction:column;align-items:flex-start;gap:var(--s4)}}
 /* dark editorial hero — type-forward, no stock imagery */
 .ed-hero{background:var(--ink);color:#fff;position:relative;overflow:hidden}
 .ed-hero-in{padding-top:var(--s8);padding-bottom:var(--s7)}

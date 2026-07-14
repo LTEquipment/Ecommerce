@@ -53,10 +53,6 @@ export default function SustainabilityPage() {
         </video>
         <div className="shero-scrim" aria-hidden="true" />
         <div className="wrap shero-grid">
-          <div className="shero-top">
-            <span>Panda® — L&amp;T Restaurant Equipment</span>
-            <span className="shero-top-r">Made in New York · N°01</span>
-          </div>
           <div className="shero-main">
             <span className="shero-kicker">Built to last</span>
             <h1 className="shero-title">Sustainability</h1>
