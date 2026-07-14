@@ -46,11 +46,11 @@ function Ribbon({ items, reverse, dur }: { items: Customer[]; reverse: boolean; 
   );
 }
 
-export default function Customers() {
+export default function Customers({ label = "Trusted by professional kitchens" }: { label?: string }) {
   return (
     <section className="customers" aria-label="Our customers">
       <div className="cust-head">
-        <h2 className="cust-label">Trusted by professional kitchens</h2>
+        <h2 className="cust-label">{label}</h2>
       </div>
       <div className="marquee">
         {ROWS.map((items, i) => (

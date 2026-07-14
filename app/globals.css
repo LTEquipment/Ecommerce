@@ -749,9 +749,6 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .ed-note{font-size:12.5px;color:var(--muted);line-height:1.55;max-width:70ch;margin:var(--s5) 0 0;padding-top:var(--s3);border-top:1px solid var(--line)}
 .gov-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--s4)}
 .gov-list span{font-size:13px;font-weight:600;color:var(--ink);border:1px solid var(--line);padding:9px 15px}
-.client-list{border-top:2px solid var(--ink);margin-top:var(--s3);padding-top:var(--s5)}
-.client-list span{font-family:var(--disp);font-weight:700;font-size:clamp(18px,1.9vw,25px);letter-spacing:-.02em;color:var(--ink);line-height:1.65}
-.client-list span:not(:last-child)::after{content:"·";color:var(--red);margin:0 14px;font-weight:700}
 /* --- industrial editorial system (sustainability & content pages) --- */
 .ss-intro{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(32px,6vw,110px);align-items:end;padding:var(--s8) 0 var(--s6)}
 .ss-intro h2{font-family:var(--disp);font-weight:800;font-size:clamp(32px,4.4vw,60px);line-height:1;letter-spacing:-.035em;margin:0;color:var(--ink)}

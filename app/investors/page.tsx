@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import EditorialHero from "@/components/EditorialHero";
-import { BRAND } from "@/lib/brand";
+import Customers from "@/components/Customers";
 import { COMPANY, telHref } from "@/lib/company";
 import { ArrowRight, FileText } from "@/components/icons";
 
@@ -94,17 +94,14 @@ export default function InvestorsPage() {
             ))}
           </div>
         </section>
+      </div>
 
-        {/* Clients — flat directory */}
-        <span className="ss-lab">Trusted by the kitchens you know</span>
-        <div className="client-list">
-          {BRAND.clients.map((c) => (
-            <span key={c}>{c}</span>
-          ))}
-        </div>
+      {/* Clients — logo wall */}
+      <Customers label="Trusted by the kitchens you know" />
 
-        {/* Contact IR */}
-        <section className="cta-band">
+      {/* Contact IR */}
+      <div className="wrap content">
+        <section className="cta-band" style={{ borderTop: 0, marginTop: 0 }}>
           <span className="pg-eyebrow">Investor inquiries</span>
           <h2>Talk to Investor Relations.</h2>
           <p>For partnership, pre-IPO and investment inquiries, reach our team directly.</p>
