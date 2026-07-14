@@ -1,19 +1,13 @@
 import Link from "next/link";
 import { COMPANY, telHref } from "@/lib/company";
+import DocToc from "./DocToc";
 
 export type TocItem = { id: string; label: string };
 
 export default function HelpAside({ sections }: { sections?: TocItem[] }) {
   return (
     <>
-      {sections && sections.length > 0 && (
-        <nav className="side-card doc-toc" aria-label="On this page">
-          <div className="toc-t">On this page</div>
-          {sections.map((s) => (
-            <a key={s.id} href={`#${s.id}`}>{s.label}</a>
-          ))}
-        </nav>
-      )}
+      {sections && sections.length > 0 && <DocToc sections={sections} />}
       <div className="side-card doc-help">
         <h4>Talk to a specialist</h4>
         <p>Questions on spec, freight or trade accounts? Our New York team can help.</p>
