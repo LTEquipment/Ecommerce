@@ -46,7 +46,7 @@ export default function InvestorsPage() {
         <div className="sec-head"><h2>Company highlights</h2></div>
         <div className="band" style={{ border: "1px solid var(--line)", borderRadius: "var(--rl)" }}>
           <div className="wrap" style={{ padding: "var(--s5)", gridTemplateColumns: "1fr" }}>
-            <div className="stats" style={{ marginTop: 0, gridTemplateColumns: "repeat(4,1fr)" }}>
+            <div className="stats hl-stats" style={{ marginTop: 0 }}>
               {HIGHLIGHTS.map((s) => (
                 <div className="s" key={s.label}>
                   <div className="n">{s.value}</div>
