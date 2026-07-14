@@ -515,6 +515,10 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .pinfo .rate .stars{color:var(--ink);display:inline-flex}.pinfo .rate .stars svg{width:15px;height:15px}
 .pinfo .priced{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
 .pinfo .priced .price{font-size:30px}
+.pdp-finance{font-size:14px;color:var(--muted);line-height:1.5;margin:0 0 4px}
+.pdp-finance b{color:var(--ink);font-weight:700}
+.pdp-finance .affirm{font-weight:600;color:var(--ink-2)}
+.pdp-finance a{color:var(--red);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .pinfo .stock{font-size:13px;font-weight:600;color:var(--stock);display:flex;align-items:center;gap:7px;margin:10px 0 18px}
 .pinfo .stock i{width:7px;height:7px;border-radius:50%;background:var(--stock)}
 .pinfo .stock.back{color:var(--muted)}.pinfo .stock.back i{background:var(--muted-2)}

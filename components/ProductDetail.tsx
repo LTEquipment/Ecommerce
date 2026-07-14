@@ -6,6 +6,7 @@ import { useStore } from "./StoreProvider";
 import { useLiveProduct } from "@/lib/useLiveProducts";
 import { recordView } from "@/lib/recentlyViewed";
 import { money } from "@/lib/format";
+import { estimateMonthly, FINANCE_MIN } from "@/lib/financing";
 import { safeHref } from "@/lib/safeHref";
 import { COMPANY, telHref } from "@/lib/company";
 import { ILLUS } from "@/lib/illus";
@@ -117,6 +118,13 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
             <span className="price">{money(p.price)}</span>
             {p.was ? <span className="was" style={{ fontSize: 16, color: "var(--muted)", textDecoration: "line-through" }}>{money(p.was)}</span> : null}
           </div>
+          {p.price >= FINANCE_MIN && (
+            <p className="pdp-finance" title="Estimated monthly payment over 36 months. Subject to credit approval; see financing.">
+              As low as <b>{money(estimateMonthly(p.price))}/mo</b> with{" "}
+              <span className="affirm">Affirm</span>.{" "}
+              <Link href="/financing">Prequalify now</Link>
+            </p>
+          )}
           <div className={`stock ${inStock ? "" : "back"}`}>
             <i /> {inStock ? "In stock · ships in 24–48 hours" : "Backorder · 2–3 weeks"}
           </div>
