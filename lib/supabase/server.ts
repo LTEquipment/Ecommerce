@@ -13,9 +13,9 @@ export const supabaseConfigured = Boolean(url && anon);
  * wrapped in try/catch because Server Components cannot set cookies (middleware
  * refreshes the session instead).
  */
-export function getServerSupabase(): SupabaseClient | null {
+export async function getServerSupabase(): Promise<SupabaseClient | null> {
   if (!supabaseConfigured) return null;
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   return createServerClient(url!, anon!, {
     cookies: {
       getAll() {
