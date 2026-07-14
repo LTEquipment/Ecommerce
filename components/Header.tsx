@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
+import WishlistIcon from "./WishlistIcon";
 import { money } from "@/lib/format";
 import { COMPANY } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
@@ -136,6 +137,9 @@ export default function Header() {
               </span>
             </Link>
           )}
+
+          {/* wishlist */}
+          <WishlistIcon />
 
           {/* desktop cart */}
           <button className="hact" onClick={openCart} aria-label="Open cart">

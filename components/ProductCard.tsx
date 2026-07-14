@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
+import WishlistButton from "./WishlistButton";
 import { ILLUS } from "@/lib/illus";
 import { money } from "@/lib/format";
 import { Star, Plus } from "./icons";
@@ -13,6 +14,7 @@ export default function ProductCard({ p }: { p: Product }) {
   const href = `/products/${p.slug}`;
   return (
     <div className="card">
+      <WishlistButton p={p} variant="card" />
       <Link href={href} className="media" aria-label={p.name}>
         {p.badge ? (
           <span className={`badge${p.badge === "New" ? " new" : ""}`}>{p.badge}</span>
