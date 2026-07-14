@@ -18,8 +18,8 @@ export default async function Home() {
       <TrustBar />
       <Departments categories={categories} />
       <Catalog categories={categories} products={products} anchor="catalog" />
-      <Band />
       <Customers />
+      <Band />
       <Locations />
       <Signup />
     </>
