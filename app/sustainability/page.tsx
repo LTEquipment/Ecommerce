@@ -46,30 +46,30 @@ const FOR_SOCIETY = [
 export default function SustainabilityPage() {
   return (
     <>
-      {/* Modern glass hero */}
-      <section className="mh">
-        <video className="mh-bg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+      {/* Editorial poster hero — full-bleed video, oversized flat type, no glass */}
+      <section className="shero">
+        <video className="shero-bg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
           <source src="/videos/sustainability.mp4" type="video/mp4" />
         </video>
-        <div className="mh-glow" aria-hidden="true" />
-        <div className="wrap mh-in">
-          <span className="mh-chip"><span className="dot" aria-hidden="true" /> Built to last</span>
-          <h1 className="mh-h">Sustainability</h1>
-          <p className="mh-lede">
-            The most sustainable equipment is the equipment that lasts — built to run for decades,
-            made close to the kitchens it serves, engineered to use less on every line.
-          </p>
-          <div className="mh-cta">
-            <Link className="btn btn-primary btn-lg" href="/products">Explore the equipment <ArrowRight /></Link>
-            <Link className="btn-glass" href="/contact">Talk to our team</Link>
+        <div className="shero-scrim" aria-hidden="true" />
+        <div className="wrap shero-grid">
+          <div className="shero-top">
+            <span>Panda® — L&amp;T Restaurant Equipment</span>
+            <span className="shero-top-r">Made in New York · N°01</span>
           </div>
-          <div className="mh-facts">
-            {FACTS.map((f) => (
-              <div className="mh-fact" key={f.label}>
-                <b>{f.value}</b>
-                <span>{f.label}</span>
+          <div className="shero-main">
+            <span className="shero-kicker">Built to last</span>
+            <h1 className="shero-title">Sustainability</h1>
+            <div className="shero-foot">
+              <p className="shero-lede">
+                The most sustainable equipment is the equipment that lasts — built to run for
+                decades, made close to the kitchens it serves.
+              </p>
+              <div className="shero-cta">
+                <Link className="btn btn-primary btn-lg" href="/products">Explore the equipment <ArrowRight /></Link>
+                <Link className="btn btn-line-light btn-lg" href="/contact">Talk to our team</Link>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
@@ -86,12 +86,25 @@ export default function SustainabilityPage() {
           </p>
         </section>
 
+        {/* By the numbers — flat editorial strip */}
+        <div className="ss-data">
+          {FACTS.map((f) => (
+            <div className="d" key={f.label}>
+              <div className="n">{f.value}</div>
+              <div className="l">{f.label}</div>
+            </div>
+          ))}
+        </div>
+
         {/* For the businesses we serve */}
         <span className="ss-lab">For the kitchens you run</span>
         <div>
-          {FOR_BUSINESS.map((v) => (
+          {FOR_BUSINESS.map((v, i) => (
             <div className="value-row" key={v.title}>
-              <h3>{v.title}</h3>
+              <div className="vr-head">
+                <span className="vr-num">{String(i + 1).padStart(2, "0")}</span>
+                <h3>{v.title}</h3>
+              </div>
               <p>{v.desc}</p>
             </div>
           ))}
@@ -100,9 +113,12 @@ export default function SustainabilityPage() {
         {/* For society & the environment */}
         <span className="ss-lab">For New York &amp; the planet</span>
         <div>
-          {FOR_SOCIETY.map((v) => (
+          {FOR_SOCIETY.map((v, i) => (
             <div className="value-row" key={v.title}>
-              <h3>{v.title}</h3>
+              <div className="vr-head">
+                <span className="vr-num">{String(i + 1).padStart(2, "0")}</span>
+                <h3>{v.title}</h3>
+              </div>
               <p>{v.desc}</p>
             </div>
           ))}
