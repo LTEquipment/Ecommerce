@@ -4,7 +4,7 @@ import { ArrowRight } from "@/components/icons";
 
 export const metadata = { title: "Sustainability — L&T Restaurant Equipment" };
 
-const DATA = [
+const FACTS = [
   { value: "40+", label: "Years building to last" },
   { value: "60,000", label: "Sq ft · one NY factory" },
   { value: "30+", label: "Years on the same line" },
@@ -41,15 +41,15 @@ const PRINCIPLES = [
 export default function SustainabilityPage() {
   return (
     <>
-      {/* Full-bleed, bottom-left editorial video hero */}
-      <section className="pg-hero">
-        <video className="pg-hero-bg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
-          <source src="/videos/sustainability.mp4" type="video/mp4" />
-        </video>
-        <div className="wrap pg-hero-inner">
-          <span className="eyebrow">Built to last</span>
-          <h1>Sustainability</h1>
-          <p className="pg-hero-lede">
+      {/* Dark editorial hero — type-forward, spec-sheet footer */}
+      <section className="ed-hero">
+        <div className="wrap ed-hero-in">
+          <div className="ed-hero-top">
+            <span className="tag">Sustainability</span>
+            <span className="meta">L&amp;T · Designed &amp; built in New York</span>
+          </div>
+          <h1 className="ed-hero-h">Built to outlast.</h1>
+          <p className="ed-hero-lede">
             The most sustainable equipment is the equipment that lasts — built to run for decades,
             made close to the kitchens it serves, and engineered to use less energy on every line.
           </p>
@@ -57,11 +57,19 @@ export default function SustainabilityPage() {
             <Link className="btn btn-primary btn-lg" href="/products">Explore the equipment <ArrowRight /></Link>
             <Link className="btn btn-line-light btn-lg" href="/contact">Talk to our team</Link>
           </div>
+          <div className="ed-hero-foot">
+            {FACTS.map((f) => (
+              <div className="f" key={f.label}>
+                <div className="fn">{f.value}</div>
+                <div className="fl">{f.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       <div className="wrap content" style={{ paddingTop: 0 }}>
-        {/* Editorial intro — statement left, note right */}
+        {/* Editorial intro */}
         <section className="ss-intro">
           <h2>Durability is the strategy.</h2>
           <p>
@@ -71,16 +79,6 @@ export default function SustainabilityPage() {
             every day.
           </p>
         </section>
-
-        {/* Technical data strip */}
-        <div className="ss-data">
-          {DATA.map((d) => (
-            <div className="d" key={d.label}>
-              <div className="n">{d.value}</div>
-              <div className="l">{d.label}</div>
-            </div>
-          ))}
-        </div>
 
         {/* Numbered principles index */}
         <span className="ss-lab">Four principles</span>
