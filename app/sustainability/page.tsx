@@ -53,6 +53,14 @@ export default function SustainabilityPage() {
         </div>
       </PageHeader>
 
+      {/* Real factory/equipment footage — no stock imagery */}
+      <section className="page-media" aria-label="L&T equipment, built in New York">
+        <video className="page-media-vid" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+          <source src="https://ltusa.s3.us-east-1.amazonaws.com/adv_videos/home/Video_1.mp4" type="video/mp4" />
+        </video>
+        <span className="page-media-cap">Designed, built and serviced in New York.</span>
+      </section>
+
       {/* Big-number anchors */}
       <section style={{ padding: "var(--s5) 0" }}>
         <div className="band" style={{ border: "1px solid var(--line)", borderRadius: "var(--rl)" }}>
