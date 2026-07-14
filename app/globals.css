@@ -1471,13 +1471,19 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .ps-s{font-size:11.5px;color:var(--muted)}
 @media(max-width:520px){.an-stat-pair{grid-template-columns:1fr}}
 
-/* back-to-top button + anchor scroll offset */
-.back-to-top{position:fixed;right:22px;bottom:22px;z-index:45;width:44px;height:44px;display:grid;place-items:center;background:var(--white);color:var(--ink);border:1.5px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow);opacity:0;transform:translateY(10px) scale(.94);pointer-events:none;transition:opacity var(--ease),transform var(--ease),border-color var(--ease)}
-.back-to-top.on{opacity:1;transform:none;pointer-events:auto}
-.back-to-top:hover{border-color:var(--ink)}
-.back-to-top:active{transform:translateY(1px)}
-.back-to-top svg{width:20px;height:20px}
-@media(max-width:600px){.back-to-top{right:14px;bottom:14px;width:42px;height:42px}}
+/* support bar (above the footer) + back-to-top pill */
+.support-bar{background:var(--red);color:#fff}
+.support-bar-in{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s4);flex-wrap:wrap}
+.support-info{display:flex;align-items:center;gap:var(--s3) var(--s5);flex-wrap:wrap;font-size:15px}
+.support-lead{font-family:var(--disp);font-weight:700}
+.support-contact{display:inline-flex;align-items:center;gap:8px;color:#fff;font-weight:600}
+.support-contact svg{width:18px;height:18px;flex:0 0 auto}
+.support-contact:hover{color:rgba(255,255,255,.82)}
+.back-to-top{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--red);border:0;border-radius:999px;padding:11px 22px;font-family:var(--disp);font-weight:700;font-size:15px;cursor:pointer;transition:transform var(--ease),box-shadow var(--ease)}
+.back-to-top svg{width:18px;height:18px}
+.back-to-top:hover{box-shadow:0 6px 18px rgba(0,0,0,.18);transform:translateY(-1px)}
+.back-to-top:active{transform:translateY(0)}
+@media(max-width:640px){.support-bar-in{flex-direction:column;align-items:stretch;gap:var(--s3);text-align:center}.support-info{justify-content:center}.back-to-top{justify-content:center}}
 /* anchor targets clear the sticky header when smooth-scrolled to */
 [id]{scroll-margin-top:calc(var(--header-h) + 12px)}
 
