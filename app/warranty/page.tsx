@@ -47,7 +47,6 @@ export default function WarrantyPage() {
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> with your model number and order details.
         See our <Link href="/locations">locations</Link> for in-person service.
       </p>
-      <p className="doc-note">Warranty terms shown for a concept build.</p>
     </PageShell>
   );
 }

@@ -41,7 +41,6 @@ export default function VendorsPage() {
         Send a capabilities overview and line card to our procurement team using the contact panel.
         We review new suppliers on a rolling basis and will follow up if there&apos;s a fit.
       </p>
-      <p className="doc-note">Vendor program details shown for a concept build.</p>
     </PageShell>
   );
 }

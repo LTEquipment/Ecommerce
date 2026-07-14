@@ -41,7 +41,6 @@ export default function SustainabilityPage() {
         As we grow, we&apos;re formalizing our environmental reporting alongside our{" "}
         governance work. We&apos;ll publish measurable targets here as they&apos;re set.
       </p>
-      <p className="doc-note">Sustainability information shown for a concept build.</p>
     </PageShell>
   );
 }

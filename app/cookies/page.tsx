@@ -36,7 +36,6 @@ export default function CookiesPage() {
         See our <Link href="/privacy">privacy policy</Link> for how we handle personal data, or email{" "}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> with questions.
       </p>
-      <p className="doc-note">Provided for a concept build.</p>
     </PageShell>
   );
 }

@@ -43,7 +43,7 @@ export default function ShippingPage() {
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>. Sign in to{" "}
         <Link href="/account">your account</Link> to track an order.
       </p>
-      <p className="doc-note">Freight rates and lead times are estimates for a concept build.</p>
+      <p className="doc-note">Freight rates and lead times are estimates; final costs are confirmed on your quote.</p>
     </PageShell>
   );
 }

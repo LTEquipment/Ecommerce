@@ -36,8 +36,8 @@ export default function InvestorsPage() {
           <Link className="btn btn-line btn-lg" href="/about">Read our story <ArrowRight /></Link>
         </div>
         <p className="ph-note">
-          This page is a concept and does not constitute an offer to sell or a solicitation of an
-          offer to buy any securities.
+          This page contains forward-looking information and does not constitute an offer to sell,
+          or a solicitation of an offer to buy, any securities.
         </p>
       </PageHeader>
 

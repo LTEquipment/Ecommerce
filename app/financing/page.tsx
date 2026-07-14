@@ -43,7 +43,7 @@ export default function FinancingPage() {
         Call <a href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a> or email{" "}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
       </p>
-      <p className="doc-note">Financing subject to credit approval. Illustrative for a concept build.</p>
+      <p className="doc-note">Financing is subject to credit approval; rates and terms vary by application.</p>
     </PageShell>
   );
 }
