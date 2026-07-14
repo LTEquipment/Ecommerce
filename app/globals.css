@@ -714,6 +714,20 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .featrow-text p{font-size:clamp(15px,1.3vw,17px);color:var(--ink-2);line-height:1.65;max-width:46ch;margin:0}
 .featrow:nth-child(even) .featrow-media{order:2}
 @media(max-width:760px){.featrow{grid-template-columns:1fr;gap:var(--s4);padding:var(--s6) 0}.featrow:nth-child(even) .featrow-media{order:0}}
+/* dark editorial hero — type-forward, no stock imagery */
+.ed-hero{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+.ed-hero-in{padding-top:var(--s8);padding-bottom:var(--s7)}
+.ed-hero-top{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s4);padding-bottom:var(--s5);border-bottom:1px solid rgba(255,255,255,.16);font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.ed-hero-top .tag{color:var(--red);font-weight:700}
+.ed-hero-top .meta{color:rgba(255,255,255,.5);font-weight:500}
+.ed-hero-h{font-family:var(--disp);font-weight:800;font-size:clamp(52px,8.4vw,124px);line-height:.9;letter-spacing:-.045em;margin:var(--s6) 0 0;max-width:13ch}
+.ed-hero-lede{font-size:clamp(16px,1.5vw,21px);color:rgba(255,255,255,.82);line-height:1.5;max-width:52ch;margin:var(--s4) 0 0}
+.ed-hero .hero-cta{margin-top:var(--s5);justify-content:flex-start}
+.ed-hero-foot{display:flex;flex-wrap:wrap;gap:0;margin-top:var(--s7);border-top:1px solid rgba(255,255,255,.16)}
+.ed-hero-foot .f{flex:1 1 160px;padding:var(--s4) var(--s4) 0 0}
+.ed-hero-foot .fn{font-family:var(--disp);font-weight:800;font-size:clamp(22px,2.4vw,32px);letter-spacing:-.02em}
+.ed-hero-foot .fl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:8px}
+@media(max-width:700px){.ed-hero-h{font-size:clamp(44px,13vw,72px)}.ed-hero-foot .f{flex:1 1 45%}}
 /* --- industrial editorial system (sustainability & content pages) --- */
 .ss-intro{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(32px,6vw,110px);align-items:end;padding:var(--s8) 0 var(--s6)}
 .ss-intro h2{font-family:var(--disp);font-weight:800;font-size:clamp(32px,4.4vw,60px);line-height:1;letter-spacing:-.035em;margin:0;color:var(--ink)}
