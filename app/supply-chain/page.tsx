@@ -17,64 +17,69 @@ export default function SupplyChainPage() {
     <PageShell
       title="California Transparency in Supply Chains Act"
       eyebrow="Supply chain disclosure"
-      intro="L&T Restaurant Equipment's disclosure of the steps we take to address the risk of forced labor and human trafficking in our supply chain, in the spirit of the California Transparency in Supply Chains Act of 2010 (SB 657)."
+      intro="L&T Restaurant Equipment's disclosure of the steps we take to address the risk of forced labor and human trafficking in our supply chain, made in the spirit of the California Transparency in Supply Chains Act of 2010 (SB 657)."
       sections={SECTIONS}
     >
       <div className="tpl-banner">
-        <b>Draft template.</b> Replace each highlighted placeholder with L&amp;T&apos;s actual
-        practices, then delete this notice. Have counsel confirm the wording and whether the Act
-        applies before publishing.
+        <b>Draft for review.</b> Confirm every statement below reflects L&amp;T&apos;s actual
+        sourcing and practices — and have counsel review — before publishing.
       </div>
 
       <p>
         {COMPANY.legalName} (&ldquo;L&amp;T&rdquo;) designs and manufactures the Panda&reg; line of
-        commercial cooking equipment in New York. We are committed to conducting our business
-        responsibly, and we believe forced labor and human trafficking have no place in our
-        operations or in the supply chains that support them. This statement describes the steps we
-        take in the five areas addressed by the Act.
+        commercial cooking equipment at our own facility in New York. We are committed to conducting
+        our business lawfully and responsibly, and we believe forced labor and human trafficking have
+        no place in our operations or in the supply chains that support them. This statement
+        describes the steps we take in the five areas addressed by the Act.
       </p>
 
       <h2 id="verification">Verification</h2>
       <p>
-        <em className="tpl-fill">
-          [Describe whether and how L&amp;T verifies its product supply chains to evaluate and
-          address risks of human trafficking and slavery, and state whether the verification is
-          performed internally or by a third party.]
-        </em>
+        L&amp;T produces the Panda&reg; line through vertically integrated, made-in-New-York
+        manufacturing and sources a substantial share of its materials and components from suppliers
+        based in the United States. Domestic, in-house production limits our direct exposure to the
+        regions most commonly associated with forced labor and human trafficking. As part of
+        selecting and continuing to work with suppliers, L&amp;T evaluates supplier risk internally
+        and favors established vendors with a record of lawful, ethical operation. L&amp;T does not
+        currently engage a third party to verify its product supply chains for these risks.
       </p>
 
       <h2 id="audits">Supplier audits</h2>
       <p>
-        <em className="tpl-fill">
-          [Describe whether L&amp;T audits suppliers to evaluate compliance with our standards for
-          trafficking and slavery, and whether those audits are independent and unannounced.]
-        </em>
+        L&amp;T maintains direct, long-standing relationships with its key suppliers and reviews
+        their quality, reliability, and conduct on an ongoing basis. If a concern about labor
+        practices arises, L&amp;T will investigate and may require corrective action or end the
+        relationship. L&amp;T does not currently conduct formal independent or unannounced audits of
+        suppliers specifically for slavery and human trafficking, and will assess introducing a
+        formal audit program as our supplier base grows.
       </p>
 
       <h2 id="certification">Certification</h2>
       <p>
-        <em className="tpl-fill">
-          [Describe whether L&amp;T requires direct suppliers to certify that materials incorporated
-          into our products comply with the laws on slavery and human trafficking of the countries
-          in which they do business.]
-        </em>
+        L&amp;T requires its direct suppliers to comply with all applicable laws, including the laws
+        addressing slavery and human trafficking of the countries in which they operate. L&amp;T may
+        request that direct suppliers certify in writing that the materials incorporated into our
+        products comply with those laws, and reserves the right to discontinue any supplier that
+        cannot provide that assurance.
       </p>
 
       <h2 id="accountability">Internal accountability</h2>
       <p>
-        <em className="tpl-fill">
-          [Describe L&amp;T&apos;s internal accountability standards and procedures for employees or
-          contractors who fail to meet company standards regarding slavery and trafficking.]
-        </em>
+        L&amp;T expects its employees and contractors to act lawfully and ethically. Conduct that
+        violates the law or company policy — including any involvement in, or tolerance of, forced
+        labor or human trafficking — is grounds for disciplinary action up to and including
+        termination of employment or of the business relationship. Employees may raise concerns to
+        L&amp;T management without fear of retaliation.
       </p>
 
       <h2 id="training">Training</h2>
       <p>
-        <em className="tpl-fill">
-          [Describe the training L&amp;T provides to employees and management with direct
-          responsibility for supply-chain management on human trafficking and slavery, including how
-          to mitigate risks within the supply chains of products.]
-        </em>
+        L&amp;T operates primarily from a single New York facility with a small purchasing team that
+        works closely with a stable supplier base. We make the personnel responsible for purchasing
+        and supplier management aware of the risks of forced labor and human trafficking and of
+        L&amp;T&apos;s expectation that suppliers operate lawfully. L&amp;T does not currently
+        maintain a formal, dedicated training program on human trafficking, and will evaluate
+        implementing one as our operations and supplier base expand.
       </p>
 
       <h2 id="contact">Questions</h2>
