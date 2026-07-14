@@ -4,7 +4,7 @@ import { useEffect, useState, type SVGProps, type ReactNode, type ReactElement }
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./AuthProvider";
-import { LogOut, TrendingUp, Package, Cart, User, Shield, Mail, FileText } from "./icons";
+import { LogOut, TrendingUp, Package, Cart, User, Shield, Mail, FileText, Settings } from "./icons";
 import AdminAnalytics from "./admin/AdminAnalytics";
 import AdminCatalog from "./admin/AdminCatalog";
 import AdminOrders from "./admin/AdminOrders";
@@ -12,8 +12,9 @@ import AdminCustomers from "./admin/AdminCustomers";
 import AdminService from "./admin/AdminService";
 import AdminInbox from "./admin/AdminInbox";
 import AdminAudit from "./admin/AdminAudit";
+import AdminSettings from "./admin/AdminSettings";
 
-type Tab = "analytics" | "catalog" | "orders" | "customers" | "service" | "inbox" | "audit";
+type Tab = "analytics" | "catalog" | "orders" | "customers" | "service" | "inbox" | "audit" | "settings";
 type IconC = (p: SVGProps<SVGSVGElement>) => ReactElement;
 const TABS: { id: Tab; label: string; Icon: IconC }[] = [
   { id: "analytics", label: "Analytics", Icon: TrendingUp },
@@ -23,6 +24,7 @@ const TABS: { id: Tab; label: string; Icon: IconC }[] = [
   { id: "service", label: "Warranty & service", Icon: Shield },
   { id: "inbox", label: "Inbox", Icon: Mail },
   { id: "audit", label: "Audit log", Icon: FileText },
+  { id: "settings", label: "Settings", Icon: Settings },
 ];
 
 function Gate({ children }: { children: ReactNode }) {
@@ -99,6 +101,7 @@ export default function AdminDashboard() {
           {tab === "service" && <AdminService />}
           {tab === "inbox" && <AdminInbox />}
           {tab === "audit" && <AdminAudit />}
+          {tab === "settings" && <AdminSettings />}
         </div>
       </div>
     </div>

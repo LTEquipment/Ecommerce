@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import EditorialHero from "@/components/EditorialHero";
 import Customers from "@/components/Customers";
 import { BRAND } from "@/lib/brand";
 import { COMPANY, telHref } from "@/lib/company";
+import { getSiteSettings } from "@/lib/settings";
 import { ArrowRight, FileText } from "@/components/icons";
 
 export const metadata = { title: "Investor Relations — L&T Restaurant Equipment" };
@@ -41,7 +43,10 @@ const IR_NAV = [
   { href: "#contact", label: "Contact" },
 ];
 
-export default function InvestorsPage() {
+export default async function InvestorsPage() {
+  const { investorRelationsEnabled } = await getSiteSettings();
+  if (!investorRelationsEnabled) notFound();
+
   return (
     <>
       <EditorialHero
