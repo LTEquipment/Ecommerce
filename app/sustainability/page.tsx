@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { COMPANY, telHref } from "@/lib/company";
-import { Wrench, Shield, TrendingUp, Package, ArrowRight } from "@/components/icons";
+import { ArrowRight } from "@/components/icons";
 
 export const metadata = { title: "Sustainability — L&T Restaurant Equipment" };
 
@@ -11,26 +11,30 @@ const STATS = [
   { value: "R-290", label: "Natural-refrigerant refrigeration" },
 ];
 
-const PILLARS = [
+const FEATURES = [
   {
-    icon: Wrench,
+    kicker: "Longevity",
     title: "Built to last",
+    img: "/products/52527-1.png",
     desc: "The most sustainable equipment is the equipment you don't replace. Panda® ranges are heavy-gauge stainless steel with serviceable, repairable components — engineered for decades of daily service, not disposable cycles.",
   },
   {
-    icon: Shield,
+    kicker: "Local manufacturing",
     title: "Made in New York",
-    desc: "Vertically integrated, made-in-America manufacturing means shorter supply chains and a smaller shipping footprint than equipment imported and resold — and parts and service that keep units running.",
+    img: "/products/52740-1.jpg",
+    desc: "Vertically integrated, made-in-America manufacturing means shorter supply chains and a smaller shipping footprint than equipment imported and resold — and parts and service that keep units running for years.",
   },
   {
-    icon: TrendingUp,
+    kicker: "Efficiency",
     title: "Energy-efficient by design",
+    img: "/products/ind-e120v-1.jpg",
     desc: "Energy Star–qualified models, high-efficiency jet burners and induction options, and R-290 natural-refrigerant refrigeration reduce the fuel, power and global-warming potential of a working kitchen.",
   },
   {
-    icon: Package,
-    title: "Materials & circularity",
-    desc: "Stainless steel is fully recyclable at end of life, modular and interchangeable parts extend a unit's service life, and factory parts and service keep equipment out of the landfill.",
+    kicker: "Circularity",
+    title: "Materials & end of life",
+    img: "/products/dchpa48-1.jpg",
+    desc: "Stainless steel is fully recyclable at end of life, modular and interchangeable parts extend a unit's service life, and factory parts and service keep equipment running rather than landfilled.",
   },
 ];
 
@@ -56,43 +60,40 @@ export default function SustainabilityPage() {
         </div>
       </section>
 
-      <div className="wrap content" style={{ paddingTop: "var(--s6)" }}>
-        {/* Approach + big-number anchors */}
-        <section className="pgsec">
-          <span className="pg-eyebrow">Our approach</span>
+      <div className="wrap content" style={{ paddingTop: 0 }}>
+        {/* Opening statement */}
+        <section className="stmt">
           <h2>The most sustainable equipment is the one you don&apos;t replace.</h2>
-          <p className="pg-lead">
+          <p>
             We&apos;ve built commercial kitchen equipment in New York for over 40 years — durable
             machines that stay in service for decades, produced locally with less waste, and
             engineered to cut the energy a kitchen burns every day.
           </p>
-          <div className="pg-stats">
-            {STATS.map((s) => (
-              <div className="s" key={s.label}>
-                <div className="n">{s.value}</div>
-                <div className="l">{s.label}</div>
-              </div>
-            ))}
-          </div>
         </section>
 
-        {/* Focus-area pillars */}
-        <section className="pgsec">
-          <span className="pg-eyebrow">Focus areas</span>
-          <h2>Where durability meets efficiency.</h2>
-          <div className="valuegrid" style={{ marginTop: "var(--s5)", marginBottom: 0 }}>
-            {PILLARS.map((p) => {
-              const Icon = p.icon;
-              return (
-                <div className="valuecard" key={p.title}>
-                  <Icon style={{ width: 22, height: 22, color: "var(--red)", marginBottom: 10 }} />
-                  <h3>{p.title}</h3>
-                  <p>{p.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+        {/* Bold stats */}
+        <div className="pg-stats">
+          {STATS.map((s) => (
+            <div className="s" key={s.label}>
+              <div className="n">{s.value}</div>
+              <div className="l">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Alternating product-feature rows */}
+        {FEATURES.map((f) => (
+          <section className="featrow" key={f.title}>
+            <div className="featrow-media">
+              <img src={f.img} alt={f.title} loading="lazy" decoding="async" />
+            </div>
+            <div className="featrow-text">
+              <span className="featrow-kicker">{f.kicker}</span>
+              <h2>{f.title}</h2>
+              <p>{f.desc}</p>
+            </div>
+          </section>
+        ))}
 
         {/* Reporting & goals — honest, no invented metrics */}
         <section className="pgsec">
@@ -108,17 +109,14 @@ export default function SustainabilityPage() {
         </section>
 
         {/* CTA */}
-        <div className="ir-callout" style={{ marginTop: "var(--s4)", marginBottom: "var(--s4)" }}>
-          <div>
-            <span className="eyebrow">Spec sustainably</span>
-            <h3>Building or refitting a kitchen?</h3>
-            <p>Our New York team can help you spec durable, energy-efficient equipment for your line.</p>
+        <section className="cta-band">
+          <h2>Building or refitting a kitchen?</h2>
+          <p>Our New York team can help you spec durable, energy-efficient equipment for your line.</p>
+          <div className="hero-cta" style={{ justifyContent: "center" }}>
+            <a className="btn btn-primary btn-lg" href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a>
+            <Link className="btn btn-line btn-lg" href="/contact">Contact us <ArrowRight /></Link>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <a className="btn" href={telHref(COMPANY.mainPhone)} style={{ background: "#fff", color: "var(--ink)" }}>{COMPANY.mainPhone}</a>
-            <Link className="btn btn-line" href="/contact" style={{ borderColor: "rgba(255,255,255,.3)", color: "#fff" }}>Contact us</Link>
-          </div>
-        </div>
+        </section>
       </div>
     </>
   );
