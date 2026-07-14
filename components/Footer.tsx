@@ -79,7 +79,7 @@ export default async function Footer() {
             </div>
           </div>
 
-          <div className="foot-nav">
+          <div className={`foot-nav${investorRelationsEnabled ? "" : " cols-4"}`}>
           <div className="fcol">
             <h5>Departments</h5>
             {CATEGORIES.slice(0, 6).map((c) => (
