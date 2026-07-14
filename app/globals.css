@@ -349,7 +349,8 @@ footer>.wrap{padding-top:var(--s6)}
 
 
 .foot-grid{display:grid;grid-template-columns:1fr 1.618fr;gap:var(--s6);padding-bottom:var(--s5);align-items:start}
-.foot-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s4)}
+.foot-nav{display:grid;grid-template-columns:repeat(var(--foot-cols,5),1fr);gap:var(--s4)}
+.foot-nav.cols-4{--foot-cols:4}
 .foot-brand{max-width:32ch}
 footer .brand-logo{height:48px;width:52px;background:url(/logo-mark.png) left center/contain no-repeat}
 .foot-brand .brand{display:block;line-height:0;margin-bottom:16px}
