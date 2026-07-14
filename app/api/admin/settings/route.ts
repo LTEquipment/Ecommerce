@@ -52,6 +52,9 @@ export async function POST(req: Request) {
     .insert({ actor_id: admin.id, actor_email: admin.email, action: "settings.update", target: key, detail: `Set ${key} = ${value}` })
     .then(() => {}, () => {});
 
-  revalidateTag(SETTINGS_TAG);
+  // Next 16: revalidateTag now takes a profile. { expire: 0 } expires the tag
+  // immediately so the toggle takes effect on the very next request (this is a
+  // Route Handler, not a Server Action, so updateTag isn't available here).
+  revalidateTag(SETTINGS_TAG, { expire: 0 });
   return NextResponse.json({ ok: true });
 }
