@@ -37,16 +37,15 @@ const PILLARS = [
 export default function SustainabilityPage() {
   return (
     <>
-      {/* Full-bleed video hero */}
-      <section className="vhero">
-        <video className="vhero-bg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+      {/* Full-bleed, bottom-left editorial video hero */}
+      <section className="pg-hero">
+        <video className="pg-hero-bg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
           <source src="/videos/sustainability.mp4" type="video/mp4" />
         </video>
-        <div className="vhero-scrim" />
-        <div className="wrap vhero-inner">
+        <div className="wrap pg-hero-inner">
           <span className="eyebrow">Built to last</span>
           <h1>Sustainability</h1>
-          <p className="vhero-lede">
+          <p className="pg-hero-lede">
             The most sustainable equipment is the equipment that lasts — built to run for decades,
             made close to the kitchens it serves, and engineered to use less energy on every line.
           </p>
