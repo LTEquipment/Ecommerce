@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
@@ -14,7 +14,7 @@
     "@supabase/supabase-js": "^2.110.2",
     "@types/leaflet": "^1.9.21",
     "leaflet": "^1.9.4",
-    "next": "15.5.20",
+    "next": "16.2.10",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -23,8 +23,8 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "dotenv": "^17.4.2",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "15.5.20",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "16.2.10",
     "tsx": "^4.23.0",
     "typescript": "^5.5.4"
   },

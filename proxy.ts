@@ -4,8 +4,12 @@ import { createServerClient } from "@supabase/ssr";
 /**
  * Refreshes the Supabase auth session cookie on every request so Server
  * Components see a current session. No-op when Supabase env vars are absent.
+ *
+ * Next 16 renamed the `middleware` convention to `proxy` (runs on the Node.js
+ * runtime). Rename the export back to `middleware` in middleware.ts if you ever
+ * need the Edge runtime.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
