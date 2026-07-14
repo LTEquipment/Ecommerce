@@ -46,17 +46,30 @@ const FOR_SOCIETY = [
 export default function SustainabilityPage() {
   return (
     <>
-      {/* Full-bleed video hero — just the wordmark */}
-      <section className="pg-hero">
-        <video className="pg-hero-bg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+      {/* Modern glass hero */}
+      <section className="mh">
+        <video className="mh-bg" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
           <source src="/videos/sustainability.mp4" type="video/mp4" />
         </video>
-        <div className="wrap pg-hero-inner">
-          <span className="eyebrow">Built to last</span>
-          <h1>Sustainability</h1>
-          <div className="hero-cta">
+        <div className="mh-glow" aria-hidden="true" />
+        <div className="wrap mh-in">
+          <span className="mh-chip"><span className="dot" aria-hidden="true" /> Built to last</span>
+          <h1 className="mh-h">Sustainability</h1>
+          <p className="mh-lede">
+            The most sustainable equipment is the equipment that lasts — built to run for decades,
+            made close to the kitchens it serves, engineered to use less on every line.
+          </p>
+          <div className="mh-cta">
             <Link className="btn btn-primary btn-lg" href="/products">Explore the equipment <ArrowRight /></Link>
-            <Link className="btn btn-line-light btn-lg" href="/contact">Talk to our team</Link>
+            <Link className="btn-glass" href="/contact">Talk to our team</Link>
+          </div>
+          <div className="mh-facts">
+            {FACTS.map((f) => (
+              <div className="mh-fact" key={f.label}>
+                <b>{f.value}</b>
+                <span>{f.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -72,16 +85,6 @@ export default function SustainabilityPage() {
             businesses we serve — and for the community and environment around them.
           </p>
         </section>
-
-        {/* Facts */}
-        <div className="ss-data">
-          {FACTS.map((f) => (
-            <div className="d" key={f.label}>
-              <div className="n">{f.value}</div>
-              <div className="l">{f.label}</div>
-            </div>
-          ))}
-        </div>
 
         {/* For the businesses we serve */}
         <span className="ss-lab">For the kitchens you run</span>
