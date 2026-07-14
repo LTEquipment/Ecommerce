@@ -336,6 +336,14 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 /* ---------- footer ---------- */
 footer{background:var(--ink);color:rgba(255,255,255,.55);padding:0 0 var(--s5);margin-top:0}
 footer>.wrap{padding-top:var(--s6)}
+/* Apple-style legal footnotes + contextual breadcrumb */
+.foot-notes{padding-bottom:var(--s4);margin-bottom:var(--s4);border-bottom:1px solid rgba(255,255,255,.1)}
+.foot-notes p{font-size:11px;line-height:1.55;color:rgba(255,255,255,.38);margin:0 0 9px;max-width:none}
+.foot-notes p:last-child{margin:0}
+.foot-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;padding-bottom:var(--s4);margin-bottom:var(--s4);border-bottom:1px solid rgba(255,255,255,.1)}
+.foot-crumb a{color:rgba(255,255,255,.55)}
+.foot-crumb a:hover{color:#fff}
+.foot-crumb .fc-sep{color:rgba(255,255,255,.3)}
 
 
 .foot-grid{display:grid;grid-template-columns:1fr 1.618fr;gap:var(--s6);padding-bottom:var(--s5);align-items:start}
