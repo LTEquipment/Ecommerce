@@ -53,7 +53,7 @@ export default function Locations({
       <section className="locations">
         <div className="wrap">
           <div className="loc-split">
-            <div className="locgrid" style={{ gridTemplateColumns: "repeat(2,1fr)" }}>
+            <div className="locgrid">
               {COMPANY.locations.map((l) => (
                 <LocCard l={l} key={l.name + l.address} />
               ))}

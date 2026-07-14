@@ -61,14 +61,12 @@ export default function Catalog({
   return (
     <section id={anchor} style={anchor ? { paddingTop: 0 } : undefined}>
       <div className="wrap">
-        {title && (
-          <div className="sec-head">
-            <h2>{title}</h2>
-            <button className="filters-toggle" onClick={() => setMobileOpen((o) => !o)}>
-              <Filter style={{ width: 16, height: 16 }} /> Filters
-            </button>
-          </div>
-        )}
+        <div className={`sec-head${title ? "" : " shop-nohead"}`}>
+          {title && <h2>{title}</h2>}
+          <button className="filters-toggle" onClick={() => setMobileOpen((o) => !o)} aria-expanded={mobileOpen}>
+            <Filter style={{ width: 16, height: 16 }} /> Filters
+          </button>
+        </div>
         <div className="shop">
           <aside className={`facets${mobileOpen ? " open" : ""}`} aria-label="Filters">
             {!lockedCat && (
