@@ -4,37 +4,37 @@ import { ArrowRight } from "@/components/icons";
 
 export const metadata = { title: "Sustainability — L&T Restaurant Equipment" };
 
-const STATS = [
-  { value: "40+", label: "Years building equipment made to last" },
-  { value: "60,000", label: "Sq ft — a single New York factory" },
-  { value: "30+", label: "Years many customers run the same line" },
-  { value: "R-290", label: "Natural-refrigerant refrigeration" },
+const DATA = [
+  { value: "40+", label: "Years building to last" },
+  { value: "60,000", label: "Sq ft · one NY factory" },
+  { value: "30+", label: "Years on the same line" },
+  { value: "R-290", label: "Natural refrigerant" },
 ];
 
-const FEATURES = [
+const PRINCIPLES = [
   {
-    kicker: "Longevity",
+    n: "01",
     title: "Built to last",
-    img: "/products/52527-1.png",
+    kicker: "Longevity",
     desc: "The most sustainable equipment is the equipment you don't replace. Panda® ranges are heavy-gauge stainless steel with serviceable, repairable components — engineered for decades of daily service, not disposable cycles.",
   },
   {
-    kicker: "Local manufacturing",
+    n: "02",
     title: "Made in New York",
-    img: "/products/52740-1.jpg",
-    desc: "Vertically integrated, made-in-America manufacturing means shorter supply chains and a smaller shipping footprint than equipment imported and resold — and parts and service that keep units running for years.",
+    kicker: "Local manufacturing",
+    desc: "Vertically integrated, made-in-America production means shorter supply chains and a smaller shipping footprint than equipment imported and resold — with parts and service that keep units running for years.",
   },
   {
-    kicker: "Efficiency",
+    n: "03",
     title: "Energy-efficient by design",
-    img: "/products/ind-e120v-1.jpg",
-    desc: "Energy Star–qualified models, high-efficiency jet burners and induction options, and R-290 natural-refrigerant refrigeration reduce the fuel, power and global-warming potential of a working kitchen.",
+    kicker: "Efficiency",
+    desc: "Energy Star–qualified models, high-efficiency jet burners and induction options, and R-290 natural-refrigerant refrigeration cut the fuel, power and global-warming potential of a working kitchen.",
   },
   {
-    kicker: "Circularity",
+    n: "04",
     title: "Materials & end of life",
-    img: "/products/dchpa48-1.jpg",
-    desc: "Stainless steel is fully recyclable at end of life, modular and interchangeable parts extend a unit's service life, and factory parts and service keep equipment running rather than landfilled.",
+    kicker: "Circularity",
+    desc: "Stainless steel is fully recyclable at end of life, modular parts extend a unit's service life, and factory parts and service keep equipment running rather than landfilled.",
   },
 ];
 
@@ -61,41 +61,43 @@ export default function SustainabilityPage() {
       </section>
 
       <div className="wrap content" style={{ paddingTop: 0 }}>
-        {/* Opening statement */}
-        <section className="stmt">
-          <h2>The most sustainable equipment is the one you don&apos;t replace.</h2>
+        {/* Editorial intro — statement left, note right */}
+        <section className="ss-intro">
+          <h2>Durability is the strategy.</h2>
           <p>
-            We&apos;ve built commercial kitchen equipment in New York for over 40 years — durable
-            machines that stay in service for decades, produced locally with less waste, and
-            engineered to cut the energy a kitchen burns every day.
+            We don&apos;t bolt sustainability on. It&apos;s a consequence of how L&amp;T has built
+            commercial kitchen equipment in New York for over 40 years — machines that stay in
+            service for decades, produced locally with less waste, and engineered to burn less energy
+            every day.
           </p>
         </section>
 
-        {/* Bold stats */}
-        <div className="pg-stats">
-          {STATS.map((s) => (
-            <div className="s" key={s.label}>
-              <div className="n">{s.value}</div>
-              <div className="l">{s.label}</div>
+        {/* Technical data strip */}
+        <div className="ss-data">
+          {DATA.map((d) => (
+            <div className="d" key={d.label}>
+              <div className="n">{d.value}</div>
+              <div className="l">{d.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Alternating product-feature rows */}
-        {FEATURES.map((f) => (
-          <section className="featrow" key={f.title}>
-            <div className="featrow-media">
-              <img src={f.img} alt={f.title} loading="lazy" decoding="async" />
-            </div>
-            <div className="featrow-text">
-              <span className="featrow-kicker">{f.kicker}</span>
-              <h2>{f.title}</h2>
-              <p>{f.desc}</p>
-            </div>
-          </section>
-        ))}
+        {/* Numbered principles index */}
+        <span className="ss-lab">Four principles</span>
+        <div>
+          {PRINCIPLES.map((p) => (
+            <section className="principle" key={p.n}>
+              <div className="principle-num">{p.n}</div>
+              <div>
+                <h2 className="principle-title">{p.title}</h2>
+                <span className="principle-kicker">{p.kicker}</span>
+              </div>
+              <p className="principle-desc">{p.desc}</p>
+            </section>
+          ))}
+        </div>
 
-        {/* Reporting & goals — honest, no invented metrics */}
+        {/* Reporting */}
         <section className="pgsec">
           <span className="pg-eyebrow">Reporting &amp; goals</span>
           <h2>Measured, not marketed.</h2>
