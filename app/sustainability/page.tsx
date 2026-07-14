@@ -11,30 +11,35 @@ const FACTS = [
   { value: "R-290", label: "Natural refrigerant" },
 ];
 
-const PRINCIPLES = [
+// What L&T provides to the businesses it serves.
+const FOR_BUSINESS = [
   {
-    n: "01",
-    title: "Built to last",
-    kicker: "Longevity",
-    desc: "The most sustainable equipment is the equipment you don't replace. Panda® ranges are heavy-gauge stainless steel with serviceable, repairable components — engineered for decades of daily service, not disposable cycles.",
+    title: "Bought once, not every few years",
+    desc: "A range engineered to run for decades is a capital purchase, not a recurring one. Heavy-gauge steel and serviceable, repairable parts mean the payback keeps going long after the invoice — lowering total cost of ownership for the operators who run our equipment.",
   },
   {
-    n: "02",
-    title: "Made in New York",
-    kicker: "Local manufacturing",
-    desc: "Vertically integrated, made-in-America production means shorter supply chains and a smaller shipping footprint than equipment imported and resold — with parts and service that keep units running for years.",
+    title: "Lower cost on every shift",
+    desc: "Energy Star–qualified models, high-efficiency burners and induction, and R-290 refrigeration cut the fuel and power a kitchen burns each service. For a working restaurant, that shows up as a lighter utility bill, month after month.",
   },
   {
-    n: "03",
-    title: "Energy-efficient by design",
-    kicker: "Efficiency",
-    desc: "Energy Star–qualified models, high-efficiency jet burners and induction options, and R-290 natural-refrigerant refrigeration cut the fuel, power and global-warming potential of a working kitchen.",
+    title: "Less downtime, local support",
+    desc: "When a unit needs attention, factory parts and a New York service team keep the line moving — no waiting weeks on an importer an ocean away. Uptime is revenue, and we build to protect it.",
+  },
+];
+
+// What L&T provides to New York and the environment.
+const FOR_SOCIETY = [
+  {
+    title: "Skilled jobs, kept in New York",
+    desc: "Vertically integrated, made-in-America manufacturing keeps fabrication, welding and engineering work in our New York factory — supporting local, skilled trades and a shorter, more resilient supply chain than importing and reselling.",
   },
   {
-    n: "04",
-    title: "Materials & end of life",
-    kicker: "Circularity",
-    desc: "Stainless steel is fully recyclable at end of life, modular parts extend a unit's service life, and factory parts and service keep equipment running rather than landfilled.",
+    title: "Designed out of the landfill",
+    desc: "Equipment built to be repaired rather than replaced — with modular parts and stainless steel that is fully recyclable at end of life — keeps material and hardware out of the waste stream for decades.",
+  },
+  {
+    title: "A lighter footprint, every year",
+    desc: "Efficient burners, induction options and natural-refrigerant (R-290) systems mean the kitchens that run our equipment draw less energy and carry lower global-warming potential — a benefit that compounds over a machine's long service life.",
   },
 ];
 
@@ -57,18 +62,18 @@ export default function SustainabilityPage() {
       </section>
 
       <div className="wrap content" style={{ paddingTop: 0 }}>
-        {/* Editorial intro */}
+        {/* Mission — dual value: business + society */}
         <section className="ss-intro">
-          <h2>Durability is the strategy.</h2>
+          <h2>Sustainability that pays back — on the line, and beyond it.</h2>
           <p>
-            We don&apos;t bolt sustainability on. It&apos;s a consequence of how L&amp;T has built
-            commercial kitchen equipment in New York for over 40 years — machines that stay in
-            service for decades, produced locally with less waste, and engineered to burn less energy
-            every day.
+            Equipment that lasts longer, costs less to run, and is built and serviced locally does
+            more than shrink a footprint. It lowers what a kitchen spends, keeps skilled work in New
+            York, and keeps tons of steel out of the landfill. This is what that means for the
+            businesses we serve — and for the community and environment around them.
           </p>
         </section>
 
-        {/* Technical data strip */}
+        {/* Facts */}
         <div className="ss-data">
           {FACTS.map((f) => (
             <div className="d" key={f.label}>
@@ -78,18 +83,25 @@ export default function SustainabilityPage() {
           ))}
         </div>
 
-        {/* Numbered principles index */}
-        <span className="ss-lab">Four principles</span>
+        {/* For the businesses we serve */}
+        <span className="ss-lab">For the kitchens you run</span>
         <div>
-          {PRINCIPLES.map((p) => (
-            <section className="principle" key={p.n}>
-              <div className="principle-num">{p.n}</div>
-              <div>
-                <h2 className="principle-title">{p.title}</h2>
-                <span className="principle-kicker">{p.kicker}</span>
-              </div>
-              <p className="principle-desc">{p.desc}</p>
-            </section>
+          {FOR_BUSINESS.map((v) => (
+            <div className="value-row" key={v.title}>
+              <h3>{v.title}</h3>
+              <p>{v.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* For society & the environment */}
+        <span className="ss-lab">For New York &amp; the planet</span>
+        <div>
+          {FOR_SOCIETY.map((v) => (
+            <div className="value-row" key={v.title}>
+              <h3>{v.title}</h3>
+              <p>{v.desc}</p>
+            </div>
           ))}
         </div>
 
@@ -99,8 +111,8 @@ export default function SustainabilityPage() {
           <h2>Measured, not marketed.</h2>
           <p className="pg-body">
             As we prepare for our next chapter — including a public listing — we&apos;re formalizing
-            our environmental reporting alongside our governance framework. We will publish
-            measurable targets and progress here as they are set, rather than make claims we
+            our environmental and community reporting alongside our governance framework. We will
+            publish measurable targets and progress here as they are set, rather than make claims we
             can&apos;t yet stand behind. For governance and investor detail, see{" "}
             <Link href="/investors#governance">corporate governance</Link>.
           </p>
@@ -109,7 +121,7 @@ export default function SustainabilityPage() {
         {/* CTA */}
         <section className="cta-band">
           <h2>Building or refitting a kitchen?</h2>
-          <p>Our New York team can help you spec durable, energy-efficient equipment for your line.</p>
+          <p>Our New York team can help you spec durable, energy-efficient equipment that works harder for your business.</p>
           <div className="hero-cta" style={{ justifyContent: "center" }}>
             <a className="btn btn-primary btn-lg" href={telHref(COMPANY.mainPhone)}>{COMPANY.mainPhone}</a>
             <Link className="btn btn-line btn-lg" href="/contact">Contact us <ArrowRight /></Link>
