@@ -7,6 +7,17 @@ import { COMPANY, telHref } from "@/lib/company";
 const RED = "#BE1E2D";
 const INK = "#17191C";
 
+// Escape interpolated values before they go into a Leaflet popup's innerHTML.
+// COMPANY.locations is static today, but this stops HTML injection the moment
+// locations ever come from the database (as products/categories already do).
+const esc = (s: string) =>
+  String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 // A teardrop map pin — universally read as "location", unlike a plain dot.
 const pinSvg = (color: string) =>
   `<svg width="26" height="34" viewBox="0 0 26 34" xmlns="http://www.w3.org/2000/svg">` +
@@ -52,7 +63,7 @@ export default function LocationsMap() {
         L.marker([l.lat, l.lng], { icon: icon(/HQ|Factory/i.test(l.kind)), title: l.name })
           .addTo(map)
           .bindPopup(
-            `<b>${l.name}</b><br>${l.address}<br><a href="${telHref(l.phone)}">${l.phone}</a>` +
+            `<b>${esc(l.name)}</b><br>${esc(l.address)}<br><a href="${esc(telHref(l.phone))}">${esc(l.phone)}</a>` +
               `<br><a href="https://maps.google.com/?q=${encodeURIComponent(l.address)}" target="_blank" rel="noopener noreferrer">Get directions →</a>`
           )
       );

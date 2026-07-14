@@ -6,6 +6,7 @@ import { useStore } from "./StoreProvider";
 import { useLiveProduct } from "@/lib/useLiveProducts";
 import { recordView } from "@/lib/recentlyViewed";
 import { money } from "@/lib/format";
+import { safeHref } from "@/lib/safeHref";
 import { COMPANY, telHref } from "@/lib/company";
 import { ILLUS } from "@/lib/illus";
 import { Star, Plus, Truck, Shield, Card, Search, Close, FileText } from "./icons";
@@ -163,12 +164,16 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
                   <span className="res-row-ic"><FileText /></span>
                   <span className="res-row-txt"><b>Spec sheet</b><span>Print or save PDF</span></span>
                 </button>
-                {(p.documents ?? []).map((d, i) => (
-                  <a key={i} className="res-row" href={d.url} target="_blank" rel="noreferrer">
-                    <span className="res-row-ic"><FileText /></span>
-                    <span className="res-row-txt"><b>{d.label}</b><span>Download</span></span>
-                  </a>
-                ))}
+                {(p.documents ?? []).map((d, i) => {
+                  const href = safeHref(d.url);
+                  if (!href) return null;
+                  return (
+                    <a key={i} className="res-row" href={href} target="_blank" rel="noreferrer">
+                      <span className="res-row-ic"><FileText /></span>
+                      <span className="res-row-txt"><b>{d.label}</b><span>Download</span></span>
+                    </a>
+                  );
+                })}
               </div>
               <p className="res-panel-note">Need a manual, CAD or submittal we don&apos;t list? <a href={`/contact?ref=${encodeURIComponent(p.sku)}`}>Request it →</a></p>
             </div>

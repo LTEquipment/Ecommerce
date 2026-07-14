@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { IMAGE_TYPES, overSizeLimit } from "@/lib/uploadGuards";
+
+const MAX = 6 * 1024 * 1024;
 
 // Uploads a product photo to the public "product-images" bucket. Runs with the
 // service-role key (bypasses storage RLS) after verifying the caller is an admin.
@@ -13,14 +16,17 @@ export async function POST(req: Request) {
   const { data: adminRow } = await supabase.from("admins").select("user_id").eq("user_id", user.id).maybeSingle();
   if (!adminRow) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  if (overSizeLimit(req, MAX)) return NextResponse.json({ error: "Image must be under 6MB" }, { status: 413 });
+
   const form = await req.formData();
   const file = form.get("file");
   const slug = String(form.get("slug") || "misc").replace(/[^a-z0-9-]/gi, "").slice(0, 60) || "misc";
   if (!(file instanceof File)) return NextResponse.json({ error: "No file provided" }, { status: 400 });
-  if (file.size > 6 * 1024 * 1024) return NextResponse.json({ error: "Image must be under 6MB" }, { status: 400 });
-  if (!file.type.startsWith("image/")) return NextResponse.json({ error: "File must be an image" }, { status: 400 });
+  if (file.size > MAX) return NextResponse.json({ error: "Image must be under 6MB" }, { status: 400 });
+  // Raster images only — SVG/active content is not allowed in a public bucket.
+  const ext = IMAGE_TYPES[file.type];
+  if (!ext) return NextResponse.json({ error: "Use a PNG, JPG, WEBP, GIF or AVIF image" }, { status: 400 });
 
-  const ext = (file.type.split("/")[1] || "png").replace("jpeg", "jpg").replace("svg+xml", "svg");
   // Unique-ish name so re-uploads for the same product don't collide.
   const stamp = Math.random().toString(36).slice(2, 8);
   const path = `${slug}/${stamp}.${ext}`;
