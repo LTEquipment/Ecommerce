@@ -334,7 +334,8 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 .np button:hover{background:var(--red-600)}
 
 /* ---------- footer ---------- */
-footer{background:var(--ink);color:rgba(255,255,255,.55);border-top:1px solid rgba(255,255,255,.1);padding:var(--s6) 0 var(--s5);margin-top:0}
+footer{background:var(--ink);color:rgba(255,255,255,.55);padding:0 0 var(--s5);margin-top:0}
+footer>.wrap{padding-top:var(--s6)}
 
 
 .foot-grid{display:grid;grid-template-columns:1fr 1.618fr;gap:var(--s6);padding-bottom:var(--s5);align-items:start}
