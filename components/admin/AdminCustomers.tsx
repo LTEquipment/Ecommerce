@@ -99,8 +99,8 @@ export default function AdminCustomers() {
                       </span>
                     ) : <span className="pill info">Customer</span>}
                   </div>
-                  <div className="cust-date">{new Date(c.createdAt).toLocaleDateString()}</div>
-                  <div className="cust-date">{c.lastSignInAt ? new Date(c.lastSignInAt).toLocaleDateString() : "—"}</div>
+                  <div className="cust-date" data-label="Joined">{new Date(c.createdAt).toLocaleDateString()}</div>
+                  <div className="cust-date" data-label="Last active">{c.lastSignInAt ? new Date(c.lastSignInAt).toLocaleDateString() : "—"}</div>
                   <div className="cust-actions" onClick={(e) => e.stopPropagation()}>
                     {c.dealerStatus === "pending" && (
                       <>
