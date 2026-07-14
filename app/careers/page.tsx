@@ -40,8 +40,7 @@ const ROLES = [
   },
 ];
 
-const applyHref = (team: string) =>
-  `mailto:${COMPANY.email}?subject=${encodeURIComponent("Application — " + team)}`;
+const applyHref = (team: string) => `/contact?role=${encodeURIComponent(team)}`;
 
 export default function CareersPage() {
   return (
@@ -85,7 +84,7 @@ export default function CareersPage() {
             <p className="roles">{r.roles}</p>
             <p className="rblurb">{r.blurb}</p>
             <span className="rloc"><MapPin /> {r.loc}</span>
-            <a className="rapply" href={applyHref(r.team)}>Express interest <ArrowRight /></a>
+            <Link className="rapply" href={applyHref(r.team)}>Express interest <ArrowRight /></Link>
           </div>
         ))}
       </div>

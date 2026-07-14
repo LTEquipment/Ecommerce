@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "./StoreProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 
@@ -8,9 +8,22 @@ export default function ContactForm() {
   const { toast } = useStore();
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
   const [f, setF] = useState({ name: "", company: "", email: "", phone: "", message: "" });
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setF((s) => ({ ...s, [k]: e.target.value }));
+
+  // Pre-fill when arriving from a careers "Express interest" link (/contact?role=Manufacturing).
+  useEffect(() => {
+    const r = new URLSearchParams(window.location.search).get("role");
+    if (r) {
+      setRole(r);
+      setF((s) => ({
+        ...s,
+        message: s.message || `I'd like to apply to the ${r} team. A bit about my background:\n\n`,
+      }));
+    }
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +56,7 @@ export default function ContactForm() {
 
   return (
     <form className="form-card" onSubmit={submit}>
-      <h2 style={{ marginTop: 0 }}>Send us a message</h2>
+      <h2 style={{ marginTop: 0 }}>{role ? `Apply — ${role}` : "Send us a message"}</h2>
       <div className="field-row">
         <div className="field"><label>Name</label><input required value={f.name} onChange={set("name")} /></div>
         <div className="field"><label>Company</label><input value={f.company} onChange={set("company")} /></div>
@@ -53,11 +66,11 @@ export default function ContactForm() {
         <div className="field"><label>Phone</label><input value={f.phone} onChange={set("phone")} /></div>
       </div>
       <div className="field">
-        <label>How can we help?</label>
-        <textarea rows={4} required value={f.message} onChange={set("message")} placeholder="Tell us about your kitchen and what you're looking to spec…" />
+        <label>{role ? "Your background" : "How can we help?"}</label>
+        <textarea rows={role ? 6 : 4} required value={f.message} onChange={set("message")} placeholder={role ? "Tell us about your experience and why you'd be a fit…" : "Tell us about your kitchen and what you're looking to spec…"} />
       </div>
       <button className="btn btn-primary btn-lg" type="submit" disabled={busy}>
-        {busy ? "Sending…" : "Send message"}
+        {busy ? "Sending…" : role ? "Submit application" : "Send message"}
       </button>
     </form>
   );
