@@ -5,6 +5,7 @@ import { CATEGORIES } from "@/lib/products";
 import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu, Phone, Chat } from "./icons";
 import CookiePrefsButton from "./CookiePrefsButton";
 import BackToTop from "./BackToTop";
+import FooterBreadcrumb from "./FooterBreadcrumb";
 
 const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => ReactElement> = {
   TikTok,
@@ -33,6 +34,28 @@ export default function Footer() {
         </div>
       </div>
       <div className="wrap">
+        <div className="foot-notes">
+          <p>
+            Prices, specifications, features, and availability are subject to change without notice.
+            Product images and illustrations are provided for reference and may not reflect exact
+            configurations. Freight, lead times, and applicable taxes are estimated and confirmed on
+            your quote.
+          </p>
+          <p>
+            Panda® and the L&amp;T logo are trademarks of {COMPANY.legalName}. NSF, CSA, and ETL are
+            marks of their respective certification bodies. All other trademarks are the property of
+            their respective owners.
+          </p>
+          <p>
+            Statements regarding L&amp;T&apos;s growth and plans, including any future public listing,
+            are forward-looking, reflect current expectations, and are not guarantees of future
+            results. Nothing on this site constitutes an offer to sell, or a solicitation of an offer
+            to buy, any securities.
+          </p>
+        </div>
+
+        <FooterBreadcrumb />
+
         <div className="foot-grid">
           <div className="foot-brand">
             <Link className="brand" href="/">
