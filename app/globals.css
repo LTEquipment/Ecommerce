@@ -677,6 +677,15 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
    CONTENT PAGES (about / contact / locations)
    ============================================================ */
 .content{padding:0 var(--s4) var(--space-section)}
+/* video/photo hero for content pages (headline overlaid, real media only) */
+.media-hero{position:relative;border-radius:var(--rl);overflow:hidden;min-height:clamp(360px,54vh,560px);display:flex;align-items:flex-end;background:var(--ink);margin:var(--s3) 0 var(--s5)}
+.media-hero .media-hero-vid,.media-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.media-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15) 30%,rgba(0,0,0,.72));z-index:1}
+.media-hero-inner{position:relative;z-index:2;color:#fff;padding:var(--s6) var(--s5);max-width:660px}
+.media-hero-inner .eyebrow{color:#F3B6BB;font-weight:700}
+.media-hero-inner h1{font-family:var(--disp);font-weight:800;font-size:clamp(36px,5.2vw,62px);line-height:1.01;letter-spacing:-.02em;color:#fff;margin:var(--s2) 0 var(--s3)}
+.media-hero-inner p{font-size:clamp(15px,1.4vw,18px);color:rgba(255,255,255,.9);line-height:1.55;max-width:48ch;margin:0 0 var(--s4)}
+@media(max-width:640px){.media-hero{min-height:420px}.media-hero-inner{padding:var(--s5) var(--s4)}}
 /* full-width media band for content pages (real photo/video only) */
 .page-media{position:relative;width:100%;aspect-ratio:21/8;border-radius:var(--rl);overflow:hidden;margin:var(--s3) 0 var(--s5);background:var(--panel)}
 .page-media .page-media-vid,.page-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}

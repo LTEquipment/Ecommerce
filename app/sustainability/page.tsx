@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import PageHeader, { StatMeta } from "@/components/PageHeader";
 import { COMPANY, telHref } from "@/lib/company";
 import { Wrench, Shield, TrendingUp, Package, ArrowRight } from "@/components/icons";
 
@@ -41,28 +40,28 @@ export default function SustainabilityPage() {
     <div className="wrap content">
       <Breadcrumbs items={[{ label: "Sustainability" }]} />
 
-      <PageHeader
-        eyebrow="Built to last"
-        title="Sustainability"
-        intro="At L&T, the most sustainable equipment is the equipment that lasts — built to run for decades, made close to the kitchens it serves, and engineered to use less energy on every line."
-        meta={<StatMeta n="40+" label="years of durable, repairable equipment" />}
-      >
-        <div className="hero-cta" style={{ marginTop: "var(--s4)" }}>
-          <Link className="btn btn-primary btn-lg" href="/products">Explore the equipment <ArrowRight /></Link>
-          <Link className="btn btn-line btn-lg" href="/contact">Talk to our team</Link>
-        </div>
-      </PageHeader>
-
-      {/* Real factory/equipment footage — no stock imagery */}
-      <section className="page-media" aria-label="L&T equipment, built in New York">
-        <video className="page-media-vid" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
-          <source src="https://ltusa.s3.us-east-1.amazonaws.com/adv_videos/home/Video_1.mp4" type="video/mp4" />
+      {/* Video hero — real footage, headline overlaid */}
+      <section className="media-hero">
+        <video className="media-hero-vid" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
+          <source src="/videos/sustainability.mp4" type="video/mp4" />
         </video>
-        <span className="page-media-cap">Designed, built and serviced in New York.</span>
+        <div className="media-hero-inner">
+          <span className="eyebrow">Built to last</span>
+          <h1>Sustainability</h1>
+          <p>
+            At L&amp;T, the most sustainable equipment is the equipment that lasts — built to run for
+            decades, made close to the kitchens it serves, and engineered to use less energy on every
+            line.
+          </p>
+          <div className="hero-cta" style={{ justifyContent: "flex-start" }}>
+            <Link className="btn btn-primary btn-lg" href="/products">Explore the equipment <ArrowRight /></Link>
+            <Link className="btn btn-line-light btn-lg" href="/contact">Talk to our team</Link>
+          </div>
+        </div>
       </section>
 
       {/* Big-number anchors */}
-      <section style={{ padding: "var(--s5) 0" }}>
+      <section style={{ padding: "var(--s2) 0 var(--s5)" }}>
         <div className="band" style={{ border: "1px solid var(--line)", borderRadius: "var(--rl)" }}>
           <div className="wrap" style={{ padding: "var(--s5)", gridTemplateColumns: "1fr" }}>
             <div className="stats hl-stats" style={{ marginTop: 0 }}>
