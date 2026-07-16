@@ -103,6 +103,23 @@ export const TrendingUp = (p: P) => (
 export const FileText = (p: P) => (
   <svg {...base} strokeWidth={1.8} {...p}><path d="M6 2h8l4 4v16H6z" /><path d="M14 2v4h4M9 13h6M9 17h6" /></svg>
 );
+
+// Refined, uniform-weight (1.7) icons for the account menu.
+export const UserRound = (p: P) => (
+  <svg {...base} strokeWidth={1.7} {...p}><circle cx="12" cy="8.5" r="3.5" /><path d="M5.5 20a6.5 6.5 0 0 1 13 0" /></svg>
+);
+export const Bag = (p: P) => (
+  <svg {...base} strokeWidth={1.7} {...p}><path d="M6 8.5h12l-1 11.5H7z" /><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5" /></svg>
+);
+export const ShieldCheck = (p: P) => (
+  <svg {...base} strokeWidth={1.7} {...p}><path d="M12 3l7 2.6v5.9c0 4.6-3 6.9-7 8.5-4-1.6-7-3.9-7-8.5V5.6z" /><path d="m9 12 2 2 4-4" /></svg>
+);
+export const Grid = (p: P) => (
+  <svg {...base} strokeWidth={1.7} {...p}><rect x="4" y="4" width="7" height="7" rx="1.6" /><rect x="13" y="4" width="7" height="7" rx="1.6" /><rect x="4" y="13" width="7" height="7" rx="1.6" /><rect x="13" y="13" width="7" height="7" rx="1.6" /></svg>
+);
+export const SignOut = (p: P) => (
+  <svg {...base} strokeWidth={1.7} {...p}><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
+);
 export const LinkedIn = (p: P) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.3-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21h-4z" /></svg>
 );

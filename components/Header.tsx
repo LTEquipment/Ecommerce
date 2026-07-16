@@ -10,7 +10,7 @@ import { money } from "@/lib/format";
 import { COMPANY } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
 import { ILLUS } from "@/lib/illus";
-import { Search, User, Cart, Menu, ChevronDown, Package, LogOut, FileText, TrendingUp, Shield } from "./icons";
+import { Search, User, UserRound, Bag, ShieldCheck, Grid, SignOut, Cart, Menu, ChevronDown, FileText } from "./icons";
 
 const NAV = CATEGORIES.slice(0, 6);
 
@@ -100,7 +100,7 @@ export default function Header() {
                 aria-expanded={menuOpen}
                 style={{ display: "flex", alignItems: "center", gap: 9 }}
               >
-                <User />
+                <UserRound />
                 <span className="lbl">
                   <b>Account</b>
                   <span>{displayName}</span>
@@ -119,22 +119,22 @@ export default function Header() {
                     </div>
                   </div>
                   <Link href="/account" role="menuitem" onClick={() => setMenuOpen(false)}>
-                    <User /> Account
+                    <UserRound /> Account
                   </Link>
                   <Link href="/account?tab=orders" role="menuitem" onClick={() => setMenuOpen(false)}>
-                    <Package /> Orders
+                    <Bag /> Orders
                   </Link>
                   <Link href="/account?tab=service" role="menuitem" onClick={() => setMenuOpen(false)}>
-                    <Shield /> Warranty &amp; service
+                    <ShieldCheck /> Warranty &amp; service
                   </Link>
                   {isAdmin && (
                     <Link href="/admin" role="menuitem" onClick={() => setMenuOpen(false)}>
-                      <TrendingUp /> Admin
+                      <Grid /> Admin
                     </Link>
                   )}
                   <div className="acct-menu-sep" role="separator" />
                   <button className="signout" role="menuitem" onClick={() => { setMenuOpen(false); signOut(); }}>
-                    <LogOut /> Sign out
+                    <SignOut /> Sign out
                   </button>
                 </div>
               )}
