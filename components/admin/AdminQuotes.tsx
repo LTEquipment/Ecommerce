@@ -60,6 +60,26 @@ export default function AdminQuotes() {
     }
   };
 
+  const convert = async (quote: Quote) => {
+    const label = quote.company || quote.name || "this quote";
+    if (!window.confirm(`Create an order from ${label}? It will enter the Orders pipeline at the quoted prices, and the quote will be marked won.`)) return;
+    setBusy(quote.id);
+    try {
+      const res = await fetch("/api/admin/quotes/convert", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: quote.id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || "");
+      toast(`Order #${String(json.orderId ?? "").slice(0, 8)} created`);
+      load();
+    } catch (e) {
+      const m = (e as Error).message;
+      toast(m ? `Couldn’t convert — ${m}` : "Couldn’t convert the quote — try again", "error");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const filtered = useMemo(() => {
     if (!rows) return [];
     const s = q.trim().toLowerCase();
@@ -122,6 +142,11 @@ export default function AdminQuotes() {
                 </div>
                 {q.notes && <div className="ac-sub ac-msg">{q.notes}</div>}
                 <div className="qr-admin-total">List subtotal: <b>{money(q.subtotal)}</b></div>
+                {q.status !== "lost" && (
+                  <button className="btn btn-line btn-sm qr-convert" disabled={busy === q.id} onClick={() => convert(q)}>
+                    {busy === q.id ? "Working…" : "Create order from quote →"}
+                  </button>
+                )}
               </div>
               <div className="qr-admin-actions">
                 {STATUSES.map((s) => (
