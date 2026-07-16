@@ -156,6 +156,22 @@ export function storesLd() {
   }));
 }
 
+/** Article schema for a buyer guide. */
+export function articleLd(g: { slug: string; title: string; excerpt: string; updated: string }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: g.title,
+    description: g.excerpt,
+    datePublished: g.updated,
+    dateModified: g.updated,
+    author: { "@id": ORG_ID },
+    publisher: { "@id": ORG_ID },
+    image: `${SITE}/opengraph-image`,
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE}/guides/${g.slug}` },
+  };
+}
+
 /** FAQPage — content must be visible on the page (it is, in <details>). */
 export function faqLd(items: { q: string; a: string }[]) {
   return {
