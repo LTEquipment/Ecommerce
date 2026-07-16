@@ -8,6 +8,7 @@ import { useStore } from "./StoreProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
 import { PRODUCTS } from "@/lib/products";
+import { trackingUrl } from "@/lib/tracking";
 import { BACKEND_OFFLINE } from "@/lib/backendMessage";
 import { LogOut, Package, Shield, Chat, Google, Facebook } from "./icons";
 
@@ -24,6 +25,11 @@ type Order = {
   created_at: string;
   status: string;
   total: number;
+  subtotal?: number | null;
+  freight?: number | null;
+  payment_status?: string | null;
+  carrier?: string | null;
+  tracking_number?: string | null;
   order_items?: { sku: string | null; name: string; qty: number; unit_price: number }[];
 };
 type Claim = { id: string; created_at: string; model: string | null; sku: string | null; issue: string | null; status: string };
@@ -131,6 +137,7 @@ export default function AccountDashboard() {
     tabParam === "orders" ? "orders" : tabParam === "service" ? "service" : tabParam === "parts" ? "parts" : "profile";
 
   const [orders, setOrders] = useState<Order[] | null>(null);
+  const [openOrder, setOpenOrder] = useState<string | null>(null);
   const [claims, setClaims] = useState<Claim[] | null>(null);
   const [tickets, setTickets] = useState<Ticket[] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -221,7 +228,7 @@ export default function AccountDashboard() {
     if (!supabase || !user) return;
     supabase
       .from("orders")
-      .select("id, created_at, status, total, order_items(sku, name, qty, unit_price)")
+      .select("*, order_items(sku, name, qty, unit_price)")
       .eq("customer_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setOrders((data as Order[]) ?? []));
@@ -406,21 +413,54 @@ export default function AccountDashboard() {
                   <Link className="btn btn-primary" href="/products">Start shopping</Link>
                 </div>
               ) : (
-                orders.map((o) => (
-                  <div className="order" key={o.id}>
+                orders.map((o) => {
+                  const isOpen = openOrder === o.id;
+                  const track = trackingUrl(o.carrier, o.tracking_number);
+                  return (
+                  <div className={`order${isOpen ? " open" : ""}`} key={o.id}>
                     <div className="oh">
                       <span>#{o.id.slice(0, 8)} · {new Date(o.created_at).toLocaleDateString()}</span>
                       <span className={`pill ${tone(o.status)}`}>{pretty(o.status)}</span>
                     </div>
+                    {o.tracking_number && (
+                      <div className="order-track">
+                        Shipped{o.carrier ? ` via ${o.carrier}` : ""} · <b>{o.tracking_number}</b>
+                        {track && <a href={track} target="_blank" rel="noreferrer">Track →</a>}
+                      </div>
+                    )}
                     <div style={{ fontSize: 13.5, color: "var(--ink-2)" }}>
                       {(o.order_items ?? []).map((it, i) => (<div key={i}>{it.qty} × {it.name}</div>))}
                     </div>
+                    {isOpen && (
+                      <div className="order-detail">
+                        <div className="od-lines">
+                          {(o.order_items ?? []).map((it, i) => (
+                            <div className="od-line" key={i}>
+                              <span>{it.qty} × {it.name}</span>
+                              <span>{money((Number(it.unit_price) || 0) * it.qty)}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="od-totals">
+                          {o.subtotal != null && <div><span>Subtotal</span><b>{money(Number(o.subtotal))}</b></div>}
+                          {o.freight != null && <div><span>Freight</span><b>{Number(o.freight) ? money(Number(o.freight)) : "FREE"}</b></div>}
+                          <div className="od-grand"><span>Total</span><b>{money(o.total)}</b></div>
+                          {o.payment_status && <div className="od-pay"><span>Payment</span><b>{pretty(o.payment_status)}</b></div>}
+                        </div>
+                      </div>
+                    )}
                     <div className="order-foot">
                       <button className="btn btn-line reorder-btn" onClick={() => reorder(o)}>Reorder</button>
-                      <span className="order-total">{money(o.total)}</span>
+                      <div className="order-foot-right">
+                        <button className="order-toggle" onClick={() => setOpenOrder(isOpen ? null : o.id)}>
+                          {isOpen ? "Hide details" : "View details"}
+                        </button>
+                        <span className="order-total">{money(o.total)}</span>
+                      </div>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
