@@ -66,6 +66,7 @@ export default function CareersPage() {
         kicker="Join us"
         title="Careers"
         lede="We design, build and service the Panda® line in New York — and we're growing for our next chapter. Come build the equipment the best kitchens in the country cook on."
+        image="/careers/floor.jpg"
       >
         <Link className="btn btn-primary btn-lg" href="#teams">See open teams <ArrowRight /></Link>
         <a className="btn btn-line-light btn-lg" href={`mailto:${COMPANY.email}?subject=${encodeURIComponent("Careers")}`}>Email us</a>
