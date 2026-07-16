@@ -12,6 +12,7 @@ export default function EditorialHero({
   title,
   lede,
   stats,
+  image,
   children,
 }: {
   kicker: string;
@@ -19,11 +20,23 @@ export default function EditorialHero({
   lede?: string;
   /** Optional stat foot rendered under the hero. */
   stats?: HeroStat[];
+  /**
+   * Optional full-bleed cover photo (path served from /public or an allowed
+   * origin). Rendered as a CSS background under a scrim, so a missing file
+   * degrades gracefully to the solid-ink hero rather than a broken image.
+   */
+  image?: string;
   /** CTAs (buttons/links) rendered under the lede. */
   children?: ReactNode;
 }) {
   return (
-    <section className="ed-hero">
+    <section className={image ? "ed-hero has-photo" : "ed-hero"}>
+      {image && (
+        <>
+          <div className="ed-hero-photo" style={{ backgroundImage: `url(${image})` }} aria-hidden="true" />
+          <div className="ed-hero-scrim" aria-hidden="true" />
+        </>
+      )}
       <div className="wrap ed-hero-in">
         <span className="ed-kicker">{kicker}</span>
         <h1 className="ed-title">{title}</h1>
