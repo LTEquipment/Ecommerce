@@ -1272,7 +1272,14 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 /* The shared .ss-lab adds var(--s8) top padding for other layouts; the guide
    section already provides its own top spacing, so cancel it here. */
 .guide-related .ss-lab{padding-top:0}
-.guide .cta-band{padding-top:var(--s6)}
+/* Full-width dark CTA band — an editorial anchor layer at the article bottom. */
+.guide-cta{background:var(--ink);color:#fff;padding:var(--s7) 0;text-align:center;margin-top:var(--s6)}
+.guide-cta .pg-eyebrow{color:#fff;opacity:.7}
+.guide-cta h2{font-family:var(--disp);font-weight:800;font-size:clamp(28px,3.4vw,44px);letter-spacing:-.025em;line-height:1.05;margin:8px 0 0;color:#fff}
+.guide-cta p{font-size:clamp(16px,1.4vw,18px);color:var(--muted-on-dark);line-height:1.6;max-width:52ch;margin:var(--s3) auto var(--s5)}
+.guide-cta .hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.guide-cta .btn-line{border-color:rgba(255,255,255,.4);color:#fff;background:transparent}
+.guide-cta .btn-line:hover{border-color:#fff;background:rgba(255,255,255,.08)}
 .guide-related-links{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:var(--s3)}
 .guide-related-links a{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--red)}
 .guide-related-links svg{width:14px;height:14px}
