@@ -42,6 +42,7 @@ type Order = {
 };
 type Claim = { id: string; created_at: string; model: string | null; sku: string | null; issue: string | null; status: string };
 type Ticket = { id: string; created_at: string; subject: string | null; message: string | null; status: string };
+type Reg = { id: string; created_at: string; model: string | null; sku: string | null; serial_number: string | null; purchase_date: string | null; purchased_from: string | null };
 
 type Tab = "profile" | "orders" | "service" | "parts";
 
@@ -148,6 +149,8 @@ export default function AccountDashboard() {
   const [openOrder, setOpenOrder] = useState<string | null>(null);
   const [claims, setClaims] = useState<Claim[] | null>(null);
   const [tickets, setTickets] = useState<Ticket[] | null>(null);
+  const [regs, setRegs] = useState<Reg[] | null>(null);
+  const [regForm, setRegForm] = useState({ model: "", sku: "", serial: "", date: "", from: "" });
   const [busy, setBusy] = useState(false);
 
   const [model, setModel] = useState("");
@@ -252,6 +255,12 @@ export default function AccountDashboard() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setTickets((data as Ticket[]) ?? []));
+    supabase
+      .from("warranty_registrations")
+      .select("id, created_at, model, sku, serial_number, purchase_date, purchased_from")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setRegs((data as Reg[]) ?? []));
   }, [user]);
 
   useEffect(() => {
@@ -263,6 +272,7 @@ export default function AccountDashboard() {
       .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `customer_id=eq.${user.id}` }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "warranty_claims", filter: `user_id=eq.${user.id}` }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "service_tickets", filter: `user_id=eq.${user.id}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "warranty_registrations", filter: `user_id=eq.${user.id}` }, () => load())
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -279,6 +289,25 @@ export default function AccountDashboard() {
     if (error) return toast(error.message);
     setModel(""); setSku(""); setIssue("");
     toast("Warranty claim filed. We'll review it shortly.");
+  };
+
+  const submitRegistration = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const supabase = getBrowserSupabase();
+    if (!supabase || !user || !regForm.model.trim()) return;
+    setBusy(true);
+    const { error } = await supabase.from("warranty_registrations").insert({
+      user_id: user.id,
+      model: regForm.model,
+      sku: regForm.sku || null,
+      serial_number: regForm.serial || null,
+      purchase_date: regForm.date || null,
+      purchased_from: regForm.from || null,
+    });
+    setBusy(false);
+    if (error) return toast(error.message);
+    setRegForm({ model: "", sku: "", serial: "", date: "", from: "" });
+    toast("Equipment registered — coverage on file.");
   };
 
   const submitTicket = async (e: React.FormEvent) => {
@@ -484,7 +513,43 @@ export default function AccountDashboard() {
 
           {tab === "service" && (
             <div className="panel">
-              <div className="panel-head"><h2>File a warranty claim</h2></div>
+              <div className="panel-head"><h2>Register your equipment</h2></div>
+              <p className="note" style={{ marginTop: 0 }}>Register purchased equipment to keep its warranty coverage and service history on file.</p>
+              <form onSubmit={submitRegistration}>
+                <div className="field-row">
+                  <div className="field"><label>Model / product</label><input value={regForm.model} onChange={(e) => setRegForm({ ...regForm, model: e.target.value })} placeholder="Panda Turbo Wok Range" required /></div>
+                  <div className="field"><label>SKU (optional)</label><input value={regForm.sku} onChange={(e) => setRegForm({ ...regForm, sku: e.target.value })} placeholder="52527" /></div>
+                </div>
+                <div className="field-row">
+                  <div className="field"><label>Serial number</label><input value={regForm.serial} onChange={(e) => setRegForm({ ...regForm, serial: e.target.value })} placeholder="On the data plate" /></div>
+                  <div className="field"><label>Purchase date</label><input type="date" value={regForm.date} onChange={(e) => setRegForm({ ...regForm, date: e.target.value })} /></div>
+                </div>
+                <div className="field"><label>Purchased from (optional)</label><input value={regForm.from} onChange={(e) => setRegForm({ ...regForm, from: e.target.value })} placeholder="L&amp;T, a dealer, etc." /></div>
+                <button className="btn btn-primary" disabled={busy} type="submit">{busy ? "Registering…" : "Register equipment"}</button>
+              </form>
+
+              <div className="panel-head" style={{ marginTop: "var(--s5)" }}><h2>Registered equipment</h2></div>
+              {regs === null ? (
+                <div>{[0, 1].map((i) => <div key={i} className="skel skel-order" />)}</div>
+              ) : regs.length === 0 ? (
+                <div className="emptybox"><Shield /><div className="m">No equipment registered</div><div className="s">Register a unit above to keep its coverage on file.</div></div>
+              ) : (
+                regs.map((r) => (
+                  <div className="order" key={r.id}>
+                    <div className="oh">
+                      <span>{r.model || "Equipment"}{r.sku ? ` · ${r.sku}` : ""}</span>
+                      <span style={{ fontSize: 12, color: "var(--muted)" }}>{r.purchase_date ? `Purchased ${new Date(r.purchase_date).toLocaleDateString()}` : new Date(r.created_at).toLocaleDateString()}</span>
+                    </div>
+                    {(r.serial_number || r.purchased_from) && (
+                      <div style={{ fontSize: 13, color: "var(--muted)", marginTop: 4 }}>
+                        {r.serial_number ? `Serial ${r.serial_number}` : ""}{r.serial_number && r.purchased_from ? " · " : ""}{r.purchased_from || ""}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+
+              <div className="panel-head" style={{ marginTop: "var(--s6)" }}><h2>File a warranty claim</h2></div>
               <form onSubmit={submitClaim}>
                 <div className="field-row">
                   <div className="field"><label>Model</label><input value={model} onChange={(e) => setModel(e.target.value)} placeholder="Panda 4-Burner Range" required /></div>
