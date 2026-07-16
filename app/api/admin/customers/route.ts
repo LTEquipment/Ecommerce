@@ -37,12 +37,15 @@ export async function GET() {
   const customers = users
     .map((u) => {
       const m = (u.user_metadata ?? {}) as Record<string, string>;
+      const am = (u.app_metadata ?? {}) as Record<string, unknown>;
       return {
         id: u.id,
         email: u.email ?? "",
         company: m.company || "",
         role: (m.role as string) || "customer",
-        dealerStatus: (m.dealer_status as string) || null,
+        // Authoritative status lives in app_metadata (server-set); user_metadata
+        // is only a self-writable display hint for the pending state.
+        dealerStatus: (am.dealer_status as string) || (m.dealer_status as string) || null,
         createdAt: u.created_at,
         lastSignInAt: u.last_sign_in_at ?? null,
         confirmed: Boolean(u.email_confirmed_at),
@@ -68,12 +71,16 @@ export async function POST(req: Request) {
   let detail = "";
 
   if (action === "approve-dealer" || action === "reject-dealer") {
+    const status = action === "approve-dealer" ? "approved" : "rejected";
     const md = {
       ...((tgt.user?.user_metadata ?? {}) as Record<string, unknown>),
       role: "dealer",
-      dealer_status: action === "approve-dealer" ? "approved" : "rejected",
+      dealer_status: status,
     };
-    const { error } = await svc.auth.admin.updateUserById(userId, { user_metadata: md });
+    // Authoritative entitlement goes in app_metadata — only settable with the
+    // service-role key, so a user can't self-approve via updateUser().
+    const am = { ...((tgt.user?.app_metadata ?? {}) as Record<string, unknown>), dealer_status: status };
+    const { error } = await svc.auth.admin.updateUserById(userId, { user_metadata: md, app_metadata: am });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     auditAction = action === "approve-dealer" ? "dealer.approve" : "dealer.reject";
     detail = `Trade account ${action === "approve-dealer" ? "approved" : "rejected"}`;

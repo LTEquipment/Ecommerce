@@ -127,8 +127,11 @@ create policy "update own customer" on customers for update using (auth.uid() = 
 -- Orders: own orders (admins can read all).
 drop policy if exists "own orders read" on orders;
 create policy "own orders read" on orders for select using (auth.uid() = customer_id or public.is_admin());
+-- No client INSERT policy: orders are created ONLY by the service-role server
+-- route (app/api/orders/route.ts), which recomputes prices and forces
+-- payment_status='pending'. With RLS on and no INSERT policy, the anon key
+-- cannot insert orders at all (see orders-hardening.sql). Drop any legacy policy.
 drop policy if exists "create own orders" on orders;
-create policy "create own orders" on orders for insert with check (auth.uid() = customer_id);
 drop policy if exists "admins update orders" on orders;
 create policy "admins update orders" on orders for update using (public.is_admin());
 
@@ -136,10 +139,8 @@ drop policy if exists "own order items" on order_items;
 create policy "own order items" on order_items for select using (
   exists (select 1 from orders o where o.id = order_id and (o.customer_id = auth.uid() or public.is_admin()))
 );
+-- Likewise no client INSERT policy for order_items — the same server route writes them.
 drop policy if exists "insert own order items" on order_items;
-create policy "insert own order items" on order_items for insert with check (
-  exists (select 1 from orders o where o.id = order_id and o.customer_id = auth.uid())
-);
 
 -- Forms: anyone may submit; only admins may read.
 drop policy if exists "anyone submits contact" on contact_messages;

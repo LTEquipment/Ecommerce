@@ -34,6 +34,7 @@ export async function POST(req: Request) {
 
   const reqItems = Array.isArray(b.items) ? (b.items as Array<{ sku?: unknown; qty?: unknown }>) : [];
   if (reqItems.length === 0) return NextResponse.json({ error: "Empty cart" }, { status: 400 });
+  if (reqItems.length > 100) return NextResponse.json({ error: "Too many line items" }, { status: 400 });
 
   const method = ["card", "affirm", "wire"].includes(b.payment_method as string)
     ? (b.payment_method as string) : "wire";
@@ -64,6 +65,18 @@ export async function POST(req: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { persistSession: false } }
   );
+
+  // Soft per-user rate limit: bound order flooding (no one legitimately places a
+  // dozen orders a minute). Not perfectly atomic, but enough to stop a script.
+  const since = new Date(Date.now() - 60_000).toISOString();
+  const { count: recent } = await admin
+    .from("orders")
+    .select("id", { count: "exact", head: true })
+    .eq("customer_id", user.id)
+    .gte("created_at", since);
+  if ((recent ?? 0) >= 12) {
+    return NextResponse.json({ error: "Too many orders in a short time — please wait a moment." }, { status: 429 });
+  }
 
   await admin.from("customers").upsert({ id: user.id, company, price_list_id: null }, { onConflict: "id" });
 
