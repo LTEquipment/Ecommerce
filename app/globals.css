@@ -713,6 +713,13 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 /* Secondary PDP actions: Save + Compare grouped under the primary buy row */
 .pdp-actions{display:flex;align-items:center;gap:18px;margin:4px 0 20px;padding-top:16px;border-top:1px solid var(--line)}
 .pdp-actions-div{width:1px;height:16px;background:var(--line-2);flex:0 0 auto}
+/* Mobile sticky buy bar */
+.pdp-sticky{display:none}
+@media(max-width:820px){
+  .pdp-sticky{display:flex;align-items:center;gap:14px;position:fixed;left:0;right:0;bottom:0;z-index:55;background:var(--white);border-top:1px solid var(--line);padding:10px 16px;box-shadow:0 -4px 16px rgba(17,19,22,.09)}
+  .pdp-sticky-price{font-family:var(--disp);font-weight:800;font-size:20px;letter-spacing:-.02em;flex:0 0 auto}
+  .pdp-sticky .btn{flex:1;height:46px}
+}
 /* floating tray */
 .cmp-tray{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--ink);color:#fff;border-top:1px solid rgba(255,255,255,.12);box-shadow:0 -6px 24px rgba(0,0,0,.22)}
 .cmp-tray-in{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:14px 0}

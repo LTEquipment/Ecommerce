@@ -14,14 +14,23 @@ import { safeHref } from "@/lib/safeHref";
 import { brandSlug } from "@/lib/brands";
 import { COMPANY, telHref } from "@/lib/company";
 import { ILLUS } from "@/lib/illus";
-import { Plus, Truck, Shield, Card, Search, Close, FileText } from "./icons";
+import { Plus, Truck, Shield, Card, Search, Close, FileText, Share } from "./icons";
 import Stars from "./Stars";
 import type { Product } from "@/lib/types";
 import type { ReviewStats } from "@/lib/reviews";
 
 export default function ProductDetail({ p: initial, stats }: { p: Product; stats?: ReviewStats | null }) {
   const p = useLiveProduct(initial);
-  const { add, openCart } = useStore();
+  const { add, openCart, toast } = useStore();
+
+  const share = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try { await navigator.share({ title: p.name, url }); } catch { /* cancelled */ }
+    } else {
+      try { await navigator.clipboard.writeText(url); toast("Link copied to clipboard"); } catch { /* denied */ }
+    }
+  };
   const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
   const [hoverZoom, setHoverZoom] = useState(false);
@@ -159,6 +168,10 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
             <WishlistButton p={p} variant="pdp" />
             <span className="pdp-actions-div" aria-hidden="true" />
             <CompareButton p={p} variant="pdp" />
+            <span className="pdp-actions-div" aria-hidden="true" />
+            <button type="button" className="cmp-btn cmp-btn-pdp" onClick={share}>
+              <Share /> Share
+            </button>
           </div>
 
           <div className="assurance">
@@ -235,6 +248,20 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
           )}
         </div>
       )}
+
+      {/* Mobile sticky buy bar */}
+      <div className="pdp-sticky">
+        <div className="pdp-sticky-price">{money(p.price)}</div>
+        {inStock ? (
+          <button className="btn btn-primary" onClick={() => { add(p, qty); openCart(); }}>
+            <Plus /> Add to cart
+          </button>
+        ) : (
+          <button className="btn btn-line" onClick={() => document.querySelector(".buy-row")?.scrollIntoView({ behavior: "smooth", block: "center" })}>
+            See availability
+          </button>
+        )}
+      </div>
     </div>
   );
 }

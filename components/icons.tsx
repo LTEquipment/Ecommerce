@@ -120,6 +120,9 @@ export const Grid = (p: P) => (
 export const SignOut = (p: P) => (
   <svg {...base} strokeWidth={1.7} {...p}><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3" /><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /></svg>
 );
+export const Share = (p: P) => (
+  <svg {...base} strokeWidth={1.8} {...p}><circle cx="6" cy="12" r="2.5" /><circle cx="17" cy="6" r="2.5" /><circle cx="17" cy="18" r="2.5" /><path d="M8.2 10.9 14.8 7.1M8.2 13.1l6.6 3.8" /></svg>
+);
 export const LinkedIn = (p: P) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M4.98 3.5A2.5 2.5 0 1 1 5 8.5a2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.3-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21h-4z" /></svg>
 );
