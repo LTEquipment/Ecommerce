@@ -68,7 +68,12 @@ export default function AdminAnalytics({ go }: { go: (t: Tab) => void }) {
 
   const d = useMemo(() => (raw ? compute(raw, range) : null), [raw, range]);
 
-  if (!d) return <div className="skel skel-row" />;
+  if (!d) return (
+    <div className="an-skel">
+      <div className="kpi-grid">{Array.from({ length: 8 }).map((_, i) => <div key={i} className="skel an-skel-kpi" />)}</div>
+      <div className="an-skel-charts">{Array.from({ length: 2 }).map((_, i) => <div key={i} className="skel an-skel-chart" />)}</div>
+    </div>
+  );
 
   const snap = <span className="an-snap" title="Reflects current state — ignores the date range">now</span>;
 
