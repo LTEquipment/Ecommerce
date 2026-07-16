@@ -89,6 +89,8 @@ export default function Header() {
             <FileText /> Get a quote
           </Link>
 
+          <span className="hdr-div" aria-hidden="true" />
+
           {/* desktop account */}
           {user ? (
             <div className="acct-wrap hact acc" ref={acctRef}>
