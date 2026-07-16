@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Stars from "../Stars";
 import { useStore } from "../StoreProvider";
 import { Star } from "../icons";
@@ -21,6 +21,8 @@ export default function AdminReviews() {
   const { toast } = useStore();
   const [rows, setRows] = useState<AdminReview[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [q, setQ] = useState("");
 
   const load = useCallback(() => {
     fetch("/api/admin/reviews", { cache: "no-store" })
@@ -52,6 +54,21 @@ export default function AdminReviews() {
     }
   };
 
+  const filtered = useMemo(() => {
+    if (!rows) return [];
+    const s = q.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (!s) return true;
+      return (
+        r.author_name.toLowerCase().includes(s) ||
+        (r.title ?? "").toLowerCase().includes(s) ||
+        r.body.toLowerCase().includes(s) ||
+        r.product_slug.toLowerCase().includes(s)
+      );
+    });
+  }, [rows, statusFilter, q]);
+
   return (
     <>
       <div className="admin-sec-head">
@@ -68,8 +85,20 @@ export default function AdminReviews() {
           <div className="s">Verified-purchaser reviews appear here as customers submit them.</div>
         </div>
       ) : (
+        <>
+        <div className="ord-toolbar">
+          <div className="ord-filters">
+            {["all", "published", "hidden"].map((s) => (
+              <button key={s} className={`ord-chip${statusFilter === s ? " on" : ""}`} onClick={() => setStatusFilter(s)}>{s}</button>
+            ))}
+          </div>
+          <input className="ord-search" placeholder="Search author, text, product…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search reviews" />
+        </div>
+        {filtered.length === 0 ? (
+          <div className="emptybox"><Star /><div className="m">No reviews match</div><div className="s">Try a different status or search term.</div></div>
+        ) : (
         <div className="admin-cards">
-          {rows.map((r) => (
+          {filtered.map((r) => (
             <div className={`admin-card rv-admin${r.status === "hidden" ? " is-hidden" : ""}`} key={r.id}>
               <div className="ac-main">
                 <div className="ac-title">
@@ -103,6 +132,8 @@ export default function AdminReviews() {
             </div>
           ))}
         </div>
+        )}
+        </>
       )}
     </>
   );
