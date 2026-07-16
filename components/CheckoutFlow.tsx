@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
@@ -13,8 +14,9 @@ import { Check, ArrowRight, Shield, Cart } from "./icons";
 const STEPS = ["Contact", "Shipping", "Payment", "Review"];
 
 export default function CheckoutFlow() {
-  const { cart, subtotal, count, clear } = useStore();
+  const { cart, subtotal, count, clear, toast } = useStore();
   const { user } = useAuth();
+  const router = useRouter();
   const { freightThreshold, freightFee, taxRate } = useSiteSettings();
   const items = Object.values(cart);
   const freight = subtotal >= freightThreshold || subtotal === 0 ? 0 : freightFee;
@@ -24,7 +26,6 @@ export default function CheckoutFlow() {
   const [step, setStep] = useState(0);
   const [method, setMethod] = useState<"card" | "affirm" | "wire">("card");
   const [placing, setPlacing] = useState(false);
-  const [done, setDone] = useState<{ no: string; saved: boolean } | null>(null);
   const [f, setF] = useState({
     email: "", phone: "", name: "", company: "", address: "", city: "", state: "", zip: "",
     card: "", exp: "", cvc: "", cardName: "",
@@ -54,68 +55,45 @@ export default function CheckoutFlow() {
 
   const placeOrder = async () => {
     setPlacing(true);
-    const orderNo = "LT-" + Date.now().toString().slice(-8);
-    let saved = false;
     // Order creation is server-side: /api/orders recomputes every price and total
     // from the catalog and forces payment_status='pending'. The client sends only
-    // the SKUs, quantities and chosen method — never prices or payment state.
-    if (user) {
-      try {
-        const res = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: items.map(({ product: p, qty }) => ({ sku: p.sku, qty })),
-            payment_method: method,
-            company: f.company || null,
-            shipping: {
-              name: f.name, company: f.company, phone: f.phone,
-              address: f.address, city: f.city, state: f.state, zip: f.zip,
-            },
-          }),
-        });
-        saved = res.ok;
-        if (res.ok && saveAddr && f.address.trim()) {
-          const sb = getBrowserSupabase();
-          sb?.from("customer_addresses")
-            .insert({ user_id: user.id, label: f.company || f.city || null, name: f.name, company: f.company, phone: f.phone, address: f.address, city: f.city, state: f.state, zip: f.zip })
-            .then(() => {}, () => {});
-        }
-      } catch {
-        /* fall back to demo confirmation */
+    // the SKUs, quantities, contact and chosen method — never prices or payment
+    // state. Guests are persisted too (keyed by email), so no order is dropped.
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map(({ product: p, qty }) => ({ sku: p.sku, qty })),
+          payment_method: method,
+          company: f.company || null,
+          email: f.email, name: f.name, phone: f.phone,
+          shipping: {
+            name: f.name, company: f.company, phone: f.phone,
+            address: f.address, city: f.city, state: f.state, zip: f.zip,
+          },
+        }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
+      if (!res.ok || !json.id) throw new Error(json.error || "");
+      if (user && saveAddr && f.address.trim()) {
+        const sb = getBrowserSupabase();
+        sb?.from("customer_addresses")
+          .insert({ user_id: user.id, label: f.company || f.city || null, name: f.name, company: f.company, phone: f.phone, address: f.address, city: f.city, state: f.state, zip: f.zip })
+          .then(() => {}, () => {});
       }
+      // Hand the real order id + email to the confirmation page (survives refresh,
+      // never placed in the URL).
+      try { sessionStorage.setItem("lt-last-order", JSON.stringify({ id: json.id, email: f.email, name: f.name })); } catch { /* private mode */ }
+      clear();
+      router.push("/checkout/confirmation");
+    } catch (e) {
+      const m = (e as Error).message;
+      toast(m ? `Couldn’t place the order — ${m}` : "Couldn’t place the order — try again", "error");
+    } finally {
+      setPlacing(false);
     }
-    clear();
-    setPlacing(false);
-    setDone({ no: orderNo, saved });
   };
-
-  if (done) {
-    return (
-      <div className="wrap">
-        <div className="auth" style={{ margin: "var(--s6) auto" }}>
-          <div className="card" style={{ textAlign: "center" }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--stock)", color: "#fff", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
-              <Check style={{ width: 28, height: 28 }} />
-            </div>
-            <h1>Order placed</h1>
-            <p className="sub">Confirmation <b>{done.no}</b></p>
-            <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>
-              Thanks{f.name ? `, ${f.name}` : ""}! We&apos;ll email your confirmation and freight
-              schedule shortly.{" "}
-              {done.saved
-                ? "This order is saved to your account."
-                : "This is a demo checkout — no payment was processed."}
-            </p>
-            <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20 }}>
-              <Link className="btn btn-primary" href="/products">Keep shopping</Link>
-              {done.saved && <Link className="btn btn-line" href="/account?tab=orders">View orders</Link>}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (items.length === 0) {
     return (
