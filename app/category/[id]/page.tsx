@@ -3,6 +3,7 @@ import { getCategories, getCategory, getProducts } from "@/lib/catalog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Catalog from "@/components/Catalog";
 import PageHeader, { StatMeta } from "@/components/PageHeader";
+import RelatedGuides from "@/components/RelatedGuides";
 import JsonLd from "@/components/JsonLd";
 import { breadcrumbLd, itemListLd } from "@/lib/seo";
 
@@ -47,6 +48,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
         />
       </div>
       <Catalog categories={categories} products={products} title="" lockedCat={cat.id} />
+      <RelatedGuides query={`${cat.name} ${cat.blurb ?? ""}`} />
     </>
   );
 }
