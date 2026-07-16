@@ -7,6 +7,7 @@ import { useAuth } from "./AuthProvider";
 import { useStore } from "./StoreProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
+import { BACKEND_OFFLINE } from "@/lib/backendMessage";
 import { LogOut, Package, Shield, Chat, Google, Facebook } from "./icons";
 
 const OAUTH = [
@@ -258,7 +259,7 @@ export default function AccountDashboard() {
           <div className="card">
             <h1>Account</h1>
             <p className="sub">Accounts aren&apos;t connected in this environment.</p>
-            <div className="msg info">Add Supabase keys to <b>.env.local</b> to enable sign-in and your account (see README).</div>
+            <div className="msg info">{BACKEND_OFFLINE}</div>
             <Link className="btn btn-line btn-block" href="/">Back to home</Link>
           </div>
         </div>

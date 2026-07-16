@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import Breadcrumbs from "./Breadcrumbs";
 import { ILLUS } from "@/lib/illus";
+import { BACKEND_OFFLINE } from "@/lib/backendMessage";
 
 const BULLETS = [
   "Order history · one-click reorder",
@@ -86,12 +87,7 @@ export default function AuthForm() {
               : "One account for orders, warranty, service and parts. Buying for a business? Request trade pricing below."}
           </p>
 
-          {!configured && (
-            <div className="msg info">
-              Backend not connected in this environment. Add Supabase keys to <b>.env.local</b> to
-              enable sign-in (see README).
-            </div>
-          )}
+          {!configured && <div className="msg info">{BACKEND_OFFLINE}</div>}
           {msg && <div className={`msg ${msg.kind}`}>{msg.text}</div>}
 
           <form onSubmit={submit}>

@@ -13,6 +13,7 @@ import AdminService from "./admin/AdminService";
 import AdminInbox from "./admin/AdminInbox";
 import AdminAudit from "./admin/AdminAudit";
 import AdminSettings from "./admin/AdminSettings";
+import { BACKEND_OFFLINE_ADMIN } from "@/lib/backendMessage";
 
 type Tab = "analytics" | "catalog" | "orders" | "customers" | "service" | "inbox" | "audit" | "settings";
 type IconC = (p: SVGProps<SVGSVGElement>) => ReactElement;
@@ -46,7 +47,7 @@ export default function AdminDashboard() {
   }, []);
 
   if (!configured) {
-    return <Gate><h1>Admin</h1><div className="msg info">Connect Supabase (add keys to <b>.env.local</b>) to use the admin console.</div><Link className="btn btn-line btn-block" href="/">Back to home</Link></Gate>;
+    return <Gate><h1>Admin</h1><div className="msg info">{BACKEND_OFFLINE_ADMIN}</div><Link className="btn btn-line btn-block" href="/">Back to home</Link></Gate>;
   }
   if (loading || !user) {
     return <div className="admin-gate"><span style={{ color: "var(--muted)" }}>Loading…</span></div>;

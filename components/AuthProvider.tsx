@@ -12,6 +12,7 @@ import {
 import type { Session, User } from "@supabase/supabase-js";
 import { getBrowserSupabase, supabaseConfigured } from "@/lib/supabase/browser";
 import type { AccountRole, DealerStatus } from "@/lib/roles";
+import { BACKEND_OFFLINE as NOT_CONFIGURED } from "@/lib/backendMessage";
 
 type Result = { error?: string; needsConfirm?: boolean };
 
@@ -37,9 +38,6 @@ export function useAuth(): Auth {
   if (!c) throw new Error("useAuth must be used within <AuthProvider>");
   return c;
 }
-
-const NOT_CONFIGURED =
-  "Sign-in isn't connected yet. Add your Supabase keys to .env.local (see README) to enable accounts.";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
