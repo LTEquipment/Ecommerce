@@ -39,7 +39,7 @@ export const GUIDES: Guide[] = [
       },
       {
         "type": "h2",
-        "text": "1. Start with the cooking line"
+        "text": "Start with the cooking line"
       },
       {
         "type": "p",
@@ -60,7 +60,7 @@ export const GUIDES: Guide[] = [
       },
       {
         "type": "h2",
-        "text": "2. Size ventilation to the equipment, not the room"
+        "text": "Size ventilation to the equipment, not the room"
       },
       {
         "type": "p",
@@ -72,7 +72,7 @@ export const GUIDES: Guide[] = [
       },
       {
         "type": "h2",
-        "text": "3. Refrigeration and prep"
+        "text": "Refrigeration and prep"
       },
       {
         "type": "p",
@@ -80,7 +80,7 @@ export const GUIDES: Guide[] = [
       },
       {
         "type": "h2",
-        "text": "4. Warewashing and sanitation"
+        "text": "Warewashing and sanitation"
       },
       {
         "type": "p",
@@ -88,7 +88,7 @@ export const GUIDES: Guide[] = [
       },
       {
         "type": "h2",
-        "text": "5. Holding, smallwares and the finish list"
+        "text": "Holding, smallwares and the finish list"
       },
       {
         "type": "p",
@@ -96,7 +96,7 @@ export const GUIDES: Guide[] = [
       },
       {
         "type": "h2",
-        "text": "6. Budget, lead time and financing"
+        "text": "Budget, lead time and financing"
       },
       {
         "type": "p",

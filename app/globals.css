@@ -1261,13 +1261,24 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .prose.guide-prose{max-width:none}
 .guide>.guide-cat{display:block}
 .guide h1{font-family:var(--disp);font-weight:800;font-size:clamp(30px,4vw,46px);letter-spacing:-.03em;line-height:1.05;margin:10px 0 16px;color:var(--ink)}
-.guide-lede{font-size:clamp(17px,1.6vw,20px);color:var(--ink-2);line-height:1.55;margin:0 0 var(--s5);padding-bottom:var(--s5);border-bottom:1px solid var(--line)}
-.guide-prose h2{font-family:var(--disp);font-weight:700;font-size:clamp(21px,2.2vw,27px);letter-spacing:-.02em;margin:var(--s6) 0 var(--s3);color:var(--ink)}
-.guide-prose p{font-size:16.5px;color:var(--ink-2);line-height:1.7;margin:0 0 var(--s4)}
-.guide-prose ul{margin:0 0 var(--s4);padding-left:22px}
-.guide-prose li{font-size:16.5px;color:var(--ink-2);line-height:1.65;margin:0 0 9px}
+.guide-lede{font-size:clamp(17px,1.6vw,20px);color:var(--ink-2);line-height:1.55;margin:0 0 var(--s5);padding-bottom:var(--s5);border-bottom:1px solid var(--line-2)}
+/* — Reading-body hierarchy (guide articles) —
+   Each section opens on a crisp ink rule carrying a muted leading-zero index
+   (01/02…), the first paragraph of a section steps up as a standfirst, then the
+   body settles and list details cluster tighter: a clear opener→body→detail
+   cadence so the reading column has structure, not uniform grey slabs. The
+   numerals are CSS-generated from DOM order, so every guide — numbered or
+   descriptive headings alike — gets one uniform section index. Compound
+   `.guide .guide-prose` (0,0,2,1) beats the base `.prose` rules that otherwise
+   win on source order; the red diamond marker (.prose li::before) is left intact. */
+.guide .guide-prose{counter-reset:guide-sec}
+.guide .guide-prose h2{counter-increment:guide-sec;font-family:var(--disp);font-weight:700;font-size:clamp(21px,2.3vw,27px);line-height:1.16;letter-spacing:-.02em;color:var(--ink);margin:var(--s6) 0 var(--s3);padding-top:var(--s4);border-top:1px solid var(--ink)}
+.guide .guide-prose h2::before{content:counter(guide-sec,decimal-leading-zero);display:block;font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.18em;line-height:1;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:var(--s2)}
+.guide .guide-prose p{font-size:16.5px;line-height:1.72;color:var(--ink-2);margin:0 0 var(--s4)}
+.guide .guide-prose h2+p{margin-top:0;font-size:17.5px;line-height:1.6;color:var(--ink)}
+.guide .guide-prose li{font-size:16.5px;line-height:1.65;color:var(--ink-2);margin:0 0 var(--s2)}
 .guide-prose a{color:var(--red);font-weight:600;text-decoration:underline;text-underline-offset:2px}
-.guide-callout{background:var(--paper);border-left:3px solid var(--red);padding:var(--s4);margin:0 0 var(--s4);font-size:15.5px;color:var(--ink);line-height:1.6}
+.guide-callout{background:var(--panel);border-left:3px solid var(--red);padding:var(--s4) var(--s4) var(--s4) var(--s5);margin:var(--s5) 0;font-size:15.5px;color:var(--ink);line-height:1.6}
 .guide-related{margin:var(--s6) 0 0;padding-top:var(--s5);border-top:1px solid var(--line)}
 /* The shared .ss-lab adds var(--s8) top padding for other layouts; the guide
    section already provides its own top spacing, so cancel it here. */
