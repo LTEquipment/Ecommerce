@@ -16,7 +16,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .select("user_id")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (!admin) redirect("/login?next=/admin");
+  // A signed-in non-admin is already authenticated, so bouncing to /login is a
+  // dead-end (the form won't re-submit). Send them to their account instead.
+  if (!admin) redirect("/account");
 
   return <>{children}</>;
 }
