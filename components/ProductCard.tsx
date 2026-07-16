@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useStore } from "./StoreProvider";
 import WishlistButton from "./WishlistButton";
 import CompareButton from "./CompareButton";
+import QuickView from "./QuickView";
 import { useReviewStats } from "./ReviewStatsProvider";
 import { ILLUS } from "@/lib/illus";
 import { money } from "@/lib/format";
@@ -19,6 +20,7 @@ export default function ProductCard({ p }: { p: Product }) {
   return (
     <div className="card">
       <WishlistButton p={p} variant="card" />
+      <QuickView p={p} />
       <Link href={href} className="media" aria-label={p.name}>
         {p.badge ? (
           <span className={`badge${p.badge === "New" ? " new" : ""}`}>{p.badge}</span>
