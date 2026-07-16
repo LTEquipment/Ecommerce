@@ -628,6 +628,24 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .rv-hidden-tag{margin-left:8px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--red);background:var(--red-tint);padding:2px 7px;border-radius:var(--rp)}
 .rv-admin-actions{display:flex;flex-direction:column;gap:8px;flex:0 0 auto}
 .rv-admin-actions .btn{padding:7px 14px;font-size:12.5px}
+
+/* Admin quotes */
+.qr-admin .ac-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.qr-pill{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:var(--rp)}
+.qr-pill.s-new{background:var(--red-tint);color:var(--red)}
+.qr-pill.s-quoted{background:#FDF3E2;color:#8A5A00}
+.qr-pill.s-won{background:#E9F6EE;color:var(--stock)}
+.qr-pill.s-lost{background:var(--panel);color:var(--muted)}
+.qr-admin-items{margin:8px 0;font-size:13px;color:var(--ink-2)}
+.qr-admin-items > div{display:flex;justify-content:space-between;gap:12px;padding:2px 0}
+.qr-admin-items span:last-child{font-weight:600;color:var(--ink);white-space:nowrap}
+.qr-admin-total{font-size:13px;color:var(--muted);margin-top:6px}
+.qr-admin-total b{color:var(--ink)}
+.qr-admin-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.qr-status-btn{padding:5px 12px;font-size:12px;font-weight:600;text-transform:capitalize;border:1px solid var(--line-2);border-radius:var(--rp);color:var(--muted);background:var(--white);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.qr-status-btn:hover{border-color:var(--ink);color:var(--ink)}
+.qr-status-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.qr-status-btn:disabled{opacity:.5;cursor:default}
 .pinfo .stock{font-size:13px;font-weight:600;color:var(--stock);display:flex;align-items:center;gap:7px;margin:10px 0 18px}
 .pinfo .stock i{width:7px;height:7px;border-radius:50%;background:var(--stock)}
 .pinfo .stock.back{color:var(--muted)}.pinfo .stock.back i{background:var(--muted-2)}
@@ -641,6 +659,25 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .notify-form .btn{height:52px;flex:0 0 auto;white-space:nowrap}
 .notify-form .notify-err{flex-basis:100%;color:var(--red);font-size:12px}
 .notify-done{display:flex;align-items:center;min-height:52px;padding:10px 14px;font-size:13.5px;font-weight:600;color:var(--stock);background:color-mix(in srgb,var(--stock) 8%,transparent);border-radius:var(--r);line-height:1.4}
+
+/* Request-a-quote modal */
+.qr-overlay{position:fixed;inset:0;z-index:1000;background:rgba(17,19,22,.5);display:grid;place-items:center;padding:20px;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.qr-modal{position:relative;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;background:var(--white);border-radius:var(--rl);box-shadow:var(--shadow-lg);padding:var(--s5)}
+.qr-close{position:absolute;top:14px;right:14px;width:34px;height:34px;display:grid;place-items:center;border-radius:var(--r);color:var(--muted)}
+.qr-close:hover{background:var(--panel);color:var(--ink)}
+.qr-close svg{width:18px;height:18px}
+.qr-form h3,.qr-done h3{font-family:var(--disp);font-weight:800;font-size:22px;letter-spacing:-.02em;margin:0 0 4px}
+.qr-sub{font-size:13.5px;color:var(--muted);margin:0 0 16px}
+.qr-items{border:1px solid var(--line);border-radius:var(--r);padding:8px 14px;margin-bottom:16px;max-height:150px;overflow-y:auto}
+.qr-line{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:4px 0;color:var(--ink-2)}
+.qr-line span:last-child{font-weight:600;color:var(--ink);white-space:nowrap}
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.qr-form input,.qr-form textarea{width:100%;border:1.5px solid var(--line-2);border-radius:var(--r);padding:11px 13px;font:inherit;font-size:14px;color:var(--ink);background:var(--white)}
+.qr-form input:focus,.qr-form textarea:focus{outline:none;border-color:var(--red)}
+.qr-form textarea{resize:vertical;margin-bottom:12px}
+.qr-err{color:var(--red);font-size:12.5px;margin-bottom:10px}
+.qr-done p{font-size:14px;color:var(--ink-2);line-height:1.6;margin:0 0 18px}
+@media(max-width:520px){.qr-grid{grid-template-columns:1fr}}
 /* Wishlist */
 .wish-btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;background:none;border:0;color:var(--muted);transition:color var(--ease),border-color var(--ease),background var(--ease)}
 .wish-btn svg{width:20px;height:20px;transition:fill var(--ease),transform var(--ease)}

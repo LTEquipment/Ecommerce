@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
+import QuoteRequest from "./QuoteRequest";
 import { money } from "@/lib/format";
 import { ILLUS } from "@/lib/illus";
 import { Cart, ArrowRight } from "./icons";
@@ -69,6 +70,7 @@ export default function CartView() {
           <div className="line"><span>Tax</span><span>Calculated at checkout</span></div>
           <div className="total"><span>Estimated total</span><span className="v">{money(subtotal + freight)}</span></div>
           <Link className="btn btn-primary btn-block btn-lg" href="/checkout">Proceed to checkout <ArrowRight /></Link>
+          <QuoteRequest variant="page" />
           <div className="note">Ships in 24–48h · NSF-certified · line-tested warranty</div>
         </div>
       </div>
