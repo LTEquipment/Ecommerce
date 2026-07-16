@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Stars from "../Stars";
+import { useStore } from "../StoreProvider";
 import { Star } from "../icons";
 
 type AdminReview = {
@@ -17,6 +18,7 @@ type AdminReview = {
 };
 
 export default function AdminReviews() {
+  const { toast } = useStore();
   const [rows, setRows] = useState<AdminReview[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -34,13 +36,20 @@ export default function AdminReviews() {
   const act = async (id: string, action: "hide" | "publish" | "delete") => {
     if (action === "delete" && !window.confirm("Delete this review permanently?")) return;
     setBusy(id);
-    await fetch("/api/admin/reviews", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, action }),
-    }).catch(() => {});
-    setBusy(null);
-    load();
+    try {
+      const res = await fetch("/api/admin/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      toast(action === "delete" ? "Review deleted" : action === "hide" ? "Review hidden" : "Review published");
+      load();
+    } catch {
+      toast("Couldn’t update the review — try again", "error");
+    } finally {
+      setBusy(null);
+    }
   };
 
   return (
