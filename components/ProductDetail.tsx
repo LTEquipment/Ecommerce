@@ -124,7 +124,12 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
         </div>
 
         <div className="pinfo">
-          {p.brand && <Link href={`/brands/${brandSlug(p.brand)}`} className="brand-tag">{p.brand}</Link>}
+          <div className="pinfo-top">
+            {p.brand ? <Link href={`/brands/${brandSlug(p.brand)}`} className="brand-tag">{p.brand}</Link> : <span />}
+            <button type="button" className="pdp-share-ic" onClick={share} aria-label="Share this product" title="Share">
+              <Share />
+            </button>
+          </div>
           <h1>{p.name}</h1>
           <div className="sku">Model {p.sku}</div>
           {stats && stats.count > 0 ? (
@@ -171,10 +176,6 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
             <CompareButton p={p} variant="pdp" />
             <span className="pdp-actions-div" aria-hidden="true" />
             <SaveToList p={p} />
-            <span className="pdp-actions-div" aria-hidden="true" />
-            <button type="button" className="cmp-btn cmp-btn-pdp" onClick={share}>
-              <Share /> Share
-            </button>
           </div>
 
           <div className="assurance">
