@@ -124,6 +124,9 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 .icon-btn{width:42px;height:42px;border-radius:var(--r);display:none;place-items:center;position:relative}
 .icon-btn:hover{background:var(--panel)} .icon-btn svg{width:22px;height:22px}
 .icon-btn .cart-count{top:4px;left:24px}
+/* The cart glyph fills less of its 24-unit viewBox than the heart/user icons,
+   so render it a hair larger to read the same optical size beside them. */
+.hdr-cart svg{width:23px;height:23px}
 
 /* account dropdown */
 .acct-wrap{position:relative}
