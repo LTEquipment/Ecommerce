@@ -76,6 +76,13 @@ export function breadcrumbLd(items: { name: string; url?: string }[]) {
 export function productLd(p: Product, categoryName?: string) {
   const url = `${SITE}/products/${p.slug}`;
   const images = (p.images ?? []).map(abs);
+  // Real policy terms (see /shipping, /returns): free freight over $999 else $89;
+  // 30-day returns on unused stock, customer pays return freight; in-stock ships 24–48h.
+  const freeFreight = p.price >= 999;
+  const priceValidUntil = `${new Date().getFullYear() + 1}-12-31`;
+  const specProps = Object.entries(p.specs ?? {})
+    .slice(0, 30)
+    .map(([name, value]) => ({ "@type": "PropertyValue", name, value: String(value) }));
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -86,14 +93,34 @@ export function productLd(p: Product, categoryName?: string) {
     ...(images.length ? { image: images } : {}),
     ...(p.description ? { description: p.description } : {}),
     ...(categoryName ? { category: categoryName } : {}),
+    ...(specProps.length ? { additionalProperty: specProps } : {}),
     offers: {
       "@type": "Offer",
       url,
       priceCurrency: "USD",
       price: p.price.toFixed(2),
+      priceValidUntil,
       availability: p.stock === "in" ? "https://schema.org/InStock" : "https://schema.org/BackOrder",
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@id": ORG_ID },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: freeFreight ? "0" : "89", currency: "USD" },
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 7, unitCode: "DAY" },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "US",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 30,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/ReturnShippingFees",
+      },
     },
   };
 }
