@@ -605,9 +605,8 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .wish-card svg{width:18px;height:18px}
 .wish-card:hover{color:var(--red);border-color:var(--red)}
 .wish-card.on{color:var(--red);border-color:var(--red)}
-.hact-wish{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:var(--r);color:var(--ink);flex:0 0 auto;transition:background .18s,color .18s}
-.hact-wish svg{width:21px;height:21px}
-.hact-wish:hover{background:var(--panel);color:var(--red)}
+/* Wishlist inherits .hact (desktop, labeled) / .icon-btn (mobile); heart tints red on hover. */
+.hact-wish:hover svg{color:var(--red)}
 .wish-head{padding:var(--s2) 0 var(--s5);border-bottom:1px solid var(--line);margin-bottom:var(--s5)}
 .wish-head h1{font-family:var(--disp);font-weight:800;font-size:clamp(28px,3.2vw,40px);letter-spacing:-.025em;margin:0 0 8px;color:var(--ink)}
 .wish-head p{font-size:14px;color:var(--muted);margin:0}

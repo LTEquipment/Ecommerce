@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Heart } from "./icons";
 import { wishCount, WISH_EVENT } from "@/lib/wishlist";
 
-/** Header heart linking to the wishlist, with a saved-count badge. */
+/** Header wishlist link. Labeled peer of Account/Cart on desktop; icon on mobile. */
 export default function WishlistIcon() {
   const [n, setN] = useState(0);
 
@@ -20,10 +20,24 @@ export default function WishlistIcon() {
     };
   }, []);
 
+  const label = n ? `Wishlist (${n} saved)` : "Wishlist";
+
   return (
-    <Link className="hact-wish" href="/wishlist" aria-label={n ? `Wishlist (${n} saved)` : "Wishlist"}>
-      <Heart />
-      {n > 0 && <span className="cart-count">{n}</span>}
-    </Link>
+    <>
+      {/* desktop: labeled, matching Account and Cart */}
+      <Link className="hact hact-wish" href="/wishlist" aria-label={label}>
+        <Heart />
+        {n > 0 && <span className="cart-count">{n}</span>}
+        <span className="lbl">
+          <b>Wishlist</b>
+          <span>{n} saved</span>
+        </span>
+      </Link>
+      {/* mobile: icon in the compact bar */}
+      <Link className="icon-btn hact-wish" href="/wishlist" aria-label={label}>
+        <Heart />
+        {n > 0 && <span className="cart-count">{n}</span>}
+      </Link>
+    </>
   );
 }
