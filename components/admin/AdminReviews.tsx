@@ -23,6 +23,8 @@ export default function AdminReviews() {
   const [busy, setBusy] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [q, setQ] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const toggleSel = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 
   const load = useCallback(() => {
     fetch("/api/admin/reviews", { cache: "no-store" })
@@ -34,6 +36,24 @@ export default function AdminReviews() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const bulkAct = async (action: "hide" | "publish" | "delete") => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    if (action === "delete" && !window.confirm(`Delete ${ids.length} review${ids.length === 1 ? "" : "s"} permanently?`)) return;
+    setBusy("__bulk");
+    const results = await Promise.all(ids.map((id) =>
+      fetch("/api/admin/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, action }) })
+        .then((r) => r.ok).catch(() => false)
+    ));
+    setBusy(null);
+    setSelected(new Set());
+    const ok = results.filter(Boolean).length;
+    const verb = action === "delete" ? "deleted" : action === "hide" ? "hidden" : "published";
+    if (ok < ids.length) toast(`${ok}/${ids.length} updated — some failed`, "error");
+    else toast(`${ok} review${ok === 1 ? "" : "s"} ${verb}`);
+    load();
+  };
 
   const act = async (id: string, action: "hide" | "publish" | "delete") => {
     if (action === "delete" && !window.confirm("Delete this review permanently?")) return;
@@ -94,12 +114,22 @@ export default function AdminReviews() {
           </div>
           <input className="ord-search" placeholder="Search author, text, product…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search reviews" />
         </div>
+        {selected.size > 0 && (
+          <div className="admin-bulkbar">
+            <span className="abb-count">{selected.size} selected</span>
+            <button onClick={() => bulkAct("publish")} disabled={busy === "__bulk"}>Publish</button>
+            <button onClick={() => bulkAct("hide")} disabled={busy === "__bulk"}>Hide</button>
+            <button className="danger" onClick={() => bulkAct("delete")} disabled={busy === "__bulk"}>Delete</button>
+            <button onClick={() => setSelected(new Set())}>Clear</button>
+          </div>
+        )}
         {filtered.length === 0 ? (
           <div className="emptybox"><Star /><div className="m">No reviews match</div><div className="s">Try a different status or search term.</div></div>
         ) : (
         <div className="admin-cards">
           {filtered.map((r) => (
             <div className={`admin-card rv-admin${r.status === "hidden" ? " is-hidden" : ""}`} key={r.id}>
+              <input type="checkbox" className="admin-check" checked={selected.has(r.id)} onChange={() => toggleSel(r.id)} aria-label="Select review" />
               <div className="ac-main">
                 <div className="ac-title">
                   <Stars value={r.rating} /> {r.title || "—"}

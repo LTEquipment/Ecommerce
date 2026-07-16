@@ -26,6 +26,8 @@ export default function AdminQA() {
   const [busy, setBusy] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const toggleSel = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 
   const load = useCallback(() => {
     const sb = getBrowserSupabase();
@@ -61,6 +63,25 @@ export default function AdminQA() {
     logAudit(user, "qa.answer", r.product_slug, `Answered a question`);
     toast(r.answer ? "Answer updated" : "Answer posted");
     setDrafts((d) => { const n = { ...d }; delete n[r.id]; return n; });
+    load();
+  };
+
+  const bulkAct = async (action: "hide" | "publish" | "delete") => {
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    if (action === "delete" && !window.confirm(`Delete ${ids.length} question${ids.length === 1 ? "" : "s"} permanently?`)) return;
+    setBusy("__bulk");
+    const { error } = action === "delete"
+      ? await sb.from("product_questions").delete().in("id", ids)
+      : await sb.from("product_questions").update({ status: action === "hide" ? "hidden" : "published" }).in("id", ids);
+    setBusy(null);
+    setSelected(new Set());
+    if (error) return toast(error.message || "Bulk update failed", "error");
+    logAudit(user, `qa.${action}`, `${ids.length} questions`, action === "delete" ? "Bulk deleted" : action === "hide" ? "Bulk hid" : "Bulk published");
+    const verb = action === "delete" ? "deleted" : action === "hide" ? "hidden" : "published";
+    toast(`${ids.length} question${ids.length === 1 ? "" : "s"} ${verb}`);
     load();
   };
 
@@ -121,12 +142,22 @@ export default function AdminQA() {
           </div>
           <input className="ord-search" placeholder="Search question, author, product…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search questions" />
         </div>
+        {selected.size > 0 && (
+          <div className="admin-bulkbar">
+            <span className="abb-count">{selected.size} selected</span>
+            <button onClick={() => bulkAct("publish")} disabled={busy === "__bulk"}>Publish</button>
+            <button onClick={() => bulkAct("hide")} disabled={busy === "__bulk"}>Hide</button>
+            <button className="danger" onClick={() => bulkAct("delete")} disabled={busy === "__bulk"}>Delete</button>
+            <button onClick={() => setSelected(new Set())}>Clear</button>
+          </div>
+        )}
         {filtered.length === 0 ? (
           <div className="emptybox"><FileText /><div className="m">No questions match</div><div className="s">Try a different filter or search term.</div></div>
         ) : (
         <div className="admin-cards">
           {filtered.map((r) => (
             <div className={`admin-card qa-admin${r.status === "hidden" ? " is-hidden" : ""}`} key={r.id}>
+              <input type="checkbox" className="admin-check" checked={selected.has(r.id)} onChange={() => toggleSel(r.id)} aria-label="Select question" />
               <div className="ac-main">
                 <div className="ac-title">
                   <a href={`/products/${r.product_slug}#qa`} target="_blank" rel="noreferrer">{r.product_slug}</a>
