@@ -551,6 +551,10 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .brand-card-name{font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.01em;color:var(--ink)}
 .brand-card-meta{font-size:12.5px;color:var(--muted)}
 .pinfo h1{font-size:clamp(26px,2.6vw,34px);font-weight:800;line-height:1.12;letter-spacing:-.02em;margin:8px 0 10px}
+.pinfo-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pdp-share-ic{width:34px;height:34px;flex:0 0 auto;display:grid;place-items:center;border-radius:var(--r);color:var(--muted);transition:background .15s,color .15s}
+.pdp-share-ic:hover{background:var(--panel);color:var(--ink)}
+.pdp-share-ic svg{width:18px;height:18px}
 .pinfo .sku{font-size:12.5px;color:var(--muted);margin-bottom:14px}
 .pinfo .rate{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:16px;text-decoration:none}
 .pinfo .rate .stars{color:var(--ink);display:inline-flex}.pinfo .rate .stars svg{width:15px;height:15px}
