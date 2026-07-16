@@ -677,6 +677,7 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .qr-admin-items > div{display:flex;justify-content:space-between;gap:12px;padding:2px 0}
 .qr-admin-items span:last-child{font-weight:600;color:var(--ink);white-space:nowrap}
 .qr-admin-total{font-size:13px;color:var(--muted);margin-top:6px}
+.qr-convert{margin-top:10px;align-self:flex-start}
 .qr-admin-total b{color:var(--ink)}
 .qr-admin-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .qr-status-btn{padding:5px 12px;font-size:12px;font-weight:600;text-transform:capitalize;border:1px solid var(--line-2);border-radius:var(--rp);color:var(--muted);background:var(--white);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
