@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
+import QuoteRequest from "./QuoteRequest";
 import { money } from "@/lib/format";
 import { ILLUS } from "@/lib/illus";
 import { Close, Cart } from "./icons";
@@ -81,6 +82,7 @@ export default function CartDrawer() {
               <Link className="btn btn-line btn-block" href="/checkout" onClick={closeCart}>
                 Checkout
               </Link>
+              <QuoteRequest variant="drawer" />
             </div>
             <div className="note">Ships in 24–48h · NSF-certified · line-tested warranty</div>
           </div>
