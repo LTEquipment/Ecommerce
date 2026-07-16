@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "./AuthProvider";
 import { useStore } from "./StoreProvider";
+import AddressBook from "./AddressBook";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
 import { PRODUCTS } from "@/lib/products";
@@ -404,6 +405,7 @@ export default function AccountDashboard() {
                   <p className="note" style={{ marginTop: 0 }}>Buying for a business or multiple locations? <Link href="/contact" style={{ color: "var(--red)", fontWeight: 600 }}>Ask about a trade account</Link> for contract pricing.</p>
                 )}
               </div>
+              <AddressBook />
             </div>
           )}
 

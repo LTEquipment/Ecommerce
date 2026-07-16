@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
+import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { ADDRESS_COLS, type Address } from "@/lib/addresses";
 import { money } from "@/lib/format";
 import { Check, ArrowRight, Shield, Cart } from "./icons";
 
@@ -28,9 +30,25 @@ export default function CheckoutFlow() {
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setF((s) => ({ ...s, [k]: e.target.value }));
 
+  const [saved, setSaved] = useState<Address[]>([]);
+  const [saveAddr, setSaveAddr] = useState(false);
+
   useEffect(() => {
     if (user?.email) setF((s) => ({ ...s, email: s.email || user.email! }));
+    const sb = getBrowserSupabase();
+    if (!user || !sb) return;
+    sb.from("customer_addresses")
+      .select(ADDRESS_COLS)
+      .order("is_default", { ascending: false })
+      .then(({ data }) => setSaved((data as Address[]) ?? []));
   }, [user]);
+
+  const fillFrom = (a: Address) =>
+    setF((s) => ({
+      ...s,
+      name: a.name || "", company: a.company || "", phone: a.phone || s.phone,
+      address: a.address, city: a.city || "", state: a.state || "", zip: a.zip || "",
+    }));
 
   const placeOrder = async () => {
     setPlacing(true);
@@ -55,6 +73,12 @@ export default function CheckoutFlow() {
           }),
         });
         saved = res.ok;
+        if (res.ok && saveAddr && f.address.trim()) {
+          const sb = getBrowserSupabase();
+          sb?.from("customer_addresses")
+            .insert({ user_id: user.id, label: f.company || f.city || null, name: f.name, company: f.company, phone: f.phone, address: f.address, city: f.city, state: f.state, zip: f.zip })
+            .then(() => {}, () => {});
+        }
       } catch {
         /* fall back to demo confirmation */
       }
@@ -140,6 +164,19 @@ export default function CheckoutFlow() {
             {step === 1 && (
               <>
                 <h2>Shipping</h2>
+                {saved.length > 0 && (
+                  <div className="co-saved">
+                    <span className="co-saved-lbl">Use a saved address</span>
+                    <div className="co-saved-chips">
+                      {saved.map((a) => (
+                        <button type="button" key={a.id} className="co-saved-chip" onClick={() => fillFrom(a)}>
+                          <b>{a.label || a.address}</b>
+                          <span>{[a.city, a.state].filter(Boolean).join(", ")} {a.zip}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="field"><label>Full name</label><input value={f.name} onChange={set("name")} /></div>
                 <div className="field"><label>Company (optional)</label><input value={f.company} onChange={set("company")} /></div>
                 <div className="field"><label>Street address</label><input value={f.address} onChange={set("address")} /></div>
@@ -148,6 +185,12 @@ export default function CheckoutFlow() {
                   <div className="field"><label>State</label><input value={f.state} onChange={set("state")} /></div>
                 </div>
                 <div className="field"><label>ZIP</label><input value={f.zip} onChange={set("zip")} /></div>
+                {user && f.address.trim() && (
+                  <label className="co-save-addr">
+                    <input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} />
+                    Save this address for next time
+                  </label>
+                )}
               </>
             )}
             {step === 2 && (
