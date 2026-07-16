@@ -47,6 +47,8 @@ export default function AdminOrders() {
   const [open, setOpen] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 50;
 
   const load = useCallback(async () => {
     const sb = getBrowserSupabase();
@@ -123,6 +125,11 @@ export default function AdminOrders() {
     });
   }, [orders, statusFilter, q, people]);
 
+  useEffect(() => { setPage(0); }, [statusFilter, q]);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageSafe = Math.min(page, pageCount - 1);
+  const paged = filtered.slice(pageSafe * PAGE_SIZE, pageSafe * PAGE_SIZE + PAGE_SIZE);
+
   const exportCsv = () => {
     const head = ["Order", "Date", "Status", "Customer", "Email", "Ship to", "SKU", "Item", "Qty", "Unit price", "Order total"];
     const rows: string[][] = [head];
@@ -167,8 +174,9 @@ export default function AdminOrders() {
         {filtered.length === 0 ? (
           <div className="emptybox"><Package /><div className="m">No orders match</div><div className="s">Try a different status or search term.</div></div>
         ) : (
+        <>
         <div className="admin-cards">
-          {filtered.map((o) => {
+          {paged.map((o) => {
             const items = o.order_items ?? [];
             const isOpen = open === o.id;
             const c = who(o);
@@ -251,6 +259,14 @@ export default function AdminOrders() {
             );
           })}
         </div>
+        {pageCount > 1 && (
+          <div className="admin-pager">
+            <button className="btn btn-line btn-sm" disabled={pageSafe === 0} onClick={() => setPage(pageSafe - 1)}>Prev</button>
+            <span>Page {pageSafe + 1} of {pageCount} · {filtered.length} orders</span>
+            <button className="btn btn-line btn-sm" disabled={pageSafe >= pageCount - 1} onClick={() => setPage(pageSafe + 1)}>Next</button>
+          </div>
+        )}
+        </>
         )}
         </>
       )}

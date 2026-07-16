@@ -1715,6 +1715,7 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 /* audit log */
 .audit-list{background:var(--white);border:1px solid var(--line);border-radius:var(--rl);overflow:hidden}
 .audit-more{display:flex;justify-content:center;margin-top:var(--s4)}
+.admin-pager{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:var(--s5);font-size:13px;color:var(--muted)}
 .audit-row{display:flex;align-items:flex-start;gap:14px;padding:13px var(--s4);border-bottom:1px solid var(--line)}
 .audit-row:last-child{border-bottom:0}
 .audit-row .pill{flex:0 0 auto;margin-top:1px;min-width:74px;text-align:center}

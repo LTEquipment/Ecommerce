@@ -32,6 +32,8 @@ export default function AdminCatalog() {
   const [cats, setCats] = useState<CategoryRow[]>([]);
   const [invEnabled, setInvEnabled] = useState(true);
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 50;
   const [editing, setEditing] = useState<{ row: ProductRow; isNew: boolean } | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
 
@@ -82,6 +84,9 @@ export default function AdminCatalog() {
   }, [rows, q, catName]);
 
   const nextSort = (rows?.reduce((m, r) => Math.max(m, r.sort), 0) ?? 0) + 1;
+  useEffect(() => { setPage(0); }, [q]);
+  const pageCount = Math.max(1, Math.ceil((filtered?.length ?? 0) / PAGE_SIZE));
+  const pageSafe = Math.min(page, pageCount - 1);
 
   return (
     <>
@@ -111,8 +116,9 @@ export default function AdminCatalog() {
           ) : filtered.length === 0 ? (
             <div className="emptybox"><Search /><div className="m">No products{q ? ` match “${q}”` : " yet"}</div></div>
           ) : (
+            <>
             <div className="prod-list">
-              {filtered.map((r) => {
+              {filtered.slice(pageSafe * PAGE_SIZE, pageSafe * PAGE_SIZE + PAGE_SIZE).map((r) => {
                 const low = invEnabled && r.stock_qty > 0 && r.stock_qty <= r.low_stock;
                 const out = invEnabled && r.stock_qty <= 0;
                 return (
@@ -141,6 +147,14 @@ export default function AdminCatalog() {
                 );
               })}
             </div>
+            {pageCount > 1 && (
+              <div className="admin-pager">
+                <button className="btn btn-line btn-sm" disabled={pageSafe === 0} onClick={() => setPage(pageSafe - 1)}>Prev</button>
+                <span>Page {pageSafe + 1} of {pageCount} · {filtered.length} products</span>
+                <button className="btn btn-line btn-sm" disabled={pageSafe >= pageCount - 1} onClick={() => setPage(pageSafe + 1)}>Next</button>
+              </div>
+            )}
+            </>
           )}
         </>
       )}
