@@ -107,12 +107,21 @@ export function KpiDelta({ label, value, delta, sub, hot, onClick }: {
         : `${delta.state === "up" ? "▲" : "▼"} ${Math.abs(delta.pct ?? 0).toFixed(delta.pct !== null && Math.abs(delta.pct) < 10 ? 1 : 0)}%`}
     </span>
   ) : null;
-  return (
-    <button type="button" className={`kpi${hot ? " hot" : ""}${clickable ? " link" : ""}`} onClick={onClick} disabled={!clickable}>
+  const inner = (
+    <>
       <span className="kpi-l">{label}</span>
       <span className="kpi-vrow"><span className="kpi-v">{value}</span>{badge}</span>
       {sub && <span className="kpi-s">{sub}</span>}
+    </>
+  );
+  // Informational tiles render as a div; only navigable KPIs are buttons (so a
+  // non-clickable tile isn't a focus-excluded disabled control).
+  return clickable ? (
+    <button type="button" className={`kpi link${hot ? " hot" : ""}`} onClick={onClick}>
+      {inner}
     </button>
+  ) : (
+    <div className={`kpi${hot ? " hot" : ""}`}>{inner}</div>
   );
 }
 

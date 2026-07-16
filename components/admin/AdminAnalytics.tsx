@@ -77,7 +77,7 @@ export default function AdminAnalytics({ go }: { go: (t: Tab) => void }) {
       {/* time range */}
       <div className="an-range" role="tablist" aria-label="Time range">
         {(["7d", "30d", "90d", "All"] as Range[]).map((r) => (
-          <button key={r} role="tab" className={range === r ? "on" : ""} onClick={() => setRange(r)}>
+          <button key={r} role="tab" aria-selected={range === r} className={range === r ? "on" : ""} onClick={() => setRange(r)}>
             {r === "All" ? "All time" : `Last ${r.replace("d", "")} days`}
           </button>
         ))}

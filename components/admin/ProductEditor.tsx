@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { logAudit } from "@/lib/audit";
 import { useStore } from "../StoreProvider";
@@ -69,12 +69,31 @@ export default function ProductEditor({
 
   const set = <K extends keyof ProductRow>(k: K, v: ProductRow[K]) => setP((prev) => ({ ...prev, [k]: v }));
 
-  // Close on Escape.
+  // Unsaved-changes guard: warn before discarding an edited form.
+  const dirty = useMemo(() => {
+    const specObj = Object.fromEntries(specs.filter(([k]) => k.trim()).map(([k, v]) => [k.trim(), v]));
+    const cur = JSON.stringify({ ...p, specs: undefined });
+    const orig = JSON.stringify({ ...initial, specs: undefined });
+    return cur !== orig || JSON.stringify(specObj) !== JSON.stringify(initial.specs ?? {});
+  }, [p, specs, initial]);
+  const requestClose = useCallback(() => {
+    if (dirty && !window.confirm("Discard unsaved changes?")) return;
+    onClose();
+  }, [dirty, onClose]);
+
+  // Lock body scroll while the modal is open.
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  // Close on Escape (with the unsaved-changes guard).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") requestClose(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [requestClose]);
 
   const addSpec = () => setSpecs((s) => [...s, ["", ""]]);
   const editSpec = (i: number, which: 0 | 1, val: string) =>
@@ -89,7 +108,7 @@ export default function ProductEditor({
     const res = await fetch("/api/admin/product-image", { method: "POST", body: fd });
     const json = await res.json().catch(() => ({}));
     setUploading(false);
-    if (!res.ok) return toast(json.error || "Upload failed");
+    if (!res.ok) return toast(json.error || "Upload failed", "error");
     set("images", [...p.images, json.url as string]);
   };
   const onPick = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,7 +120,7 @@ export default function ProductEditor({
     const url = window.prompt("Paste an image URL or a /products/… path:");
     if (!url || !url.trim()) return;
     const safe = safeHref(url.trim());
-    if (!safe) return toast("That URL isn’t allowed (use http(s):// or a /path).");
+    if (!safe) return toast("That URL isn’t allowed (use http(s):// or a /path).", "error");
     set("images", [...p.images, safe]);
   };
   const removeImg = (i: number) => set("images", p.images.filter((_, j) => j !== i));
@@ -120,7 +139,7 @@ export default function ProductEditor({
     const res = await fetch("/api/admin/product-doc", { method: "POST", body: fd });
     const json = await res.json().catch(() => ({}));
     setDocUploading(false);
-    if (!res.ok) { toast(json.error || "Upload failed"); return; }
+    if (!res.ok) { toast(json.error || "Upload failed", "error"); return; }
     set("documents", [...(p.documents ?? []), { label: pendingLabel || f.name.replace(/\.[^.]+$/, ""), url: json.url as string }]);
     setPendingLabel("");
   };
@@ -130,18 +149,23 @@ export default function ProductEditor({
     const label = window.prompt("Document label (e.g. Manual):"); if (!label) return;
     const url = window.prompt("Document URL:"); if (!url) return;
     const safe = safeHref(url.trim());
-    if (!safe) return toast("That URL isn’t allowed (use http(s):// or a /path).");
+    if (!safe) return toast("That URL isn’t allowed (use http(s):// or a /path).", "error");
     set("documents", [...(p.documents ?? []), { label: label.trim(), url: safe }]);
   };
 
   const save = async () => {
     const sb = getBrowserSupabase();
-    if (!sb) return toast("Backend not connected");
+    if (!sb) return toast("Backend not connected", "error");
     const slug = isNew ? slugify(p.slug || p.sku) : p.slug;
-    if (!p.name.trim()) return toast("Name is required");
-    if (!p.sku.trim()) return toast("SKU is required");
-    if (!slug) return toast("Slug is required");
-    if (!(p.price >= 0)) return toast("Price must be a number");
+    if (!p.name.trim()) return toast("Name is required", "error");
+    if (!p.sku.trim()) return toast("SKU is required", "error");
+    if (!slug) return toast("Slug is required", "error");
+    if (!(p.price >= 0)) return toast("Price must be a number", "error");
+
+    // Products are identified by SKU across the list, audit and delete-confirm —
+    // block a duplicate that belongs to a different product.
+    const { data: dupe } = await sb.from("products").select("slug").eq("sku", p.sku.trim()).neq("slug", slug).limit(1);
+    if (dupe && dupe.length > 0) return toast(`SKU ${p.sku.trim()} is already used by another product.`, "error");
 
     const specObj = Object.fromEntries(specs.filter(([k]) => k.trim()).map(([k, v]) => [k.trim(), v]));
     const row = {
@@ -167,10 +191,10 @@ export default function ProductEditor({
         delete safe.low_stock;
         delete safe.documents;
         const retry = isNew ? await sb.from("products").insert(safe) : await sb.from("products").update(safe).eq("slug", slug);
-        if (retry.error) return toast(retry.error.message.includes("duplicate") ? "That slug already exists — pick another." : retry.error.message);
+        if (retry.error) return toast(retry.error.message.includes("duplicate") ? "That slug already exists — pick another." : retry.error.message, "error");
         toast("Saved — run the migrations to enable stock quantities & documents.");
       } else {
-        return toast(error.message.includes("duplicate") ? "That slug already exists — pick another." : error.message);
+        return toast(error.message.includes("duplicate") ? "That slug already exists — pick another." : error.message, "error");
       }
     } else {
       toast(isNew ? `${row.sku} added · live now` : `${row.sku} updated · live now`);
@@ -180,11 +204,11 @@ export default function ProductEditor({
   };
 
   return (
-    <div className="pe-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="pe-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) requestClose(); }}>
       <div className="pe-modal" role="dialog" aria-modal="true" aria-label={isNew ? "Add product" : "Edit product"}>
         <header className="pe-head">
           <h2>{isNew ? "Add product" : "Edit product"}</h2>
-          <button className="pe-x" onClick={onClose} aria-label="Close"><Close /></button>
+          <button className="pe-x" onClick={requestClose} aria-label="Close"><Close /></button>
         </header>
 
         <div className="pe-body">
@@ -193,7 +217,7 @@ export default function ProductEditor({
             <h3>Basics</h3>
             <div className="pe-grid">
               <label className="pe-f pe-col2"><span>Product name *</span>
-                <input value={p.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Turbo Wok Range — 1 Burner" />
+                <input autoFocus value={p.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Turbo Wok Range — 1 Burner" />
               </label>
               <label className="pe-f"><span>SKU / model *</span>
                 <input value={p.sku} onChange={(e) => set("sku", e.target.value)} placeholder="52527" />
@@ -232,6 +256,9 @@ export default function ProductEditor({
                 </select>
               </label>
             </div>
+            {p.was_price != null && p.was_price !== 0 && p.was_price <= p.price && (
+              <p className="pe-hint warn">“Was” price should be higher than the current price to show a discount.</p>
+            )}
           </section>
 
           {/* Inventory */}
@@ -299,7 +326,7 @@ export default function ProductEditor({
               ))}
               <button type="button" className="pe-preset" disabled={docUploading} onClick={() => pickDoc("")}>+ Other</button>
             </div>
-            <input ref={docRef} type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,application/pdf,image/*" hidden onChange={onDocPick} />
+            <input ref={docRef} type="file" accept=".pdf,application/pdf" hidden onChange={onDocPick} />
             <button className="pe-link" onClick={addDocUrl}>+ Add by URL</button>
             {docUploading && <span className="pe-hint" style={{ marginLeft: 10 }}>Uploading…</span>}
           </section>
@@ -344,7 +371,7 @@ export default function ProductEditor({
         <footer className="pe-foot">
           <div className="pe-foot-preview">{p.name || "New product"} · <b>{money(Number(p.price) || 0)}</b></div>
           <div className="pe-foot-actions">
-            <button className="btn btn-line" onClick={onClose} disabled={saving}>Cancel</button>
+            <button className="btn btn-line" onClick={requestClose} disabled={saving}>Cancel</button>
             <button className="btn btn-primary" onClick={save} disabled={saving}>{saving ? "Saving…" : isNew ? "Add product" : "Save changes"}</button>
           </div>
         </footer>

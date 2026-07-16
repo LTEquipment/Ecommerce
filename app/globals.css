@@ -1091,6 +1091,9 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 @media(max-width:820px){
   .admin-app{flex-direction:column}
   .admin-nav{width:auto;height:auto;position:sticky;top:0;z-index:7;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:var(--s3) var(--s4)}
+  /* Nav becomes the sticky top bar on mobile; let the section header scroll with
+     content so the two don't stack and overlap at top:0. */
+  .admin-topbar{position:static}
   .admin-brand{order:1;flex:1;min-width:0;padding:0;margin:0;border:0}
   .admin-nav-foot{order:2;flex:0 0 auto;margin:0;border:0;padding:0;flex-direction:row;align-items:center;gap:6px}
   .admin-nav-list{order:3;width:100%;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px;margin:0 calc(-1*var(--s4));padding:2px var(--s4)}
