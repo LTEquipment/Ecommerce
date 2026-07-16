@@ -7,8 +7,12 @@ import { useAuth } from "./AuthProvider";
 import { useStore } from "./StoreProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
+import { PRODUCTS } from "@/lib/products";
 import { BACKEND_OFFLINE } from "@/lib/backendMessage";
 import { LogOut, Package, Shield, Chat, Google, Facebook } from "./icons";
+
+// Map order-item SKUs back to catalog products for one-click reorder.
+const BY_SKU = new Map(PRODUCTS.map((p) => [p.sku, p]));
 
 const OAUTH = [
   { id: "google" as const, label: "Google", Icon: Google },
@@ -20,7 +24,7 @@ type Order = {
   created_at: string;
   status: string;
   total: number;
-  order_items?: { name: string; qty: number; unit_price: number }[];
+  order_items?: { sku: string | null; name: string; qty: number; unit_price: number }[];
 };
 type Claim = { id: string; created_at: string; model: string | null; sku: string | null; issue: string | null; status: string };
 type Ticket = { id: string; created_at: string; subject: string | null; message: string | null; status: string };
@@ -97,7 +101,29 @@ function ProfileRow({
 
 export default function AccountDashboard() {
   const { user, loading, configured, displayName, signOut, role, dealerStatus, isDealer } = useAuth();
-  const { toast } = useStore();
+  const { toast, add, openCart } = useStore();
+
+  // Re-add every still-available line item from a past order to the cart.
+  const reorder = (o: Order) => {
+    const items = o.order_items ?? [];
+    let added = 0;
+    let skipped = 0;
+    for (const it of items) {
+      const p = it.sku ? BY_SKU.get(it.sku) : undefined;
+      if (p) {
+        add(p, Math.max(1, it.qty));
+        added++;
+      } else {
+        skipped++;
+      }
+    }
+    if (added === 0) {
+      toast("These items are no longer in the catalog.");
+      return;
+    }
+    openCart();
+    toast(skipped > 0 ? `Added ${added} item${added > 1 ? "s" : ""} · ${skipped} no longer available` : `Added ${added} item${added > 1 ? "s" : ""} to your cart`);
+  };
   const router = useRouter();
   const params = useSearchParams();
   const tabParam = params.get("tab");
@@ -195,7 +221,7 @@ export default function AccountDashboard() {
     if (!supabase || !user) return;
     supabase
       .from("orders")
-      .select("id, created_at, status, total, order_items(name, qty, unit_price)")
+      .select("id, created_at, status, total, order_items(sku, name, qty, unit_price)")
       .eq("customer_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setOrders((data as Order[]) ?? []));
@@ -389,7 +415,10 @@ export default function AccountDashboard() {
                     <div style={{ fontSize: 13.5, color: "var(--ink-2)" }}>
                       {(o.order_items ?? []).map((it, i) => (<div key={i}>{it.qty} × {it.name}</div>))}
                     </div>
-                    <div style={{ textAlign: "right", fontWeight: 700, marginTop: 8 }}>{money(o.total)}</div>
+                    <div className="order-foot">
+                      <button className="btn btn-line reorder-btn" onClick={() => reorder(o)}>Reorder</button>
+                      <span className="order-total">{money(o.total)}</span>
+                    </div>
                   </div>
                 ))
               )}
