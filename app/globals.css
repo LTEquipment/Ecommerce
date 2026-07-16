@@ -1273,7 +1273,7 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
    section already provides its own top spacing, so cancel it here. */
 .guide-related .ss-lab{padding-top:0}
 /* Full-width dark CTA band — an editorial anchor layer at the article bottom. */
-.guide-cta{background:var(--ink);color:#fff;padding:var(--s7) 0;text-align:center;margin-top:var(--s6)}
+.guide-cta{background:var(--ink);color:#fff;padding:var(--s7) 0;text-align:center;margin:var(--s6) 0}
 .guide-cta .pg-eyebrow{color:#fff;opacity:.7}
 .guide-cta h2{font-family:var(--disp);font-weight:800;font-size:clamp(28px,3.4vw,44px);letter-spacing:-.025em;line-height:1.05;margin:8px 0 0;color:#fff}
 .guide-cta p{font-size:clamp(16px,1.4vw,18px);color:var(--muted-on-dark);line-height:1.6;max-width:52ch;margin:var(--s3) auto var(--s5)}
