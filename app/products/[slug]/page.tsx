@@ -4,13 +4,30 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductDetail from "@/components/ProductDetail";
 import RelatedProducts from "@/components/RelatedProducts";
 import RecentlyViewed from "@/components/RecentlyViewed";
+import JsonLd from "@/components/JsonLd";
+import { productLd, breadcrumbLd } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = await getProduct(slug);
-  return { title: p ? `${p.name} — L&T` : "Product — L&T" };
+  if (!p) return { title: "Product — L&T" };
+  const desc = (p.description || `${p.name} — ${p.brand ?? "Panda®"} commercial kitchen equipment, model ${p.sku}. Built in New York, shipped nationwide.`).slice(0, 300);
+  const img = p.images?.[0];
+  return {
+    title: `${p.name} — L&T`,
+    description: desc,
+    alternates: { canonical: `/products/${p.slug}` },
+    openGraph: {
+      type: "website",
+      title: `${p.name} — L&T Restaurant Equipment`,
+      description: desc,
+      url: `/products/${p.slug}`,
+      ...(img ? { images: [{ url: img, alt: p.name }] } : {}),
+    },
+    ...(img ? { twitter: { card: "summary_large_image" as const, images: [img] } } : {}),
+  };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -20,6 +37,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const [cat, related] = await Promise.all([getCategory(p.cat), getRelated(p.slug, 4)]);
   return (
     <>
+      <JsonLd
+        data={[
+          productLd(p, cat?.name),
+          breadcrumbLd([
+            { name: "Home", url: "/" },
+            ...(cat ? [{ name: cat.name, url: `/category/${cat.id}` }] : []),
+            { name: p.name },
+          ]),
+        ]}
+      />
       <div className="wrap">
         <Breadcrumbs
           items={[

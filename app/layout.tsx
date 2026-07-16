@@ -14,6 +14,8 @@ import CookieConsent from "@/components/CookieConsent";
 import ScrollProgress from "@/components/ScrollProgress";
 import SiteFx from "@/components/SiteFx";
 import SiteChrome from "@/components/SiteChrome";
+import JsonLd from "@/components/JsonLd";
+import { organizationLd, websiteLd } from "@/lib/seo";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -41,6 +43,24 @@ export const metadata: Metadata = {
     title: "L&T — Commercial Kitchen Equipment & Supply",
     description:
       "Panda® wok ranges, steamers, roasters and automation — designed and built in New York, shipped nationwide.",
+    images: [{ url: "/android-chrome-512x512.png", width: 512, height: 512, alt: "L&T Restaurant Equipment" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "L&T — Commercial Kitchen Equipment & Supply",
+    description:
+      "Panda® wok ranges, steamers, roasters, refrigeration and smallwares — designed and built in New York, shipped nationwide.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   icons: {
     icon: [
@@ -57,6 +77,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${archivo.variable} ${inter.variable}`}>
       <body>
+        <JsonLd data={[organizationLd(), websiteLd()]} />
         <AuthProvider>
           <StoreProvider>
             <SiteChrome>
