@@ -56,9 +56,15 @@ export default function CompareTray() {
               </div>
             ))}
             {Array.from({ length: emptySlots }).map((_, i) => (
-              <span className="cmp-slot" key={i} aria-hidden="true">
+              <Link
+                className="cmp-slot"
+                key={i}
+                href="/products"
+                aria-label="Add another product to compare"
+                title="Add another product to compare"
+              >
                 <Plus />
-              </span>
+              </Link>
             ))}
           </div>
         </div>
