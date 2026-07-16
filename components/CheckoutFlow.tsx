@@ -48,6 +48,10 @@ export default function CheckoutFlow() {
             items: items.map(({ product: p, qty }) => ({ sku: p.sku, qty })),
             payment_method: method,
             company: f.company || null,
+            shipping: {
+              name: f.name, company: f.company, phone: f.phone,
+              address: f.address, city: f.city, state: f.state, zip: f.zip,
+            },
           }),
         });
         saved = res.ok;

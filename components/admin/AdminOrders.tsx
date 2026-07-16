@@ -20,6 +20,13 @@ type Order = {
   customer_id: string | null;
   carrier?: string | null;
   tracking_number?: string | null;
+  ship_name?: string | null;
+  ship_company?: string | null;
+  ship_phone?: string | null;
+  ship_address?: string | null;
+  ship_city?: string | null;
+  ship_state?: string | null;
+  ship_zip?: string | null;
   order_items?: Item[];
 };
 
@@ -106,12 +113,14 @@ export default function AdminOrders() {
   }, [orders, statusFilter, q, people]);
 
   const exportCsv = () => {
-    const head = ["Order", "Date", "Status", "Customer", "Email", "SKU", "Item", "Qty", "Unit price", "Order total"];
+    const head = ["Order", "Date", "Status", "Customer", "Email", "Ship to", "SKU", "Item", "Qty", "Unit price", "Order total"];
     const rows: string[][] = [head];
     for (const o of filtered) {
       const c = o.customer_id ? people[o.customer_id] : undefined;
       const date = new Date(o.created_at).toISOString().slice(0, 10);
-      const base = [o.id.slice(0, 8), date, o.status, c?.company ?? "", c?.email ?? ""];
+      const shipTo = [o.ship_name, o.ship_company, o.ship_address, [o.ship_city, o.ship_state].filter(Boolean).join(", "), o.ship_zip, o.ship_phone]
+        .filter(Boolean).join(" / ");
+      const base = [o.id.slice(0, 8), date, o.status, c?.company ?? "", c?.email ?? "", shipTo];
       const items = o.order_items ?? [];
       if (items.length === 0) rows.push([...base, "", "", "", "", String(o.total)]);
       for (const it of items) rows.push([...base, it.sku ?? "", it.name, String(it.qty), String(it.unit_price), String(o.total)]);
@@ -180,6 +189,17 @@ export default function AdminOrders() {
                       <div><span>Freight</span><b>{Number(o.freight) ? money(Number(o.freight)) : "—"}</b></div>
                       <div className="ord-grand"><span>Total</span><b>{money(Number(o.total))}</b></div>
                     </div>
+                    {(o.ship_name || o.ship_address) && (
+                      <div className="ord-ship">
+                        <div className="ord-ship-h">Ship to</div>
+                        <div className="ord-ship-body">
+                          {o.ship_name && <div>{o.ship_name}{o.ship_company ? ` · ${o.ship_company}` : ""}</div>}
+                          {o.ship_address && <div>{o.ship_address}</div>}
+                          {(o.ship_city || o.ship_state || o.ship_zip) && <div>{[o.ship_city, o.ship_state].filter(Boolean).join(", ")} {o.ship_zip}</div>}
+                          {o.ship_phone && <div>{o.ship_phone}</div>}
+                        </div>
+                      </div>
+                    )}
                     <div className="ord-foot">
                       <div className="ord-cust">
                         {c ? <><b>{c.company || "—"}</b><span>{c.email}</span></> : <span>Guest checkout</span>}

@@ -30,6 +30,13 @@ type Order = {
   payment_status?: string | null;
   carrier?: string | null;
   tracking_number?: string | null;
+  ship_name?: string | null;
+  ship_company?: string | null;
+  ship_phone?: string | null;
+  ship_address?: string | null;
+  ship_city?: string | null;
+  ship_state?: string | null;
+  ship_zip?: string | null;
   order_items?: { sku: string | null; name: string; qty: number; unit_price: number }[];
 };
 type Claim = { id: string; created_at: string; model: string | null; sku: string | null; issue: string | null; status: string };
@@ -447,6 +454,14 @@ export default function AccountDashboard() {
                           <div className="od-grand"><span>Total</span><b>{money(o.total)}</b></div>
                           {o.payment_status && <div className="od-pay"><span>Payment</span><b>{pretty(o.payment_status)}</b></div>}
                         </div>
+                        {(o.ship_name || o.ship_address) && (
+                          <div className="od-ship">
+                            <span className="od-ship-h">Ship to</span>
+                            {o.ship_name && <div>{o.ship_name}{o.ship_company ? ` · ${o.ship_company}` : ""}</div>}
+                            {o.ship_address && <div>{o.ship_address}</div>}
+                            {(o.ship_city || o.ship_state || o.ship_zip) && <div>{[o.ship_city, o.ship_state].filter(Boolean).join(", ")} {o.ship_zip}</div>}
+                          </div>
+                        )}
                       </div>
                     )}
                     <div className="order-foot">
