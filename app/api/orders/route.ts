@@ -2,13 +2,9 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getProducts } from "@/lib/catalog";
+import { getSiteSettings } from "@/lib/settings";
 
 export const runtime = "nodejs";
-
-// Freight + tax must match the storefront's displayed summary (CheckoutFlow.tsx).
-const FREIGHT_THRESHOLD = 999;
-const FREIGHT_FEE = 89;
-const TAX_RATE = 0.08875; // NYC combined sales tax
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -67,8 +63,11 @@ export async function POST(req: Request) {
     lines.push({ sku: p.sku, name: p.name, unit_price: p.price, qty });
   }
   subtotal = round2(subtotal);
-  const freight = subtotal >= FREIGHT_THRESHOLD || subtotal === 0 ? 0 : FREIGHT_FEE;
-  const tax = round2(subtotal * TAX_RATE);
+  // Freight + tax from site settings (defaults match the storefront's displayed
+  // summary). This is the authoritative total.
+  const { freightThreshold, freightFee, taxRate } = await getSiteSettings();
+  const freight = subtotal >= freightThreshold || subtotal === 0 ? 0 : freightFee;
+  const tax = round2(subtotal * taxRate);
   const total = round2(subtotal + freight + tax);
 
   // Service-role client for the writes (bypasses RLS). customer_id is taken from

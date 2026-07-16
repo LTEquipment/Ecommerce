@@ -4,6 +4,8 @@ import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import StoreProvider from "@/components/StoreProvider";
 import { ReviewStatsProvider } from "@/components/ReviewStatsProvider";
+import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
+import { getSiteSettings } from "@/lib/settings";
 import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
@@ -73,7 +75,8 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSiteSettings();
   return (
     <html lang="en" className={`${archivo.variable} ${inter.variable}`}>
       <body>
@@ -86,6 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd data={[organizationLd(), websiteLd()]} />
         <AuthProvider>
           <StoreProvider>
+            <SiteSettingsProvider value={settings}>
             <ReviewStatsProvider>
               <SiteChrome>
                 <ScrollProgress />
@@ -103,6 +107,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </SiteChrome>
               <Toast />
             </ReviewStatsProvider>
+            </SiteSettingsProvider>
           </StoreProvider>
         </AuthProvider>
       </body>

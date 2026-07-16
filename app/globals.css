@@ -997,6 +997,11 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 /* Admin — settings toggles */
 .admin-settings{max-width:660px}
 .set-card{border:1px solid var(--line);border-radius:var(--rl);padding:var(--s5);background:var(--white)}
+.admin-settings .set-card + .set-card{margin-top:var(--s4)}
+.set-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:16px 0}
+.set-nums label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.set-nums input{border:1.5px solid var(--line-2);border-radius:var(--r);padding:10px 12px;font:inherit;font-size:15px;color:var(--ink);background:var(--white)}
+.set-nums input:focus{outline:none;border-color:var(--red)}
 .set-row{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s4)}
 .set-info h3{font-family:var(--disp);font-weight:700;font-size:18px;margin:0 0 6px;color:var(--ink)}
 .set-info p{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0;max-width:54ch}

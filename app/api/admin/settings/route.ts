@@ -22,6 +22,12 @@ async function requireAdmin() {
 
 // Keys the admin UI is allowed to write (all boolean flags).
 const BOOLEAN_KEYS = new Set(["investor_relations_enabled"]);
+// Numeric settings with [min, max] validation ranges.
+const NUMERIC_KEYS: Record<string, [number, number]> = {
+  freight_threshold: [0, 1_000_000],
+  freight_fee: [0, 100_000],
+  tax_rate: [0, 0.25],
+};
 
 export async function GET() {
   const admin = await requireAdmin();
@@ -37,19 +43,33 @@ export async function POST(req: Request) {
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { key, value } = (await req.json().catch(() => ({}))) as { key?: string; value?: unknown };
-  if (!key || !BOOLEAN_KEYS.has(key) || typeof value !== "boolean") {
-    return NextResponse.json({ error: "Invalid key or value" }, { status: 400 });
+  const isBool = !!key && BOOLEAN_KEYS.has(key);
+  const isNum = !!key && key in NUMERIC_KEYS;
+  if (!key || (!isBool && !isNum)) {
+    return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+  }
+  let stored: boolean | number;
+  if (isBool) {
+    if (typeof value !== "boolean") return NextResponse.json({ error: "Expected a boolean" }, { status: 400 });
+    stored = value;
+  } else {
+    const n = Number(value);
+    const [min, max] = NUMERIC_KEYS[key];
+    if (!Number.isFinite(n) || n < min || n > max) {
+      return NextResponse.json({ error: `Value must be between ${min} and ${max}` }, { status: 400 });
+    }
+    stored = n;
   }
 
   const svc = serviceClient();
   const { error } = await svc
     .from("site_settings")
-    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: "key" });
+    .upsert({ key, value: stored, updated_at: new Date().toISOString() }, { onConflict: "key" });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   await svc
     .from("audit_log")
-    .insert({ actor_id: admin.id, actor_email: admin.email, action: "settings.update", target: key, detail: `Set ${key} = ${value}` })
+    .insert({ actor_id: admin.id, actor_email: admin.email, action: "settings.update", target: key, detail: `Set ${key} = ${stored}` })
     .then(() => {}, () => {});
 
   // Next 16: revalidateTag now takes a profile. { expire: 0 } expires the tag
