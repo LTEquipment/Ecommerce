@@ -27,19 +27,28 @@ export default function AdminCustomers() {
   const load = useCallback(async () => {
     const res = await fetch("/api/admin/customers");
     const json = await res.json().catch(() => ({}));
-    if (!res.ok) { toast(json.error || "Failed to load customers"); setList([]); return; }
+    if (!res.ok) { toast(json.error || "Failed to load customers", "error"); setList([]); return; }
     setList(json.customers ?? []);
   }, [toast]);
   useEffect(() => { load(); }, [load]);
 
-  const act = async (userId: string, action: string) => {
-    setBusy(userId + action);
+  // Confirm the high-impact, hard-to-undo actions before firing.
+  const CONFIRM: Record<string, (c: Customer) => string> = {
+    "grant-admin": (c) => `Grant full admin console access to ${c.email}?`,
+    "revoke-admin": (c) => `Revoke admin access from ${c.email}?`,
+    "reject-dealer": (c) => `Reject the trade-account request from ${c.email}?`,
+  };
+
+  const act = async (c: Customer, action: string) => {
+    const confirmMsg = CONFIRM[action]?.(c);
+    if (confirmMsg && !window.confirm(confirmMsg)) return;
+    setBusy(c.id + action);
     const res = await fetch("/api/admin/customers", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, action }),
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: c.id, action }),
     });
     const json = await res.json().catch(() => ({}));
     setBusy(null);
-    if (!res.ok) return toast(json.error || "Action failed");
+    if (!res.ok) return toast(json.error || "Action failed", "error");
     toast("Updated.");
     load();
   };
@@ -48,9 +57,9 @@ export default function AdminCustomers() {
     if (open === c.id) { setOpen(null); return; }
     setOpen(c.id);
     if (details[c.id]) return;
-    setDetails((d) => ({ ...d, [c.id]: "loading" }));
     const sb = getBrowserSupabase();
-    if (!sb) return;
+    if (!sb) return; // null-check before the loading flag so the row never sticks on the skeleton
+    setDetails((d) => ({ ...d, [c.id]: "loading" }));
     const [{ data: orders }, { data: claims }, { data: tickets }] = await Promise.all([
       sb.from("orders").select("id, created_at, status, total").eq("customer_id", c.id).order("created_at", { ascending: false }),
       sb.from("warranty_claims").select("id, created_at, model, status").eq("user_id", c.id).order("created_at", { ascending: false }),
@@ -83,7 +92,7 @@ export default function AdminCustomers() {
             const isOpen = open === c.id;
             return (
               <div className={`cust-item${isOpen ? " open" : ""}`} key={c.id}>
-                <div className="cust-row" onClick={() => toggle(c)} role="button" aria-expanded={isOpen}>
+                <div className="cust-row" onClick={() => toggle(c)} role="button" tabIndex={0} aria-expanded={isOpen} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(c); } }}>
                   <ChevronDown className="cust-caret" />
                   <div className="cust-who">
                     <span className="cust-ava">{(c.company || c.email || "?")[0]?.toUpperCase()}</span>
@@ -104,14 +113,14 @@ export default function AdminCustomers() {
                   <div className="cust-actions" onClick={(e) => e.stopPropagation()}>
                     {c.dealerStatus === "pending" && (
                       <>
-                        <button className="btn btn-primary btn-xs" disabled={busy === c.id + "approve-dealer"} onClick={() => act(c.id, "approve-dealer")}>Approve</button>
-                        <button className="btn btn-line btn-xs" disabled={busy === c.id + "reject-dealer"} onClick={() => act(c.id, "reject-dealer")}>Reject</button>
+                        <button className="btn btn-primary btn-xs" disabled={busy === c.id + "approve-dealer"} onClick={() => act(c, "approve-dealer")}>Approve</button>
+                        <button className="btn btn-line btn-xs" disabled={busy === c.id + "reject-dealer"} onClick={() => act(c, "reject-dealer")}>Reject</button>
                       </>
                     )}
                     {c.isAdmin ? (
-                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "revoke-admin"} onClick={() => act(c.id, "revoke-admin")}>Revoke admin</button>
+                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "revoke-admin"} onClick={() => act(c, "revoke-admin")}>Revoke admin</button>
                     ) : (
-                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "grant-admin"} onClick={() => act(c.id, "grant-admin")}>Make admin</button>
+                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "grant-admin"} onClick={() => act(c, "grant-admin")}>Make admin</button>
                     )}
                   </div>
                 </div>

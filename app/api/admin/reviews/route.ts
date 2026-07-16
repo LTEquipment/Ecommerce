@@ -73,7 +73,8 @@ export async function POST(req: Request) {
       actor_id: admin.id,
       actor_email: admin.email,
       action: `review.${action}`,
-      target: id,
+      target: row?.product_slug ?? id,
+      detail: action === "hide" ? "Hid a review" : action === "publish" ? "Published a review" : "Deleted a review",
     })
     .then(() => {}, () => {});
 
