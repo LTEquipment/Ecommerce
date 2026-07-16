@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { Mail } from "../icons";
 
-type Msg = { id: string; created_at: string; name: string | null; company: string | null; email: string | null; phone: string | null; message: string | null };
+type Msg = { id: string; created_at: string; name: string | null; company: string | null; email: string | null; phone: string | null; message: string | null; handled?: boolean };
 type Sub = { email: string; created_at: string };
 type StockReq = { id: string; product_slug: string; sku: string | null; email: string | null; created_at: string };
 
@@ -12,24 +12,43 @@ export default function AdminInbox() {
   const [msgs, setMsgs] = useState<Msg[] | null>(null);
   const [subs, setSubs] = useState<Sub[] | null>(null);
   const [stock, setStock] = useState<StockReq[] | null>(null);
+  const [showHandled, setShowHandled] = useState(false);
 
   useEffect(() => {
     const sb = getBrowserSupabase();
     if (!sb) return;
-    sb.from("contact_messages").select("id,created_at,name,company,email,phone,message").order("created_at", { ascending: false }).then(({ data }) => setMsgs((data as Msg[]) ?? []));
+    // select * so 'handled' loads when present (before the triage migration it's absent)
+    sb.from("contact_messages").select("*").order("created_at", { ascending: false }).then(({ data }) => setMsgs((data as Msg[]) ?? []));
     sb.from("subscribers").select("email,created_at").order("created_at", { ascending: false }).then(({ data }) => setSubs((data as Sub[]) ?? []));
     sb.from("stock_notifications").select("id,product_slug,sku,email,created_at").eq("notified", false).order("created_at", { ascending: false }).then(({ data }) => setStock((data as StockReq[]) ?? []));
   }, []);
 
+  const setHandled = async (id: string, handled: boolean) => {
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    setMsgs((prev) => prev?.map((m) => (m.id === id ? { ...m, handled } : m)) ?? prev);
+    await sb.from("contact_messages").update({ handled }).eq("id", id);
+  };
+
+  const open = (msgs ?? []).filter((m) => !m.handled);
+  const shown = showHandled ? (msgs ?? []) : open;
+
   return (
     <>
-      <div className="admin-sec-head"><h2 className="admin-h">Messages <span className="admin-count">{msgs?.length ?? "·"}</span></h2></div>
-      {msgs === null ? <div className="skel skel-row" /> : msgs.length === 0 ? (
-        <div className="emptybox"><Mail /><div className="m">No messages</div><div className="s">Contact-form submissions land here.</div></div>
+      <div className="admin-sec-head">
+        <h2 className="admin-h">Messages <span className="admin-count">{open.length}</span></h2>
+        {(msgs?.length ?? 0) > open.length && (
+          <button className="inbox-toggle" onClick={() => setShowHandled((v) => !v)}>
+            {showHandled ? "Hide handled" : `Show handled (${(msgs?.length ?? 0) - open.length})`}
+          </button>
+        )}
+      </div>
+      {msgs === null ? <div className="skel skel-row" /> : shown.length === 0 ? (
+        <div className="emptybox"><Mail /><div className="m">{showHandled ? "No messages" : "Inbox zero"}</div><div className="s">Contact-form submissions land here.</div></div>
       ) : (
         <div className="admin-cards">
-          {msgs.map((m) => (
-            <div className="admin-card msg-card" key={m.id}>
+          {shown.map((m) => (
+            <div className={`admin-card msg-card${m.handled ? " is-handled" : ""}`} key={m.id}>
               <div className="ac-main">
                 <div className="ac-title">{m.name || "Someone"}{m.company ? ` · ${m.company}` : ""} <span className="ac-date">{new Date(m.created_at).toLocaleDateString()}</span></div>
                 <div className="ac-contact">
@@ -38,6 +57,9 @@ export default function AdminInbox() {
                 </div>
                 <div className="ac-sub ac-msg">{m.message || "—"}</div>
               </div>
+              <button className="msg-handle" onClick={() => setHandled(m.id, !m.handled)}>
+                {m.handled ? "Reopen" : "Mark handled"}
+              </button>
             </div>
           ))}
         </div>
