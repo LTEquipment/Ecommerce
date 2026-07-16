@@ -43,7 +43,6 @@ export const metadata: Metadata = {
     title: "L&T — Commercial Kitchen Equipment & Supply",
     description:
       "Panda® wok ranges, steamers, roasters and automation — designed and built in New York, shipped nationwide.",
-    images: [{ url: "/android-chrome-512x512.png", width: 512, height: 512, alt: "L&T Restaurant Equipment" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -77,6 +76,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${archivo.variable} ${inter.variable}`}>
       <body>
+        {/* Warm up cross-origin connections (hero video, map tiles, backend) — Next hoists these to <head>. */}
+        <link rel="preconnect" href="https://ltusa.s3.us-east-1.amazonaws.com" />
+        <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com" />
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
+          <link rel="preconnect" href={new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin} />
+        )}
         <JsonLd data={[organizationLd(), websiteLd()]} />
         <AuthProvider>
           <StoreProvider>
