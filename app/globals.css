@@ -614,6 +614,14 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .pinfo .stock.back{color:var(--muted)}.pinfo .stock.back i{background:var(--muted-2)}
 .pinfo .desc{color:var(--ink-2);font-size:15px;line-height:1.65;margin:0 0 22px}
 .buy-row{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+/* Back-in-stock capture (replaces the dead "Notify me" button) */
+.notify-trigger,.notify-form,.notify-done{flex:1;min-width:0}
+.notify-form{display:flex;flex-wrap:wrap;gap:8px}
+.notify-form input{flex:1;min-width:0;height:52px;border:1.5px solid var(--line-2);border-radius:var(--r);padding:0 14px;font:inherit;font-size:14px;color:var(--ink);background:var(--white)}
+.notify-form input:focus{outline:none;border-color:var(--red)}
+.notify-form .btn{height:52px;flex:0 0 auto;white-space:nowrap}
+.notify-form .notify-err{flex-basis:100%;color:var(--red);font-size:12px}
+.notify-done{display:flex;align-items:center;min-height:52px;padding:10px 14px;font-size:13.5px;font-weight:600;color:var(--stock);background:color-mix(in srgb,var(--stock) 8%,transparent);border-radius:var(--r);line-height:1.4}
 /* Wishlist */
 .wish-btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;background:none;border:0;color:var(--muted);transition:color var(--ease),border-color var(--ease),background var(--ease)}
 .wish-btn svg{width:20px;height:20px;transition:fill var(--ease),transform var(--ease)}
