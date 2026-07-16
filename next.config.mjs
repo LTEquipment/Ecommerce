@@ -40,6 +40,16 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  images: {
+    // Serve modern formats; the optimizer negotiates per Accept header.
+    formats: ["image/avif", "image/webp"],
+    // Product images/avatars may be served from Supabase Storage or the brand S3
+    // bucket (same origins the CSP img-src allows) in addition to local /public.
+    remotePatterns: [
+      { protocol: "https", hostname: "*.supabase.co" },
+      { protocol: "https", hostname: "ltusa.s3.us-east-1.amazonaws.com" },
+    ],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
