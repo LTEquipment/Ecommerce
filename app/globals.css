@@ -97,9 +97,9 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 .brand .wordmark b{font-family:var(--disp);font-weight:800;font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink)}
 .brand .wordmark span{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 
-.qcta{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:var(--r);padding:10px 16px;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;transition:border-color .18s,background .18s}
-.qcta:hover{border-color:var(--ink);background:var(--panel)}
-.qcta svg{width:16px;height:16px;color:var(--red);flex:0 0 auto}
+.qcta{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:var(--r);padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--ink-2);white-space:nowrap;transition:border-color .18s,background .18s,color .18s}
+.qcta:hover{border-color:var(--line-2);background:var(--panel);color:var(--ink)}
+.qcta svg{width:15px;height:15px;color:var(--red);flex:0 0 auto}
 
 .big-search{flex:1;display:flex;align-items:center;gap:10px;background:var(--paper);border:1.5px solid var(--line-2);
   border-radius:var(--r);padding:11px 15px;min-width:240px;max-width:680px;transition:border-color .2s}
