@@ -2,7 +2,12 @@ import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY } from "@/lib/company";
 
-export const metadata = { title: "Cookie Policy — L&T" };
+export const metadata = {
+  title: "Cookie Policy — L&T",
+  description:
+    "How L&T Restaurant Equipment uses cookies and local storage on ltfse.com — essential, preference, and analytics cookies — and how to manage them in your browser",
+  alternates: { canonical: "/cookies" },
+};
 
 export default function CookiesPage() {
   return (

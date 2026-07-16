@@ -2,7 +2,12 @@ import Link from "next/link";
 import { COMPANY, telHref } from "@/lib/company";
 import { ArrowRight } from "@/components/icons";
 
-export const metadata = { title: "Sustainability — L&T Restaurant Equipment" };
+export const metadata = {
+  title: "Sustainability — L&T Restaurant Equipment",
+  description:
+    "How L&T builds durable, energy-efficient Panda® kitchen equipment made to last — repairable, Energy Star and R-290 models built in New York to lower costs.",
+  alternates: { canonical: "/sustainability" },
+};
 
 const FACTS = [
   { value: "40+", label: "Years building to last" },

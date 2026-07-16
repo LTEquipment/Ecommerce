@@ -4,7 +4,12 @@ import PageHeader from "@/components/PageHeader";
 import { COMPANY, telHref } from "@/lib/company";
 import { Phone, Mail, MapPin, Clock, ArrowRight } from "@/components/icons";
 
-export const metadata = { title: "Contact — L&T Restaurant Equipment" };
+export const metadata = {
+  title: "Contact — L&T Restaurant Equipment",
+  description:
+    "Contact L&T Restaurant Equipment for bulk and contract pricing, custom wok chambers and freight questions. Call, email or visit our New York factory and HQ.",
+  alternates: { canonical: "/contact" },
+};
 
 const mapsHref = "https://maps.google.com/?q=" + encodeURIComponent(COMPANY.hqAddress);
 

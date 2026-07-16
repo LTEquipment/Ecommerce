@@ -3,7 +3,12 @@ import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
 import { Package } from "@/components/icons";
 
-export const metadata = { title: "Returns & Refunds — L&T" };
+export const metadata = {
+  title: "Returns & Refunds — L&T",
+  description:
+    "L&T accepts 30-day returns on new, unused stock items in original packaging; a 15% restocking fee applies and custom-built equipment is final sale",
+  alternates: { canonical: "/returns" },
+};
 
 export default function ReturnsPage() {
   return (

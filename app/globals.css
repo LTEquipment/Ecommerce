@@ -1586,6 +1586,10 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shimmer 1.3s infinite}
 @keyframes shimmer{100%{transform:translateX(100%)}}
 .skel-order{height:92px;margin-bottom:12px}.skel-row{height:80px;margin-bottom:10px}
+.skel-b{display:block;border-radius:var(--r)}
+.cat-skel-head{padding:var(--s5) 0}
+.cat-skel-grid{margin-bottom:var(--s7)}
+.cat-skel-card{aspect-ratio:3/4;border-radius:var(--rl)}
 
 /* ============================================================
    RESPONSIVE

@@ -2,7 +2,12 @@ import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY } from "@/lib/company";
 
-export const metadata = { title: "Privacy Policy — L&T Restaurant Equipment" };
+export const metadata = {
+  title: "Privacy Policy — L&T Restaurant Equipment",
+  description:
+    "How L&T Restaurant Equipment collects, uses, and protects your personal information on ltfse.com, including cookies, privacy choices, and state rights",
+  alternates: { canonical: "/privacy" },
+};
 
 const SECTIONS = [
   { id: "scope", label: "Scope of this policy" },

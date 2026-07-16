@@ -4,7 +4,12 @@ import EditorialHero from "@/components/EditorialHero";
 import { COMPANY } from "@/lib/company";
 import { MapPin, ArrowRight } from "@/components/icons";
 
-export const metadata = { title: "Careers — L&T Restaurant Equipment" };
+export const metadata = {
+  title: "Careers — L&T Restaurant Equipment",
+  description:
+    "Careers at L&T Restaurant Equipment. We design, build and service the Panda® line in New York — hiring in manufacturing, sales, design and field service.",
+  alternates: { canonical: "/careers" },
+};
 
 const WHY_POINTS = [
   {

@@ -3,7 +3,12 @@ import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
 import { Card } from "@/components/icons";
 
-export const metadata = { title: "Trade Accounts & Financing — L&T" };
+export const metadata = {
+  title: "Trade Accounts & Financing — L&T",
+  description:
+    "Open an L&T trade account for contract pricing and 0% APR financing on Panda® commercial kitchen equipment, plus leasing and bulk quotes for operators",
+  alternates: { canonical: "/financing" },
+};
 
 export default function FinancingPage() {
   return (

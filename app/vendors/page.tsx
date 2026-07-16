@@ -2,7 +2,12 @@ import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
 
-export const metadata = { title: "Vendors & Suppliers — L&T" };
+export const metadata = {
+  title: "Vendors & Suppliers — L&T",
+  description:
+    "Partner with L&T Restaurant Equipment — supply materials, components and services for Panda® commercial kitchen equipment built in New York. Submit a line card.",
+  alternates: { canonical: "/vendors" },
+};
 
 const aside = (
   <div className="side-card doc-help">
