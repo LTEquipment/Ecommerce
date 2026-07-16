@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import WishlistButton from "./WishlistButton";
 import CompareButton from "./CompareButton";
+import StockNotify from "./StockNotify";
 import { useLiveProduct } from "@/lib/useLiveProducts";
 import { recordView } from "@/lib/recentlyViewed";
 import { money } from "@/lib/format";
@@ -149,7 +150,7 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
                 <Plus /> Add to cart
               </button>
             ) : (
-              <button className="btn btn-line btn-lg">Notify me when available</button>
+              <StockNotify p={p} />
             )}
           </div>
 
