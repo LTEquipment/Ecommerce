@@ -100,7 +100,7 @@ export default async function Footer() {
             <Link href="/faq">FAQ</Link>
             <Link href="/guides">Equipment guides</Link>
             <Link href="/warranty">Warranty &amp; parts</Link>
-            <Link href="/account">Track an order</Link>
+            <Link href="/track">Track an order</Link>
             <Link href="/contact">Spec support</Link>
           </div>
           {investorRelationsEnabled && (

@@ -17,16 +17,24 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
  * after direct client INSERT on orders/order_items is revoked (see
  * supabase/orders-hardening.sql).
  */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function POST(req: Request) {
-  // Authenticate via the caller's session cookie (anon client).
+  // Session is optional: signed-in orders link to the customer; guest orders are
+  // persisted with a guest contact so nothing is ever silently dropped.
   const supabase = await getServerSupabase();
   if (!supabase) return NextResponse.json({ error: "Backend not connected" }, { status: 500 });
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
   let body: unknown;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Bad request" }, { status: 400 }); }
-  const b = (body ?? {}) as { items?: unknown; payment_method?: unknown; company?: unknown; shipping?: unknown };
+  const b = (body ?? {}) as { items?: unknown; payment_method?: unknown; company?: unknown; shipping?: unknown; email?: unknown; name?: unknown; phone?: unknown };
+
+  // Guests must supply a valid contact email so the order is reachable + fulfillable.
+  const guestEmail = typeof b.email === "string" ? b.email.trim().slice(0, 200) : "";
+  if (!user && !EMAIL_RE.test(guestEmail)) {
+    return NextResponse.json({ error: "A valid email is required to place a guest order" }, { status: 400 });
+  }
 
   const reqItems = Array.isArray(b.items) ? (b.items as Array<{ sku?: unknown; qty?: unknown }>) : [];
   if (reqItems.length === 0) return NextResponse.json({ error: "Empty cart" }, { status: 400 });
@@ -78,39 +86,46 @@ export async function POST(req: Request) {
     { auth: { persistSession: false } }
   );
 
-  // Soft per-user rate limit: bound order flooding (no one legitimately places a
-  // dozen orders a minute). Not perfectly atomic, but enough to stop a script.
+  // Soft rate limit: bound order flooding (no one legitimately places a dozen
+  // orders a minute). Keyed by customer for members, by guest email otherwise.
   const since = new Date(Date.now() - 60_000).toISOString();
-  const { count: recent } = await admin
-    .from("orders")
-    .select("id", { count: "exact", head: true })
-    .eq("customer_id", user.id)
-    .gte("created_at", since);
+  const rl = admin.from("orders").select("id", { count: "exact", head: true }).gte("created_at", since);
+  const { count: recent } = await (user ? rl.eq("customer_id", user.id) : rl.eq("guest_email", guestEmail));
   if ((recent ?? 0) >= 12) {
     return NextResponse.json({ error: "Too many orders in a short time — please wait a moment." }, { status: 429 });
   }
 
-  await admin.from("customers").upsert({ id: user.id, company, price_list_id: null }, { onConflict: "id" });
+  if (user) await admin.from("customers").upsert({ id: user.id, company, price_list_id: null }, { onConflict: "id" });
 
+  const guestFields: { guest_email?: string; guest_name?: string | null; guest_phone?: string | null } =
+    user ? {} : { guest_email: guestEmail, guest_name: shipStr(b.name, 120) ?? shipping.ship_name, guest_phone: shipStr(b.phone, 40) ?? shipping.ship_phone };
   const fullRow = {
-    customer_id: user.id, status: "submitted", subtotal, freight, total,
+    customer_id: user?.id ?? null, status: "submitted", subtotal, freight, total,
     payment_method: method, payment_status: "pending", amount_paid: 0, paid_at: null,
-    ...shipping,
+    ...shipping, ...guestFields,
   };
+  const coreRow = { customer_id: user?.id ?? null, status: "submitted", subtotal, freight, total, ...guestFields };
   let order: { id: string } | null = null;
   let error: { message: string } | null = null;
   ({ data: order, error } = await admin.from("orders").insert(fullRow).select("id").single());
   if (error && /ship_|column/.test(error.message)) {
-    // order-shipping.sql not run yet — retry without the ship_ columns (keep payment).
+    // order-shipping.sql not run yet — retry without the ship_ columns (keep payment + guest).
     const { ship_name, ship_company, ship_phone, ship_address, ship_city, ship_state, ship_zip, ...noShip } = fullRow;
     void ship_name; void ship_company; void ship_phone; void ship_address; void ship_city; void ship_state; void ship_zip;
     ({ data: order, error } = await admin.from("orders").insert(noShip).select("id").single());
   }
+  if (error && /guest_|column/.test(error.message)) {
+    // guest-orders.sql not run yet — drop guest_ columns (order still saved, just not guest-lookuppable).
+    const { guest_email, guest_name, guest_phone, ...noGuest } = fullRow as Record<string, unknown>;
+    void guest_email; void guest_name; void guest_phone;
+    ({ data: order, error } = await admin.from("orders").insert(noGuest).select("id").single());
+  }
   if (error && /payment_|amount_paid|paid_at|column/.test(error.message)) {
     // payments.sql migration not run yet — fall back to core order columns.
-    ({ data: order, error } = await admin
-      .from("orders").insert({ customer_id: user.id, status: "submitted", subtotal, freight, total })
-      .select("id").single());
+    ({ data: order, error } = await admin.from("orders").insert(coreRow).select("id").single());
+  }
+  if (error && /guest_|column/.test(error.message)) {
+    ({ data: order, error } = await admin.from("orders").insert({ customer_id: user?.id ?? null, status: "submitted", subtotal, freight, total }).select("id").single());
   }
   if (error || !order) return NextResponse.json({ error: "Could not create order" }, { status: 500 });
 
