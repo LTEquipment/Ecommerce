@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { CATEGORIES, PRODUCTS } from "@/lib/products";
+import { GUIDES } from "@/lib/guides";
 import { getSiteSettings } from "@/lib/settings";
 
 const BASE = "https://www.ltfse.com";
@@ -8,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { investorRelationsEnabled } = await getSiteSettings();
   const staticPaths = [
     "", "/products", "/about", "/leadership", "/press", "/sustainability",
-    "/vendors", "/locations", "/contact",
+    "/vendors", "/locations", "/contact", "/guides",
     ...(investorRelationsEnabled ? ["/investors"] : []),
     "/faq", "/shipping", "/returns", "/warranty", "/financing", "/careers",
     "/privacy", "/terms", "/cookies", "/accessibility",
@@ -33,5 +34,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     images: (p.images ?? []).map((im) => `${BASE}${im}`),
   }));
 
-  return [...staticEntries, ...categoryEntries, ...productEntries];
+  const guideEntries: MetadataRoute.Sitemap = GUIDES.map((g) => ({
+    url: `${BASE}/guides/${g.slug}`,
+    lastModified: g.updated,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  return [...staticEntries, ...categoryEntries, ...productEntries, ...guideEntries];
 }

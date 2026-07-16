@@ -97,6 +97,7 @@ export default async function Footer() {
           <div className="fcol">
             <h5>Support</h5>
             <Link href="/faq">FAQ</Link>
+            <Link href="/guides">Equipment guides</Link>
             <Link href="/warranty">Warranty &amp; parts</Link>
             <Link href="/account">Track an order</Link>
             <Link href="/contact">Spec support</Link>
