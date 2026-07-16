@@ -20,9 +20,15 @@ export default function AdminCustomers() {
   const { toast } = useStore();
   const [list, setList] = useState<Customer[] | null>(null);
   const [q, setQ] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [busy, setBusy] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, Detail>>({});
+
+  const typeOf = (c: Customer) =>
+    c.role === "dealer"
+      ? c.dealerStatus === "approved" ? "Dealer" : c.dealerStatus === "pending" ? "Trade · pending" : c.dealerStatus === "rejected" ? "Trade · rejected" : "Dealer"
+      : "Customer";
 
   const load = useCallback(async () => {
     const res = await fetch("/api/admin/customers");
@@ -71,9 +77,35 @@ export default function AdminCustomers() {
   const filtered = useMemo(() => {
     if (!list) return null;
     const s = q.trim().toLowerCase();
-    if (!s) return list;
-    return list.filter((c) => c.email.toLowerCase().includes(s) || c.company.toLowerCase().includes(s));
-  }, [list, q]);
+    return list.filter((c) => {
+      if (typeFilter === "trade-pending" && c.dealerStatus !== "pending") return false;
+      if (typeFilter === "dealers" && !(c.role === "dealer" && c.dealerStatus === "approved")) return false;
+      if (typeFilter === "admins" && !c.isAdmin) return false;
+      if (typeFilter === "customers" && c.role === "dealer") return false;
+      if (!s) return true;
+      return c.email.toLowerCase().includes(s) || c.company.toLowerCase().includes(s);
+    });
+  }, [list, q, typeFilter]);
+
+  const exportCsv = () => {
+    const rows = filtered ?? [];
+    const head = ["Email", "Company", "Type", "Admin", "Confirmed", "Joined", "Last active"];
+    const body = rows.map((c) => [
+      c.email, c.company, typeOf(c), c.isAdmin ? "yes" : "", c.confirmed ? "yes" : "no",
+      new Date(c.createdAt).toISOString().slice(0, 10),
+      c.lastSignInAt ? new Date(c.lastSignInAt).toISOString().slice(0, 10) : "",
+    ]);
+    const csv = [head, ...body].map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `customers-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const TYPE_CHIPS: [string, string][] = [["all", "All"], ["trade-pending", "Trade · pending"], ["dealers", "Dealers"], ["admins", "Admins"], ["customers", "Customers"]];
 
   return (
     <>
@@ -82,8 +114,19 @@ export default function AdminCustomers() {
         <span className="admin-search"><Search /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search email or company…" aria-label="Search customers" /></span>
       </div>
 
+      {(list?.length ?? 0) > 0 && (
+        <div className="ord-toolbar">
+          <div className="ord-filters">
+            {TYPE_CHIPS.map(([k, label]) => (
+              <button key={k} className={`ord-chip${typeFilter === k ? " on" : ""}`} onClick={() => setTypeFilter(k)}>{label}</button>
+            ))}
+          </div>
+          <button className="btn btn-line ord-export" onClick={exportCsv} disabled={!filtered?.length}>Export CSV</button>
+        </div>
+      )}
+
       {filtered === null ? <div className="skel skel-row" /> : filtered.length === 0 ? (
-        <div className="emptybox"><User /><div className="m">No customers{q ? " match" : " yet"}</div></div>
+        <div className="emptybox"><User /><div className="m">No customers{q || typeFilter !== "all" ? " match" : " yet"}</div></div>
       ) : (
         <div className="cust-table">
           <div className="cust-thead"><span></span><span>Customer</span><span>Type</span><span>Joined</span><span>Last active</span><span>Actions</span></div>

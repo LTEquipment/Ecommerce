@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { useStore } from "../StoreProvider";
 import { useAuth } from "../AuthProvider";
@@ -24,6 +24,8 @@ export default function AdminQA() {
   const [rows, setRows] = useState<QRow[] | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const [filter, setFilter] = useState("all");
+  const [q, setQ] = useState("");
 
   const load = useCallback(() => {
     const sb = getBrowserSupabase();
@@ -80,6 +82,22 @@ export default function AdminQA() {
 
   const unanswered = rows?.filter((r) => !r.answer).length ?? 0;
 
+  const filtered = useMemo(() => {
+    if (!rows) return [];
+    const s = q.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (filter === "unanswered" && r.answer) return false;
+      if (filter === "hidden" && r.status !== "hidden") return false;
+      if (!s) return true;
+      return (
+        r.question.toLowerCase().includes(s) ||
+        r.author_name.toLowerCase().includes(s) ||
+        r.product_slug.toLowerCase().includes(s) ||
+        (r.answer ?? "").toLowerCase().includes(s)
+      );
+    });
+  }, [rows, filter, q]);
+
   return (
     <>
       <div className="admin-sec-head">
@@ -94,8 +112,20 @@ export default function AdminQA() {
           <div className="s">Questions asked on product pages appear here to answer.</div>
         </div>
       ) : (
+        <>
+        <div className="ord-toolbar">
+          <div className="ord-filters">
+            {["all", "unanswered", "hidden"].map((s) => (
+              <button key={s} className={`ord-chip${filter === s ? " on" : ""}`} onClick={() => setFilter(s)}>{s}</button>
+            ))}
+          </div>
+          <input className="ord-search" placeholder="Search question, author, product…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search questions" />
+        </div>
+        {filtered.length === 0 ? (
+          <div className="emptybox"><FileText /><div className="m">No questions match</div><div className="s">Try a different filter or search term.</div></div>
+        ) : (
         <div className="admin-cards">
-          {rows.map((r) => (
+          {filtered.map((r) => (
             <div className={`admin-card qa-admin${r.status === "hidden" ? " is-hidden" : ""}`} key={r.id}>
               <div className="ac-main">
                 <div className="ac-title">
@@ -127,6 +157,8 @@ export default function AdminQA() {
             </div>
           ))}
         </div>
+        )}
+        </>
       )}
     </>
   );

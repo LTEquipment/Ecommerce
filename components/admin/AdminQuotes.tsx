@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useStore } from "../StoreProvider";
 import { FileText } from "../icons";
 import { money } from "@/lib/format";
@@ -25,6 +25,8 @@ export default function AdminQuotes() {
   const { toast } = useStore();
   const [rows, setRows] = useState<Quote[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [q, setQ] = useState("");
 
   const load = useCallback(() => {
     fetch("/api/admin/quotes", { cache: "no-store" })
@@ -58,6 +60,16 @@ export default function AdminQuotes() {
     }
   };
 
+  const filtered = useMemo(() => {
+    if (!rows) return [];
+    const s = q.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (!s) return true;
+      return (r.company ?? "").toLowerCase().includes(s) || (r.name ?? "").toLowerCase().includes(s) || (r.email ?? "").toLowerCase().includes(s);
+    });
+  }, [rows, statusFilter, q]);
+
   return (
     <>
       <div className="admin-sec-head">
@@ -74,8 +86,20 @@ export default function AdminQuotes() {
           <div className="s">Requests submitted from the cart land here.</div>
         </div>
       ) : (
+        <>
+        <div className="ord-toolbar">
+          <div className="ord-filters">
+            {["all", ...STATUSES].map((s) => (
+              <button key={s} className={`ord-chip${statusFilter === s ? " on" : ""}`} onClick={() => setStatusFilter(s)}>{s}</button>
+            ))}
+          </div>
+          <input className="ord-search" placeholder="Search company, name, email…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search quotes" />
+        </div>
+        {filtered.length === 0 ? (
+          <div className="emptybox"><FileText /><div className="m">No quotes match</div><div className="s">Try a different status or search term.</div></div>
+        ) : (
         <div className="admin-cards">
-          {rows.map((q) => (
+          {filtered.map((q) => (
             <div className="admin-card qr-admin" key={q.id}>
               <div className="ac-main">
                 <div className="ac-title">
@@ -114,6 +138,8 @@ export default function AdminQuotes() {
             </div>
           ))}
         </div>
+        )}
+        </>
       )}
     </>
   );
