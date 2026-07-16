@@ -124,9 +124,10 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 .icon-btn{width:42px;height:42px;border-radius:var(--r);display:none;place-items:center;position:relative}
 .icon-btn:hover{background:var(--panel)} .icon-btn svg{width:22px;height:22px}
 .icon-btn .cart-count{top:4px;left:24px}
-/* The cart glyph fills less of its 24-unit viewBox than the heart/user icons,
-   so render it a hair larger to read the same optical size beside them. */
-.hdr-cart svg{width:23px;height:23px}
+/* The cart glyph fills less of its 24-unit viewBox than the heart/user icons and
+   sits lower within it, so render it slightly larger AND lift it ~2px so both
+   its optical size and its vertical center match the heart beside it. */
+.hdr-cart svg{width:23px;height:23px;transform:translateY(-2px)}
 
 /* account dropdown */
 .acct-wrap{position:relative}
