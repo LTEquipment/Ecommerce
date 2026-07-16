@@ -1,7 +1,12 @@
 import PageShell from "@/components/PageShell";
 import { COMPANY } from "@/lib/company";
 
-export const metadata = { title: "California Transparency in Supply Chains Act — L&T" };
+export const metadata = {
+  title: "California Transparency in Supply Chains Act — L&T",
+  description:
+    "L&T's disclosure under the California Transparency in Supply Chains Act on forced labor and human trafficking risk in our made-in-NYC Panda® supply chain",
+  alternates: { canonical: "/supply-chain" },
+};
 
 const SECTIONS = [
   { id: "verification", label: "Verification" },

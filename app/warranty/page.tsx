@@ -3,7 +3,12 @@ import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
 import { Shield } from "@/components/icons";
 
-export const metadata = { title: "Warranty & Parts — L&T" };
+export const metadata = {
+  title: "Warranty & Parts — L&T",
+  description:
+    "Panda® equipment carries a one-year parts and labor warranty with parts and service direct from L&T's New York factory — file a claim or order parts",
+  alternates: { canonical: "/warranty" },
+};
 
 export default function WarrantyPage() {
   return (

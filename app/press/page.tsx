@@ -3,7 +3,12 @@ import EditorialHero from "@/components/EditorialHero";
 import { BRAND } from "@/lib/brand";
 import { COMPANY, telHref } from "@/lib/company";
 
-export const metadata = { title: "Press & Newsroom — L&T" };
+export const metadata = {
+  title: "Press & Newsroom — L&T",
+  description:
+    "Press and newsroom for L&T Restaurant Equipment — company news, milestones, media resources and press kit for the Panda® brand, built in New York.",
+  alternates: { canonical: "/press" },
+};
 
 export default function PressPage() {
   return (

@@ -6,7 +6,12 @@ import { BRAND } from "@/lib/brand";
 import { COMPANY, telHref } from "@/lib/company";
 import { ArrowRight } from "@/components/icons";
 
-export const metadata = { title: "About — L&T Restaurant Equipment" };
+export const metadata = {
+  title: "About — L&T Restaurant Equipment",
+  description:
+    "Learn about L&T Restaurant Equipment — four decades building Panda® commercial kitchen equipment, designed, welded and line-tested in our New York factory.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (

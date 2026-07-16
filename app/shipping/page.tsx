@@ -3,7 +3,12 @@ import PageShell from "@/components/PageShell";
 import { COMPANY, telHref } from "@/lib/company";
 import { Truck } from "@/components/icons";
 
-export const metadata = { title: "Shipping & Freight — L&T" };
+export const metadata = {
+  title: "Shipping & Freight — L&T",
+  description:
+    "L&T ships heavy commercial kitchen equipment nationwide with free freight over $999; in-stock Panda® units leave our New York factory in 24–48 hours",
+  alternates: { canonical: "/shipping" },
+};
 
 export default function ShippingPage() {
   return (

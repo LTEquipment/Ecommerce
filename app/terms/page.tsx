@@ -2,7 +2,12 @@ import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { COMPANY } from "@/lib/company";
 
-export const metadata = { title: "Terms of Use — L&T" };
+export const metadata = {
+  title: "Terms of Use — L&T",
+  description:
+    "The terms governing your use of ltfse.com and purchases from L&T Restaurant Equipment — orders, pricing, shipping, warranty, and New York governing law",
+  alternates: { canonical: "/terms" },
+};
 
 export default function TermsPage() {
   return (

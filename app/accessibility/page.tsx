@@ -1,7 +1,12 @@
 import PageShell from "@/components/PageShell";
 import { COMPANY } from "@/lib/company";
 
-export const metadata = { title: "Accessibility — L&T" };
+export const metadata = {
+  title: "Accessibility — L&T",
+  description:
+    "L&T Restaurant Equipment's accessibility statement on WCAG 2.1 AA conformance and making ltfse.com usable for everyone, including people with disabilities",
+  alternates: { canonical: "/accessibility" },
+};
 
 export default function AccessibilityPage() {
   return (

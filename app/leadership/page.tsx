@@ -4,7 +4,12 @@ import EditorialHero from "@/components/EditorialHero";
 import { BRAND } from "@/lib/brand";
 import { MapPin, ArrowRight } from "@/components/icons";
 
-export const metadata = { title: "Leadership — L&T Restaurant Equipment" };
+export const metadata = {
+  title: "Leadership — L&T Restaurant Equipment",
+  description:
+    "Meet the leadership team behind L&T Restaurant Equipment — decades of manufacturing, design and service experience building the Panda® brand in New York.",
+  alternates: { canonical: "/leadership" },
+};
 
 const initials = (name: string) =>
   name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
