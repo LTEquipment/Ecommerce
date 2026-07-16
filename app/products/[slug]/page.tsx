@@ -2,10 +2,12 @@ import { notFound } from "next/navigation";
 import { getProduct, getRelated, getCategory } from "@/lib/catalog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductDetail from "@/components/ProductDetail";
+import ProductReviews from "@/components/ProductReviews";
 import RelatedProducts from "@/components/RelatedProducts";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import JsonLd from "@/components/JsonLd";
 import { productLd, breadcrumbLd } from "@/lib/seo";
+import { getProductReviews, getReviewStats } from "@/lib/reviews";
 
 export const dynamic = "force-dynamic";
 
@@ -34,12 +36,17 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const p = await getProduct(slug);
   if (!p) notFound();
-  const [cat, related] = await Promise.all([getCategory(p.cat), getRelated(p.slug, 4)]);
+  const [cat, related, reviews, stats] = await Promise.all([
+    getCategory(p.cat),
+    getRelated(p.slug, 4),
+    getProductReviews(p.slug),
+    getReviewStats(p.slug),
+  ]);
   return (
     <>
       <JsonLd
         data={[
-          productLd(p, cat?.name),
+          productLd(p, cat?.name, stats, reviews),
           breadcrumbLd([
             { name: "Home", url: "/" },
             ...(cat ? [{ name: cat.name, url: `/category/${cat.id}` }] : []),
@@ -55,7 +62,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           ]}
         />
       </div>
-      <ProductDetail p={p} />
+      <ProductDetail p={p} stats={stats} />
+      <ProductReviews slug={p.slug} initialReviews={reviews} initialStats={stats} />
       <RelatedProducts products={related} />
       <RecentlyViewed excludeSlug={p.slug} />
     </>

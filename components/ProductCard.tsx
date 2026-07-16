@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useStore } from "./StoreProvider";
 import WishlistButton from "./WishlistButton";
 import CompareButton from "./CompareButton";
+import { useReviewStats } from "./ReviewStatsProvider";
 import { ILLUS } from "@/lib/illus";
 import { money } from "@/lib/format";
 import { Star, Plus } from "./icons";
@@ -12,6 +13,7 @@ import type { Product } from "@/lib/types";
 
 export default function ProductCard({ p }: { p: Product }) {
   const { add, toast } = useStore();
+  const stats = useReviewStats(p.slug);
   const inStock = p.stock === "in";
   const href = `/products/${p.slug}`;
   return (
@@ -36,9 +38,11 @@ export default function ProductCard({ p }: { p: Product }) {
       <div className="body">
         <div className="sku">Model {p.sku}</div>
         <h3><Link href={href}>{p.name}</Link></h3>
-        <div className="rate">
-          <span className="stars"><Star /></span> {p.rating.toFixed(1)} ({p.n})
-        </div>
+        {stats && stats.count > 0 && (
+          <div className="rate">
+            <span className="stars"><Star /></span> {stats.avg.toFixed(1)} ({stats.count})
+          </div>
+        )}
         <div className={`stock ${inStock ? "" : "back"}`}>
           <i />
           {inStock ? "In stock · ships 24h" : "Backorder · 2–3 weeks"}

@@ -3,6 +3,7 @@ import { Archivo, Inter } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import StoreProvider from "@/components/StoreProvider";
+import { ReviewStatsProvider } from "@/components/ReviewStatsProvider";
 import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
@@ -85,21 +86,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd data={[organizationLd(), websiteLd()]} />
         <AuthProvider>
           <StoreProvider>
-            <SiteChrome>
-              <ScrollProgress />
-              <SiteFx />
-              <TopBar />
-              <Header />
-              <MobileNav />
-            </SiteChrome>
-            <main>{children}</main>
-            <SiteChrome>
-              <Footer />
-              <CartDrawer />
-              <CompareTray />
-              <CookieConsent />
-            </SiteChrome>
-            <Toast />
+            <ReviewStatsProvider>
+              <SiteChrome>
+                <ScrollProgress />
+                <SiteFx />
+                <TopBar />
+                <Header />
+                <MobileNav />
+              </SiteChrome>
+              <main>{children}</main>
+              <SiteChrome>
+                <Footer />
+                <CartDrawer />
+                <CompareTray />
+                <CookieConsent />
+              </SiteChrome>
+              <Toast />
+            </ReviewStatsProvider>
           </StoreProvider>
         </AuthProvider>
       </body>

@@ -1,5 +1,6 @@
 import { COMPANY, SOCIALS } from "./company";
 import type { Product } from "./types";
+import type { Review, ReviewStats } from "./reviews";
 
 export const SITE = "https://www.ltfse.com";
 const ORG_ID = `${SITE}/#organization`;
@@ -69,11 +70,17 @@ export function breadcrumbLd(items: { name: string; url?: string }[]) {
 }
 
 /**
- * Product schema. Deliberately OMITS aggregateRating/review: the displayed
- * rating + review count are not backed by a real reviews system, and fabricated
- * review markup is a Google manual-action risk. Add it once genuine reviews exist.
+ * Product schema. aggregateRating/review are emitted ONLY when real, verified
+ * reviews exist (stats.count > 0) — never fabricated. When a product has no
+ * reviews these fields are omitted entirely, which is what keeps the markup safe
+ * from a Google manual action.
  */
-export function productLd(p: Product, categoryName?: string) {
+export function productLd(
+  p: Product,
+  categoryName?: string,
+  stats?: ReviewStats | null,
+  reviews?: Review[]
+) {
   const url = `${SITE}/products/${p.slug}`;
   const images = (p.images ?? []).map(abs);
   // Real policy terms (see /shipping, /returns): free freight over $999 else $89;
@@ -122,6 +129,35 @@ export function productLd(p: Product, categoryName?: string) {
         returnFees: "https://schema.org/ReturnShippingFees",
       },
     },
+    // Real reviews only — omitted when a product has none.
+    ...(stats && stats.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: stats.avg.toFixed(1),
+            reviewCount: stats.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
+    ...(reviews && reviews.length
+      ? {
+          review: reviews.slice(0, 8).map((r) => ({
+            "@type": "Review",
+            reviewRating: {
+              "@type": "Rating",
+              ratingValue: r.rating,
+              bestRating: 5,
+              worstRating: 1,
+            },
+            author: { "@type": "Person", name: r.author_name },
+            ...(r.title ? { name: r.title } : {}),
+            reviewBody: r.body,
+            datePublished: r.created_at.slice(0, 10),
+          })),
+        }
+      : {}),
   };
 }
 

@@ -6,11 +6,13 @@ import { useStore } from "./StoreProvider";
 import { ILLUS } from "@/lib/illus";
 import { money } from "@/lib/format";
 import { readCompare, removeCompare, clearCompare, COMPARE_EVENT } from "@/lib/compare";
+import { useReviewStatsMap } from "./ReviewStatsProvider";
 import { Star, Plus, Close, ArrowRight } from "./icons";
 import type { Product } from "@/lib/types";
 
 export default function CompareView() {
   const { add, openCart } = useStore();
+  const statsMap = useReviewStatsMap();
   // null until mounted (localStorage is client-only) so SSR/hydration match.
   const [items, setItems] = useState<Product[] | null>(null);
 
@@ -78,9 +80,18 @@ export default function CompareView() {
             </tr>
             <tr>
               <th>Rating</th>
-              {items.map((p) => (
-                <td key={p.slug}><span className="cmp-stars"><Star /></span> {p.rating.toFixed(1)} ({p.n})</td>
-              ))}
+              {items.map((p) => {
+                const s = statsMap.get(p.slug);
+                return (
+                  <td key={p.slug}>
+                    {s && s.count > 0 ? (
+                      <><span className="cmp-stars"><Star /></span> {s.avg.toFixed(1)} ({s.count})</>
+                    ) : (
+                      <span className="cmp-none">No reviews yet</span>
+                    )}
+                  </td>
+                );
+              })}
             </tr>
             <tr>
               <th>Availability</th>
