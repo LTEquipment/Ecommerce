@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
   let body: unknown;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Bad request" }, { status: 400 }); }
-  const b = (body ?? {}) as { items?: unknown; payment_method?: unknown; company?: unknown };
+  const b = (body ?? {}) as { items?: unknown; payment_method?: unknown; company?: unknown; shipping?: unknown };
 
   const reqItems = Array.isArray(b.items) ? (b.items as Array<{ sku?: unknown; qty?: unknown }>) : [];
   if (reqItems.length === 0) return NextResponse.json({ error: "Empty cart" }, { status: 400 });
@@ -39,6 +39,19 @@ export async function POST(req: Request) {
   const method = ["card", "affirm", "wire"].includes(b.payment_method as string)
     ? (b.payment_method as string) : "wire";
   const company = typeof b.company === "string" ? b.company.slice(0, 200) : null;
+
+  // Ship-to address (collected at checkout). Clamped; stored so orders are fulfillable.
+  const s = (b.shipping ?? {}) as Record<string, unknown>;
+  const shipStr = (v: unknown, max: number) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null);
+  const shipping = {
+    ship_name: shipStr(s.name, 120),
+    ship_company: shipStr(s.company, 200),
+    ship_phone: shipStr(s.phone, 40),
+    ship_address: shipStr(s.address, 240),
+    ship_city: shipStr(s.city, 120),
+    ship_state: shipStr(s.state, 60),
+    ship_zip: shipStr(s.zip, 20),
+  };
 
   // Authoritative prices from the catalog — never trust client-sent prices.
   const catalog = await getProducts();
@@ -83,10 +96,17 @@ export async function POST(req: Request) {
   const fullRow = {
     customer_id: user.id, status: "submitted", subtotal, freight, total,
     payment_method: method, payment_status: "pending", amount_paid: 0, paid_at: null,
+    ...shipping,
   };
   let order: { id: string } | null = null;
   let error: { message: string } | null = null;
   ({ data: order, error } = await admin.from("orders").insert(fullRow).select("id").single());
+  if (error && /ship_|column/.test(error.message)) {
+    // order-shipping.sql not run yet — retry without the ship_ columns (keep payment).
+    const { ship_name, ship_company, ship_phone, ship_address, ship_city, ship_state, ship_zip, ...noShip } = fullRow;
+    void ship_name; void ship_company; void ship_phone; void ship_address; void ship_city; void ship_state; void ship_zip;
+    ({ data: order, error } = await admin.from("orders").insert(noShip).select("id").single());
+  }
   if (error && /payment_|amount_paid|paid_at|column/.test(error.message)) {
     // payments.sql migration not run yet — fall back to core order columns.
     ({ data: order, error } = await admin

@@ -888,6 +888,12 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .order-foot-right{display:flex;align-items:center;gap:14px}
 .order-toggle{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .order-toggle:hover{color:var(--ink)}
+.od-ship{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink-2);line-height:1.5}
+.od-ship-h{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+/* Admin ship-to */
+.ord-ship{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.ord-ship-h{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.ord-ship-body{font-size:13px;color:var(--ink-2);line-height:1.5}
 /* Admin order tracking editor */
 .ord-track{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .ord-track label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--muted)}
