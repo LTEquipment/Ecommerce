@@ -4,7 +4,7 @@ import { useEffect, useState, type SVGProps, type ReactNode, type ReactElement }
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./AuthProvider";
-import { LogOut, TrendingUp, Package, Cart, User, Shield, Mail, FileText, Settings, Star } from "./icons";
+import { LogOut, TrendingUp, Package, Cart, User, Shield, Mail, FileText, Settings, Star, Chat } from "./icons";
 import AdminAnalytics from "./admin/AdminAnalytics";
 import AdminCatalog from "./admin/AdminCatalog";
 import AdminOrders from "./admin/AdminOrders";
@@ -13,11 +13,12 @@ import AdminService from "./admin/AdminService";
 import AdminInbox from "./admin/AdminInbox";
 import AdminQuotes from "./admin/AdminQuotes";
 import AdminReviews from "./admin/AdminReviews";
+import AdminQA from "./admin/AdminQA";
 import AdminAudit from "./admin/AdminAudit";
 import AdminSettings from "./admin/AdminSettings";
 import { BACKEND_OFFLINE_ADMIN } from "@/lib/backendMessage";
 
-type Tab = "analytics" | "catalog" | "orders" | "customers" | "service" | "quotes" | "inbox" | "reviews" | "audit" | "settings";
+type Tab = "analytics" | "catalog" | "orders" | "customers" | "service" | "quotes" | "inbox" | "reviews" | "qa" | "audit" | "settings";
 type IconC = (p: SVGProps<SVGSVGElement>) => ReactElement;
 const TABS: { id: Tab; label: string; Icon: IconC }[] = [
   { id: "analytics", label: "Analytics", Icon: TrendingUp },
@@ -28,6 +29,7 @@ const TABS: { id: Tab; label: string; Icon: IconC }[] = [
   { id: "quotes", label: "Quotes", Icon: FileText },
   { id: "inbox", label: "Inbox", Icon: Mail },
   { id: "reviews", label: "Reviews", Icon: Star },
+  { id: "qa", label: "Q&A", Icon: Chat },
   { id: "audit", label: "Audit log", Icon: FileText },
   { id: "settings", label: "Settings", Icon: Settings },
 ];
@@ -107,6 +109,7 @@ export default function AdminDashboard() {
           {tab === "quotes" && <AdminQuotes />}
           {tab === "inbox" && <AdminInbox />}
           {tab === "reviews" && <AdminReviews />}
+          {tab === "qa" && <AdminQA />}
           {tab === "audit" && <AdminAudit />}
           {tab === "settings" && <AdminSettings />}
         </div>
