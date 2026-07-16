@@ -4,7 +4,7 @@ import type { Product } from "@/lib/types";
 export default function RelatedProducts({ products }: { products: Product[] }) {
   if (products.length === 0) return null;
   return (
-    <section>
+    <section className="related">
       <div className="wrap">
         <div className="sec-head"><h2>You might also need</h2></div>
         <div className="grid grid-4">
