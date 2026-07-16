@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type SVGProps, type ReactNode, type ReactElement } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import { LogOut, TrendingUp, Package, Cart, User, Shield, Mail, FileText, Settings, Star, Chat } from "./icons";
 import AdminAnalytics from "./admin/AdminAnalytics";
@@ -39,9 +39,13 @@ function Gate({ children }: { children: ReactNode }) {
 }
 
 export default function AdminDashboard() {
-  const { user, loading, configured, isAdmin, signOut } = useAuth();
+  const { user, loading, configured, isAdmin, adminChecked, signOut } = useAuth();
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("analytics");
+  const searchParams = useSearchParams();
+  // Active tab lives in the URL (?tab=) so refresh, deep-link and Back all work.
+  const rawTab = searchParams.get("tab");
+  const tab: Tab = TABS.some((t) => t.id === rawTab) ? (rawTab as Tab) : "analytics";
+  const setTab = (id: Tab) => router.replace(`/admin?tab=${id}`, { scroll: false });
   const [dateStr, setDateStr] = useState("");
 
   useEffect(() => {
@@ -55,7 +59,7 @@ export default function AdminDashboard() {
   if (!configured) {
     return <Gate><h1>Admin</h1><div className="msg info">{BACKEND_OFFLINE_ADMIN}</div><Link className="btn btn-line btn-block" href="/">Back to home</Link></Gate>;
   }
-  if (loading || !user) {
+  if (loading || !user || !adminChecked) {
     return <div className="admin-gate"><span style={{ color: "var(--muted)" }}>Loading…</span></div>;
   }
   if (!isAdmin) {
@@ -78,9 +82,9 @@ export default function AdminDashboard() {
           <span className="mark" role="img" aria-label="L&T" />
           <div style={{ minWidth: 0 }}><b>Admin console</b><span>L&amp;T Restaurant Equipment</span></div>
         </div>
-        <nav className="admin-nav-list">
+        <nav className="admin-nav-list" aria-label="Admin sections">
           {TABS.map(({ id, label, Icon }) => (
-            <button key={id} className={tab === id ? "on" : ""} onClick={() => setTab(id)}>
+            <button key={id} className={tab === id ? "on" : ""} aria-current={tab === id ? "page" : undefined} onClick={() => setTab(id)}>
               <Icon /> <span>{label}</span>
             </button>
           ))}

@@ -22,6 +22,8 @@ type Auth = {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  /** True once the admins-table lookup for the current user has resolved. */
+  adminChecked: boolean;
   role: AccountRole;
   dealerStatus: DealerStatus;
   isDealer: boolean; // dealer AND approved — safe to show contract pricing
@@ -43,6 +45,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminChecked, setAdminChecked] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,9 +55,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const checkAdmin = async (u: User | null) => {
-      if (!u) return setIsAdmin(false);
+      if (!u) { setIsAdmin(false); setAdminChecked(true); return; }
+      // re-checking for a (possibly new) user — hold adminChecked until it resolves
+      // so the admin console shows Loading, never a "Not authorized" flash.
+      setAdminChecked(false);
       const { data } = await supabase.from("admins").select("user_id").eq("user_id", u.id).maybeSingle();
       setIsAdmin(Boolean(data));
+      setAdminChecked(true);
     };
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
@@ -106,6 +113,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSession(null);
     setIsAdmin(false);
+    setAdminChecked(true);
   }, []);
 
   const displayName = useMemo(() => {
@@ -133,6 +141,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     user,
     session,
     isAdmin,
+    adminChecked,
     role,
     dealerStatus,
     isDealer,
