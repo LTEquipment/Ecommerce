@@ -4,6 +4,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductDetail from "@/components/ProductDetail";
 import ProductReviews from "@/components/ProductReviews";
 import RelatedProducts from "@/components/RelatedProducts";
+import RelatedGuides from "@/components/RelatedGuides";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import JsonLd from "@/components/JsonLd";
 import { productLd, breadcrumbLd } from "@/lib/seo";
@@ -65,6 +66,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <ProductDetail p={p} stats={stats} />
       <ProductReviews slug={p.slug} initialReviews={reviews} initialStats={stats} />
       <RelatedProducts products={related} />
+      <RelatedGuides query={`${cat?.name ?? ""} ${p.name}`} />
       <RecentlyViewed excludeSlug={p.slug} />
     </>
   );
