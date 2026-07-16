@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "./AuthProvider";
 import { useStore } from "./StoreProvider";
 import AddressBook from "./AddressBook";
+import ProjectLists from "./ProjectLists";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
 import { PRODUCTS } from "@/lib/products";
@@ -435,6 +436,7 @@ export default function AccountDashboard() {
                 )}
               </div>
               <AddressBook />
+              <ProjectLists />
             </div>
           )}
 
