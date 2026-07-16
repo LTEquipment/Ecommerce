@@ -773,7 +773,38 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .cmp-btn-pdp:hover{color:var(--ink)}
 .cmp-btn-pdp.on{color:var(--red)}
 /* Secondary PDP actions: Save + Compare grouped under the primary buy row */
-.pdp-actions{display:flex;align-items:center;gap:18px;margin:4px 0 20px;padding-top:16px;border-top:1px solid var(--line)}
+.pdp-actions{display:flex;align-items:center;gap:18px;margin:4px 0 20px;padding-top:16px;border-top:1px solid var(--line);flex-wrap:wrap}
+/* Add-to-list popover */
+.stl{position:relative}
+.stl-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:20;width:260px;background:var(--white);border:1px solid var(--line);border-radius:var(--rl);box-shadow:var(--shadow-lg);padding:12px}
+.stl-gate{font-size:13px;color:var(--muted);margin:0}
+.stl-gate a{color:var(--red);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.stl-lists{display:flex;flex-direction:column;gap:2px;max-height:180px;overflow-y:auto;margin-bottom:10px}
+.stl-item{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink);padding:6px 6px;border-radius:var(--r);cursor:pointer}
+.stl-item:hover{background:var(--panel)}
+.stl-new{display:flex;gap:8px}
+.stl-new input{flex:1;min-width:0;border:1.5px solid var(--line-2);border-radius:var(--r);padding:8px 10px;font:inherit;font-size:13px;background:var(--white)}
+.stl-new input:focus{outline:none;border-color:var(--red)}
+.stl-new .btn{flex:0 0 auto;padding:8px 14px;font-size:12.5px}
+/* Project lists (account) */
+.pl-list{display:flex;flex-direction:column;gap:10px}
+.pl-card{border:1px solid var(--line);border-radius:var(--rl);overflow:hidden}
+.pl-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px}
+.pl-name{background:none;border:0;font:inherit;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer}
+.pl-name span{color:var(--muted);font-weight:500}
+.pl-actions{display:flex;gap:12px}
+.pl-actions button{background:none;border:0;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.pl-actions button:hover{color:var(--ink)}
+.pl-del:hover{color:var(--red) !important}
+.pl-items{border-top:1px solid var(--line);padding:8px 16px 14px}
+.pl-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 0;font-size:13.5px;border-bottom:1px solid var(--line)}
+.pl-item:last-child{border-bottom:none}
+.pl-item a{color:var(--ink);font-weight:500}
+.pl-item a:hover{color:var(--red)}
+.pl-item-r{display:flex;align-items:center;gap:12px;flex:0 0 auto}
+.pl-item-r span{font-weight:600}
+.pl-item-r button{background:none;border:0;font-size:18px;line-height:1;color:var(--muted-2);cursor:pointer}
+.pl-item-r button:hover{color:var(--red)}
 .pdp-actions-div{width:1px;height:16px;background:var(--line-2);flex:0 0 auto}
 /* Related guides (category/product → guides internal links) */
 .rel-guides{margin:var(--s6) auto}

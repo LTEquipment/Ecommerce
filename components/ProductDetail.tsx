@@ -6,6 +6,7 @@ import { useStore } from "./StoreProvider";
 import WishlistButton from "./WishlistButton";
 import CompareButton from "./CompareButton";
 import StockNotify from "./StockNotify";
+import SaveToList from "./SaveToList";
 import { useLiveProduct } from "@/lib/useLiveProducts";
 import { recordView } from "@/lib/recentlyViewed";
 import { money } from "@/lib/format";
@@ -168,6 +169,8 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
             <WishlistButton p={p} variant="pdp" />
             <span className="pdp-actions-div" aria-hidden="true" />
             <CompareButton p={p} variant="pdp" />
+            <span className="pdp-actions-div" aria-hidden="true" />
+            <SaveToList p={p} />
             <span className="pdp-actions-div" aria-hidden="true" />
             <button type="button" className="cmp-btn cmp-btn-pdp" onClick={share}>
               <Share /> Share
