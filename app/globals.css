@@ -1268,7 +1268,11 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .guide-prose li{font-size:16.5px;color:var(--ink-2);line-height:1.65;margin:0 0 9px}
 .guide-prose a{color:var(--red);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .guide-callout{background:var(--paper);border-left:3px solid var(--red);padding:var(--s4);margin:0 0 var(--s4);font-size:15.5px;color:var(--ink);line-height:1.6}
-.guide-related{margin:var(--s7) 0 var(--s6);padding-top:var(--s5);border-top:1px solid var(--line)}
+.guide-related{margin:var(--s6) 0 0;padding-top:var(--s5);border-top:1px solid var(--line)}
+/* The shared .ss-lab adds var(--s8) top padding for other layouts; the guide
+   section already provides its own top spacing, so cancel it here. */
+.guide-related .ss-lab{padding-top:0}
+.guide .cta-band{padding-top:var(--s6)}
 .guide-related-links{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:var(--s3)}
 .guide-related-links a{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--red)}
 .guide-related-links svg{width:14px;height:14px}
