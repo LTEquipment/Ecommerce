@@ -1254,7 +1254,7 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .guide-card p{font-size:14px;color:var(--muted);line-height:1.55;margin:0 0 16px;flex:1}
 .guide-more{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--red)}
 .guide-more svg{width:15px;height:15px}
-.guide{max-width:680px;margin:0 auto}
+.guide{max-width:680px;margin:var(--s5) auto 0}
 /* Body fills the article column so the headline, lede, divider and text all
    share one edge (was capped narrower by .prose, leaving a ragged right).
    Higher specificity so it beats the later .prose{max-width} rule. */
