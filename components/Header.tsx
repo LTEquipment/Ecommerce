@@ -93,19 +93,21 @@ export default function Header() {
 
           {/* desktop account */}
           {user ? (
-            <div className="acct-wrap hact acc" ref={acctRef}>
+            <div className={`acct-wrap hact acc${menuOpen ? " open" : ""}`} ref={acctRef}>
               <button
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 style={{ display: "flex", alignItems: "center", gap: 9 }}
               >
-                <UserRound />
+                <span className="acct-ava">
+                  {avatarUrl ? <img src={avatarUrl} alt="" /> : acctInitial}
+                </span>
                 <span className="lbl">
                   <b>Account</b>
                   <span>{displayName}</span>
                 </span>
-                <ChevronDown style={{ width: 15, height: 15 }} />
+                <ChevronDown className={`acct-chev${menuOpen ? " open" : ""}`} style={{ width: 15, height: 15 }} />
               </button>
               {menuOpen && (
                 <div className="acct-menu" role="menu">
