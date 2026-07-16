@@ -1,14 +1,21 @@
 import type { MetadataRoute } from "next";
-import { CATEGORIES, PRODUCTS } from "@/lib/products";
+import { getProducts, getCategories } from "@/lib/catalog";
 import { GUIDES } from "@/lib/guides";
+import { distinctBrands } from "@/lib/brands";
 import { getSiteSettings } from "@/lib/settings";
 
 const BASE = "https://www.ltfse.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { investorRelationsEnabled } = await getSiteSettings();
+  // Derive product/category/brand URLs from the LIVE catalog so the sitemap
+  // matches what the pages actually render (getProducts falls back to code).
+  const [{ investorRelationsEnabled }, PRODUCTS, CATEGORIES] = await Promise.all([
+    getSiteSettings(),
+    getProducts(),
+    getCategories(),
+  ]);
   const staticPaths = [
-    "", "/products", "/about", "/leadership", "/press", "/sustainability",
+    "", "/products", "/brands", "/about", "/leadership", "/press", "/sustainability",
     "/vendors", "/locations", "/contact", "/guides",
     ...(investorRelationsEnabled ? ["/investors"] : []),
     "/faq", "/shipping", "/returns", "/warranty", "/financing", "/careers",
@@ -27,6 +34,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const brandEntries: MetadataRoute.Sitemap = distinctBrands(PRODUCTS).map((b) => ({
+    url: `${BASE}/brands/${b.slug}`,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
   const productEntries: MetadataRoute.Sitemap = PRODUCTS.map((p) => ({
     url: `${BASE}/products/${p.slug}`,
     changeFrequency: "weekly",
@@ -41,5 +54,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...categoryEntries, ...productEntries, ...guideEntries];
+  return [...staticEntries, ...categoryEntries, ...brandEntries, ...productEntries, ...guideEntries];
 }
