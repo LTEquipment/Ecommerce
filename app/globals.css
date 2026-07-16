@@ -90,19 +90,19 @@ section{padding:var(--s7) 0}
 
 /* Site nav header only — scoped so page <header> elements (.phead / .page-header) don't inherit sticky/white/border */
 body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bottom:1px solid var(--line)}
-.hdr{display:flex;align-items:center;gap:var(--s4);height:84px}
+.hdr{display:flex;align-items:center;gap:16px;height:84px}
 .brand{display:flex;align-items:center;gap:13px;flex:0 0 auto}
 .brand-logo{display:block;height:52px;width:54px;background:url(/logo.png) center/contain no-repeat}
-.brand .wordmark{display:flex;flex-direction:column;line-height:1;border-left:1px solid var(--line-2);padding-left:13px}
-.brand .wordmark b{font-family:var(--disp);font-weight:800;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
-.brand .wordmark span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.brand .wordmark{display:flex;flex-direction:column;line-height:1;border-left:1px solid var(--line-2);padding-left:12px}
+.brand .wordmark b{font-family:var(--disp);font-weight:800;font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink)}
+.brand .wordmark span{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 
 .qcta{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:var(--r);padding:10px 16px;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;transition:border-color .18s,background .18s}
 .qcta:hover{border-color:var(--ink);background:var(--panel)}
 .qcta svg{width:16px;height:16px;color:var(--red);flex:0 0 auto}
 
 .big-search{flex:1;display:flex;align-items:center;gap:10px;background:var(--paper);border:1.5px solid var(--line-2);
-  border-radius:var(--r);padding:11px 15px;max-width:600px;transition:border-color .2s}
+  border-radius:var(--r);padding:11px 15px;min-width:240px;max-width:680px;transition:border-color .2s}
 .big-search:focus-within{border-color:var(--red)}
 .big-search input{border:0;background:none;outline:0;font-size:14.5px;width:100%}
 .big-search svg{width:18px;height:18px;color:var(--muted);flex:0 0 auto}
@@ -114,6 +114,9 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 .hact .lbl{font-size:12px;line-height:1.15;text-align:left}
 .hact .lbl b{display:block;font-weight:600;font-size:13px}
 .hact .lbl span{color:var(--muted)}
+/* Cap a long company name so the account block can't stretch the header and
+   starve the search bar — the full name still shows in the account menu. */
+.hact.acc .lbl span{display:block;max-width:104px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cart-count{position:absolute;top:2px;left:26px;min-width:17px;height:17px;padding:0 4px;background:var(--red);
   color:#fff;border-radius:999px;font-size:10px;font-weight:700;display:grid;place-items:center;line-height:1}
 .icon-btn{width:42px;height:42px;border-radius:var(--r);display:none;place-items:center;position:relative}

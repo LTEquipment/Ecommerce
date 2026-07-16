@@ -24,14 +24,10 @@ export default function WishlistIcon() {
 
   return (
     <>
-      {/* desktop: labeled, matching Account and Cart */}
-      <Link className="hact hact-wish" href="/wishlist" aria-label={label}>
+      {/* desktop: compact icon (pairs with the cart icon) */}
+      <Link className="hact hact-wish" href="/wishlist" aria-label={label} title={label}>
         <Heart />
         {n > 0 && <span className="cart-count">{n}</span>}
-        <span className="lbl">
-          <b>Wishlist</b>
-          <span>{n} saved</span>
-        </span>
       </Link>
       {/* mobile: icon in the compact bar */}
       <Link className="icon-btn hact-wish" href="/wishlist" aria-label={label}>
