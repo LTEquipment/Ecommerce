@@ -77,7 +77,7 @@ export default function Header() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by product, model number, or category…"
+            placeholder="Search products, models & categories…"
             aria-label="Search products"
           />
         </form>
@@ -142,14 +142,10 @@ export default function Header() {
           {/* wishlist */}
           <WishlistIcon />
 
-          {/* desktop cart */}
-          <button className="hact" onClick={openCart} aria-label="Open cart">
+          {/* desktop cart (compact icon; total shown in the cart drawer) */}
+          <button className="hact" onClick={openCart} aria-label={`Open cart (${money(subtotal)})`} title={`Cart · ${money(subtotal)}`}>
             <Cart />
             {count > 0 && <span className="cart-count">{count}</span>}
-            <span className="lbl">
-              <b>Cart</b>
-              <span>{money(subtotal)}</span>
-            </span>
           </button>
 
           {/* mobile icon bar */}
