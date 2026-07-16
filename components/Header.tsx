@@ -153,7 +153,7 @@ export default function Header() {
           <WishlistIcon />
 
           {/* desktop cart (compact icon; total shown in the cart drawer) */}
-          <button className="hact" onClick={openCart} aria-label={`Open cart (${money(subtotal)})`} title={`Cart · ${money(subtotal)}`}>
+          <button className="hact hdr-cart" onClick={openCart} aria-label={`Open cart (${money(subtotal)})`} title={`Cart · ${money(subtotal)}`}>
             <Cart />
             {count > 0 && <span className="cart-count">{count}</span>}
           </button>
@@ -165,7 +165,7 @@ export default function Header() {
           <Link className="icon-btn" href={user ? "/account" : "/login"} aria-label="Account">
             <User />
           </Link>
-          <button className="icon-btn" onClick={openCart} aria-label="Open cart">
+          <button className="icon-btn hdr-cart" onClick={openCart} aria-label="Open cart">
             <Cart />
             {count > 0 && <span className="cart-count">{count}</span>}
           </button>
