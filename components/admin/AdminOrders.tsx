@@ -6,6 +6,7 @@ import { useAuth } from "../AuthProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { logAudit } from "@/lib/audit";
 import { money } from "@/lib/format";
+import { CARRIERS, trackingUrl } from "@/lib/tracking";
 import { Package, ChevronDown } from "../icons";
 
 type Item = { sku: string | null; name: string; unit_price: number; qty: number };
@@ -17,6 +18,8 @@ type Order = {
   freight: number;
   total: number;
   customer_id: string | null;
+  carrier?: string | null;
+  tracking_number?: string | null;
   order_items?: Item[];
 };
 
@@ -38,9 +41,11 @@ export default function AdminOrders() {
   const load = useCallback(async () => {
     const sb = getBrowserSupabase();
     if (!sb) return;
+    // Select * so newly-migrated columns (payment_*, carrier, tracking) load
+    // when present without breaking before the migration is run.
     const { data } = await sb
       .from("orders")
-      .select("id, created_at, status, subtotal, freight, total, customer_id, order_items(sku, name, unit_price, qty)")
+      .select("*, order_items(sku, name, unit_price, qty)")
       .order("created_at", { ascending: false });
     setOrders((data as Order[]) ?? []);
   }, []);
@@ -63,6 +68,22 @@ export default function AdminOrders() {
     if (error) { toast(error.message); load(); return; }
     logAudit(user, "order.status", `#${id.slice(0, 8)}`, `→ ${status}`);
     toast(`Order #${id.slice(0, 8)} → ${status}`);
+  };
+
+  const editTrack = (id: string, field: "carrier" | "tracking_number", value: string) => {
+    setOrders((prev) => prev?.map((o) => (o.id === id ? { ...o, [field]: value } : o)) ?? prev);
+  };
+
+  const saveTracking = async (o: Order) => {
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    const { error } = await sb
+      .from("orders")
+      .update({ carrier: o.carrier || null, tracking_number: o.tracking_number || null, shipped_at: new Date().toISOString() })
+      .eq("id", o.id);
+    if (error) { toast(error.message); return; }
+    logAudit(user, "order.tracking", `#${o.id.slice(0, 8)}`, `${o.carrier ?? ""} ${o.tracking_number ?? ""}`.trim());
+    toast(`Tracking saved for #${o.id.slice(0, 8)}`);
   };
 
   const who = (o: Order) => (o.customer_id ? people[o.customer_id] : undefined);
@@ -118,6 +139,23 @@ export default function AdminOrders() {
                         </select>
                       </label>
                     </div>
+                    {(o.status === "shipped" || o.status === "delivered" || o.carrier || o.tracking_number) && (
+                      <div className="ord-track">
+                        <label>Carrier
+                          <select value={o.carrier ?? ""} onChange={(e) => editTrack(o.id, "carrier", e.target.value)}>
+                            <option value="">—</option>
+                            {CARRIERS.map((cr) => <option key={cr} value={cr}>{cr}</option>)}
+                          </select>
+                        </label>
+                        <label>Tracking #
+                          <input value={o.tracking_number ?? ""} onChange={(e) => editTrack(o.id, "tracking_number", e.target.value)} placeholder="Tracking number" />
+                        </label>
+                        <button className="btn btn-line" onClick={() => saveTracking(o)}>Save tracking</button>
+                        {trackingUrl(o.carrier, o.tracking_number) && (
+                          <a className="ord-track-link" href={trackingUrl(o.carrier, o.tracking_number)!} target="_blank" rel="noreferrer">Track →</a>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

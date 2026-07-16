@@ -854,6 +854,27 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .order-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .order-total{font-weight:700;font-size:15px}
 .reorder-btn{padding:7px 16px;font-size:13px}
+.order-track{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0;padding:8px 12px;background:#E9F6EE;border-radius:var(--r);font-size:12.5px;color:var(--stock)}
+.order-track b{color:var(--ink);font-weight:700}
+.order-track a{margin-left:auto;color:var(--stock);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.order-detail{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.od-lines{margin-bottom:10px}
+.od-line{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:3px 0;color:var(--ink-2)}
+.od-line span:last-child{font-weight:600;color:var(--ink);white-space:nowrap}
+.od-totals{font-size:13px}
+.od-totals > div{display:flex;justify-content:space-between;gap:12px;padding:2px 0;color:var(--muted)}
+.od-totals b{color:var(--ink)}
+.od-grand{border-top:1px solid var(--line);margin-top:4px;padding-top:6px}
+.od-grand span,.od-grand b{color:var(--ink);font-size:14px;font-weight:700}
+.order-foot-right{display:flex;align-items:center;gap:14px}
+.order-toggle{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.order-toggle:hover{color:var(--ink)}
+/* Admin order tracking editor */
+.ord-track{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.ord-track label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--muted)}
+.ord-track select,.ord-track input{border:1.5px solid var(--line-2);border-radius:var(--r);padding:8px 10px;font:inherit;font-size:13px;background:var(--white)}
+.ord-track .btn{padding:8px 14px;font-size:12.5px}
+.ord-track-link{color:var(--stock);font-weight:700;font-size:13px;text-decoration:underline}
 .order .ostatus{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--stock)}
 
 /* ============================================================
