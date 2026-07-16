@@ -1,8 +1,14 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
 import PageHeader from "@/components/PageHeader";
 import HelpAside from "@/components/HelpAside";
+import JsonLd from "@/components/JsonLd";
+import { faqLd } from "@/lib/seo";
 
-export const metadata = { title: "FAQ — L&T" };
+export const metadata = {
+  title: "FAQ — L&T",
+  description: "Answers on ordering, freight, custom wok ranges, trade accounts, warranty and support from L&T Restaurant Equipment.",
+  alternates: { canonical: "/faq" },
+};
 
 const GROUPS: { title: string; items: { q: string; a: string }[] }[] = [
   {
@@ -32,6 +38,7 @@ const GROUPS: { title: string; items: { q: string; a: string }[] }[] = [
 export default function FaqPage() {
   return (
     <div className="wrap content">
+      <JsonLd data={faqLd(GROUPS.flatMap((g) => g.items))} />
       <Breadcrumbs items={[{ label: "FAQ" }]} />
       <PageHeader
         eyebrow="Help"

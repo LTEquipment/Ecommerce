@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useStore } from "./StoreProvider";
 import { useLiveProducts } from "@/lib/useLiveProducts";
 import ProductCard from "./ProductCard";
@@ -33,9 +34,17 @@ export default function Catalog({
     activeCat, setActiveCat,
     priceBracket, setPriceBracket,
     inStock, setInStock,
-    query, sortBy, setSortBy, clearFilters,
+    query, setQuery, sortBy, setSortBy, clearFilters,
   } = useStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Make search URL-addressable: /products?q=… (shared links + the schema.org
+  // SearchAction) seed the store query so results filter on arrival.
+  const searchParams = useSearchParams();
+  const urlQ = searchParams.get("q") ?? "";
+  useEffect(() => {
+    if (urlQ) setQuery(urlQ);
+  }, [urlQ, setQuery]);
 
   const scoped = lockedCat ? products.filter((p) => p.cat === lockedCat) : products;
   const countFor = (catId: string) =>

@@ -1,0 +1,143 @@
+import { COMPANY, SOCIALS } from "./company";
+import type { Product } from "./types";
+
+export const SITE = "https://www.ltfse.com";
+const ORG_ID = `${SITE}/#organization`;
+const abs = (u: string) => (u.startsWith("http") ? u : `${SITE}${u}`);
+
+/** Organization / company entity — publisher of everything on the site. */
+export function organizationLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": ORG_ID,
+    name: COMPANY.legalName,
+    alternateName: "L&T Restaurant Equipment",
+    url: SITE,
+    logo: `${SITE}/logo.png`,
+    image: `${SITE}/logo.png`,
+    email: COMPANY.email,
+    telephone: COMPANY.mainPhone,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "280 Taylor St",
+      addressLocality: "Staten Island",
+      addressRegion: "NY",
+      postalCode: "10310",
+      addressCountry: "US",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: COMPANY.mainPhone,
+      email: COMPANY.email,
+      contactType: "sales",
+      areaServed: "US",
+    },
+    sameAs: SOCIALS.map((s) => s.href),
+  };
+}
+
+/** WebSite entity + sitelinks searchbox (points at the URL-addressable /products?q=). */
+export function websiteLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE}/#website`,
+    url: SITE,
+    name: "L&T Restaurant Equipment",
+    publisher: { "@id": ORG_ID },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${SITE}/products?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+/** BreadcrumbList — items with a name and (except the current page) an absolute url. */
+export function breadcrumbLd(items: { name: string; url?: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      ...(it.url ? { item: abs(it.url) } : {}),
+    })),
+  };
+}
+
+/**
+ * Product schema. Deliberately OMITS aggregateRating/review: the displayed
+ * rating + review count are not backed by a real reviews system, and fabricated
+ * review markup is a Google manual-action risk. Add it once genuine reviews exist.
+ */
+export function productLd(p: Product, categoryName?: string) {
+  const url = `${SITE}/products/${p.slug}`;
+  const images = (p.images ?? []).map(abs);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.name,
+    sku: p.sku,
+    mpn: p.sku,
+    ...(p.brand ? { brand: { "@type": "Brand", name: p.brand.replace(/®/g, "").trim() } } : {}),
+    ...(images.length ? { image: images } : {}),
+    ...(p.description ? { description: p.description } : {}),
+    ...(categoryName ? { category: categoryName } : {}),
+    offers: {
+      "@type": "Offer",
+      url,
+      priceCurrency: "USD",
+      price: p.price.toFixed(2),
+      availability: p.stock === "in" ? "https://schema.org/InStock" : "https://schema.org/BackOrder",
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@id": ORG_ID },
+    },
+  };
+}
+
+/** ItemList for a category / collection page. */
+export function itemListLd(products: Product[], name: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    numberOfItems: products.length,
+    itemListElement: products.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${SITE}/products/${p.slug}`,
+      name: p.name,
+    })),
+  };
+}
+
+/** One Store node per physical showroom / factory. */
+export function storesLd() {
+  return COMPANY.locations.map((loc, i) => ({
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "@id": `${SITE}/locations#loc-${i}`,
+    name: `${COMPANY.brand} — ${loc.name}`,
+    parentOrganization: { "@id": ORG_ID },
+    address: { "@type": "PostalAddress", streetAddress: loc.address, addressCountry: "US" },
+    telephone: loc.phone,
+    geo: { "@type": "GeoCoordinates", latitude: loc.lat, longitude: loc.lng },
+    url: `${SITE}/locations`,
+  }));
+}
+
+/** FAQPage — content must be visible on the page (it is, in <details>). */
+export function faqLd(items: { q: string; a: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+}

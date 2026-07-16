@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/vendors", "/locations", "/contact",
     ...(investorRelationsEnabled ? ["/investors"] : []),
     "/faq", "/shipping", "/returns", "/warranty", "/financing", "/careers",
-    "/privacy", "/terms", "/cookies", "/accessibility", "/login", "/cart", "/wishlist", "/compare",
+    "/privacy", "/terms", "/cookies", "/accessibility",
   ];
 
   const staticEntries: MetadataRoute.Sitemap = staticPaths.map((p) => ({
@@ -30,6 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${BASE}/products/${p.slug}`,
     changeFrequency: "weekly",
     priority: 0.6,
+    images: (p.images ?? []).map((im) => `${BASE}${im}`),
   }));
 
   return [...staticEntries, ...categoryEntries, ...productEntries];
