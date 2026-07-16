@@ -14,16 +14,29 @@ const LABEL: Record<string, string> = {
   "category.update": "Category",
   "category.delete": "Category",
   "order.status": "Order",
+  "order.tracking": "Tracking",
   "claim.status": "Warranty",
   "ticket.status": "Ticket",
   "dealer.approve": "Dealer",
   "dealer.reject": "Dealer",
   "admin.grant": "Admin",
   "admin.revoke": "Admin",
+  "settings.update": "Settings",
+  "contact.handled": "Inbox",
+  "stock.notified": "Stock",
 };
+// Resolve a readable label, with prefix fallbacks so status-encoded actions
+// (quote.won, review.hide, qa.answer, …) never render as a raw slug.
+function labelFor(a: string): string {
+  if (LABEL[a]) return LABEL[a];
+  if (a.startsWith("quote.")) return "Quote";
+  if (a.startsWith("review.")) return "Review";
+  if (a.startsWith("qa.")) return "Q&A";
+  return a;
+}
 function tone(a: string) {
-  if (a === "admin.grant" || a === "dealer.approve" || a === "product.create" || a === "category.create") return "ok";
-  if (a === "admin.revoke" || a === "dealer.reject" || a === "product.delete" || a === "category.delete") return "mut";
+  if (["admin.grant", "dealer.approve", "product.create", "category.create"].includes(a)) return "ok";
+  if (["admin.revoke", "dealer.reject", "product.delete", "category.delete", "review.delete", "qa.delete"].includes(a)) return "mut";
   return "info";
 }
 
@@ -37,7 +50,7 @@ export default function AdminAudit() {
       .select("id,actor_email,action,target,detail,created_at")
       .order("created_at", { ascending: false })
       .limit(200)
-      .then(({ data }) => setRows((data as Entry[]) ?? []));
+      .then(({ data }) => setRows((data as Entry[]) ?? []), () => setRows([]));
   }, []);
 
   useEffect(() => {
@@ -60,7 +73,7 @@ export default function AdminAudit() {
     <div className="audit-list">
       {rows.map((r) => (
         <div className="audit-row" key={r.id}>
-          <span className={`pill ${tone(r.action)}`}>{LABEL[r.action] || r.action}</span>
+          <span className={`pill ${tone(r.action)}`}>{labelFor(r.action)}</span>
           <div className="audit-main">
             <div className="audit-detail"><b>{r.target || "—"}</b> {r.detail || ""}</div>
             <div className="audit-meta">{r.actor_email || "system"} · {new Date(r.created_at).toLocaleString()}</div>

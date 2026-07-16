@@ -20,6 +20,7 @@ type Order = {
   customer_id: string | null;
   carrier?: string | null;
   tracking_number?: string | null;
+  shipped_at?: string | null;
   ship_name?: string | null;
   ship_company?: string | null;
   ship_phone?: string | null;
@@ -70,11 +71,12 @@ export default function AdminOrders() {
   }, []);
 
   const setStatus = async (id: string, status: string) => {
+    if (status === "cancelled" && !window.confirm(`Cancel order #${id.slice(0, 8)}? It will be marked cancelled.`)) return;
     const sb = getBrowserSupabase();
     if (!sb) return;
     setOrders((prev) => prev?.map((o) => (o.id === id ? { ...o, status } : o)) ?? prev);
     const { error } = await sb.from("orders").update({ status }).eq("id", id);
-    if (error) { toast(error.message); load(); return; }
+    if (error) { toast(error.message, "error"); load(); return; }
     logAudit(user, "order.status", `#${id.slice(0, 8)}`, `→ ${status}`);
     toast(`Order #${id.slice(0, 8)} → ${status}`);
   };
@@ -86,13 +88,22 @@ export default function AdminOrders() {
   const saveTracking = async (o: Order) => {
     const sb = getBrowserSupabase();
     if (!sb) return;
-    const { error } = await sb
-      .from("orders")
-      .update({ carrier: o.carrier || null, tracking_number: o.tracking_number || null, shipped_at: new Date().toISOString() })
-      .eq("id", o.id);
-    if (error) { toast(error.message); return; }
+    // Only stamp shipped_at the first time (correcting a typo later must not reset
+    // the ship date), and auto-advance an un-shipped order to 'shipped'.
+    const advance = o.status === "submitted" || o.status === "processing";
+    const patch: Record<string, unknown> = {
+      carrier: o.carrier || null,
+      tracking_number: o.tracking_number || null,
+    };
+    if (!o.shipped_at) patch.shipped_at = new Date().toISOString();
+    if (advance) patch.status = "shipped";
+    const { error } = await sb.from("orders").update(patch).eq("id", o.id);
+    if (error) { toast(error.message, "error"); load(); return; }
+    setOrders((prev) => prev?.map((x) => (x.id === o.id
+      ? { ...x, status: advance ? "shipped" : x.status, shipped_at: x.shipped_at ?? (patch.shipped_at as string | undefined) ?? null }
+      : x)) ?? prev);
     logAudit(user, "order.tracking", `#${o.id.slice(0, 8)}`, `${o.carrier ?? ""} ${o.tracking_number ?? ""}`.trim());
-    toast(`Tracking saved for #${o.id.slice(0, 8)}`);
+    toast(`Tracking saved for #${o.id.slice(0, 8)}${advance ? " · marked shipped" : ""}`);
   };
 
   const who = (o: Order) => (o.customer_id ? people[o.customer_id] : undefined);
@@ -123,7 +134,8 @@ export default function AdminOrders() {
       const base = [o.id.slice(0, 8), date, o.status, c?.company ?? "", c?.email ?? "", shipTo];
       const items = o.order_items ?? [];
       if (items.length === 0) rows.push([...base, "", "", "", "", String(o.total)]);
-      for (const it of items) rows.push([...base, it.sku ?? "", it.name, String(it.qty), String(it.unit_price), String(o.total)]);
+      // Order total only on the first line so summing the column doesn't multiply revenue.
+      items.forEach((it, idx) => rows.push([...base, it.sku ?? "", it.name, String(it.qty), String(it.unit_price), idx === 0 ? String(o.total) : ""]));
     }
     const csv = rows.map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -187,6 +199,12 @@ export default function AdminOrders() {
                     <div className="ord-totals">
                       <div><span>Subtotal</span><b>{money(subtotal)}</b></div>
                       <div><span>Freight</span><b>{Number(o.freight) ? money(Number(o.freight)) : "—"}</b></div>
+                      {(() => {
+                        // Tax is folded into total (no tax column) — surface it so
+                        // Subtotal + Freight + Tax reconciles to Total.
+                        const tax = Number(o.total) - subtotal - (Number(o.freight) || 0);
+                        return tax > 0.005 ? <div><span>Tax</span><b>{money(tax)}</b></div> : null;
+                      })()}
                       <div className="ord-grand"><span>Total</span><b>{money(Number(o.total))}</b></div>
                     </div>
                     {(o.ship_name || o.ship_address) && (
