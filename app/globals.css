@@ -643,7 +643,8 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .cmp-thumb-x{position:absolute;top:0;right:0;width:19px;height:19px;display:grid;place-items:center;background:rgba(17,19,22,.78);color:#fff;border:0;cursor:pointer;border-bottom-left-radius:6px;transition:background .15s}
 .cmp-thumb-x:hover{background:var(--red)}
 .cmp-thumb-x svg{width:11px;height:11px}
-.cmp-slot{width:52px;height:52px;border-radius:8px;border:1.5px dashed rgba(255,255,255,.22);display:grid;place-items:center;color:rgba(255,255,255,.3);flex:0 0 auto}
+.cmp-slot{width:52px;height:52px;border-radius:8px;border:1.5px dashed rgba(255,255,255,.24);display:grid;place-items:center;color:rgba(255,255,255,.34);flex:0 0 auto;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.cmp-slot:hover{border-color:rgba(255,255,255,.55);color:#fff;background:rgba(255,255,255,.05)}
 .cmp-slot svg{width:16px;height:16px}
 .cmp-tray-actions{display:flex;align-items:center;gap:18px;flex:0 0 auto}
 .cmp-tray-clear{background:none;border:0;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;cursor:pointer;transition:color .15s}
