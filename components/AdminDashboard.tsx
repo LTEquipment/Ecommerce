@@ -18,10 +18,10 @@ import AdminAudit from "./admin/AdminAudit";
 import AdminSettings from "./admin/AdminSettings";
 import { BACKEND_OFFLINE_ADMIN } from "@/lib/backendMessage";
 
-type Tab = "analytics" | "catalog" | "orders" | "customers" | "service" | "quotes" | "inbox" | "reviews" | "qa" | "audit" | "settings";
+type Tab = "overview" | "catalog" | "orders" | "customers" | "service" | "quotes" | "inbox" | "reviews" | "qa" | "audit" | "settings";
 type IconC = (p: SVGProps<SVGSVGElement>) => ReactElement;
 const TABS: { id: Tab; label: string; Icon: IconC }[] = [
-  { id: "analytics", label: "Analytics", Icon: TrendingUp },
+  { id: "overview", label: "Overview", Icon: TrendingUp },
   { id: "catalog", label: "Catalog", Icon: Package },
   { id: "orders", label: "Orders", Icon: Cart },
   { id: "customers", label: "Customers", Icon: User },
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
   const searchParams = useSearchParams();
   // Active tab lives in the URL (?tab=) so refresh, deep-link and Back all work.
   const rawTab = searchParams.get("tab");
-  const tab: Tab = TABS.some((t) => t.id === rawTab) ? (rawTab as Tab) : "analytics";
+  const tab: Tab = TABS.some((t) => t.id === rawTab) ? (rawTab as Tab) : "overview";
   const setTab = (id: Tab) => router.replace(`/admin?tab=${id}`, { scroll: false });
   const [dateStr, setDateStr] = useState("");
 
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
           <span className="admin-date">{dateStr}</span>
         </header>
         <div className="admin-content">
-          {tab === "analytics" && <AdminAnalytics go={setTab} />}
+          {tab === "overview" && <AdminAnalytics go={setTab} />}
           {tab === "catalog" && <AdminCatalog />}
           {tab === "orders" && <AdminOrders />}
           {tab === "customers" && <AdminCustomers />}
