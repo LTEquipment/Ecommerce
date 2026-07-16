@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import QuoteRequest from "./QuoteRequest";
+import { useSiteSettings } from "./SiteSettingsProvider";
 import { money } from "@/lib/format";
 import { ILLUS } from "@/lib/illus";
 import { Cart, ArrowRight } from "./icons";
@@ -10,7 +11,8 @@ import { Cart, ArrowRight } from "./icons";
 export default function CartView() {
   const { cart, changeQty, remove, subtotal, count } = useStore();
   const items = Object.values(cart);
-  const freight = subtotal >= 999 || subtotal === 0 ? 0 : 89;
+  const { freightThreshold: FT, freightFee: FF } = useSiteSettings();
+  const freight = subtotal >= FT || subtotal === 0 ? 0 : FF;
 
   if (items.length === 0) {
     return (
@@ -57,16 +59,16 @@ export default function CartView() {
 
         <div className="summary">
           <h2>Order summary</h2>
-          {subtotal > 0 && subtotal < 999 ? (
+          {subtotal > 0 && subtotal < FT ? (
             <div className="freight-nudge">
-              Add <b>{money(999 - subtotal)}</b> more for free freight
-              <span className="fbar"><i style={{ width: `${Math.min(100, (subtotal / 999) * 100)}%` }} /></span>
+              Add <b>{money(FT - subtotal)}</b> more for free freight
+              <span className="fbar"><i style={{ width: `${Math.min(100, (subtotal / FT) * 100)}%` }} /></span>
             </div>
-          ) : subtotal >= 999 ? (
+          ) : subtotal >= FT ? (
             <div className="freight-nudge met">✓ You’ve unlocked free freight</div>
           ) : null}
           <div className="line"><span>Subtotal ({count} item{count > 1 ? "s" : ""})</span><b>{money(subtotal)}</b></div>
-          <div className="line"><span>Freight {subtotal >= 999 ? "(free over $999)" : ""}</span><b>{freight ? money(freight) : "FREE"}</b></div>
+          <div className="line"><span>Freight {subtotal >= FT ? `(free over ${money(FT)})` : ""}</span><b>{freight ? money(freight) : "FREE"}</b></div>
           <div className="line"><span>Tax</span><span>Calculated at checkout</span></div>
           <div className="total"><span>Estimated total</span><span className="v">{money(subtotal + freight)}</span></div>
           <Link className="btn btn-primary btn-block btn-lg" href="/checkout">Proceed to checkout <ArrowRight /></Link>

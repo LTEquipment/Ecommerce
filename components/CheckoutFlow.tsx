@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { useSiteSettings } from "./SiteSettingsProvider";
 import { ADDRESS_COLS, type Address } from "@/lib/addresses";
 import { money } from "@/lib/format";
 import { Check, ArrowRight, Shield, Cart } from "./icons";
@@ -14,9 +15,10 @@ const STEPS = ["Contact", "Shipping", "Payment", "Review"];
 export default function CheckoutFlow() {
   const { cart, subtotal, count, clear } = useStore();
   const { user } = useAuth();
+  const { freightThreshold, freightFee, taxRate } = useSiteSettings();
   const items = Object.values(cart);
-  const freight = subtotal >= 999 || subtotal === 0 ? 0 : 89;
-  const tax = Math.round(subtotal * 0.08875 * 100) / 100;
+  const freight = subtotal >= freightThreshold || subtotal === 0 ? 0 : freightFee;
+  const tax = Math.round(subtotal * taxRate * 100) / 100;
   const total = subtotal + freight + tax;
 
   const [step, setStep] = useState(0);

@@ -4,14 +4,16 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import QuoteRequest from "./QuoteRequest";
+import { useSiteSettings } from "./SiteSettingsProvider";
 import { money } from "@/lib/format";
 import { ILLUS } from "@/lib/illus";
 import { Close, Cart } from "./icons";
 
 export default function CartDrawer() {
   const { cart, drawerOpen, closeCart, changeQty, remove, subtotal, count } = useStore();
+  const { freightThreshold: FT, freightFee: FF } = useSiteSettings();
   const items = Object.values(cart);
-  const freight = subtotal >= 999 || subtotal === 0 ? 0 : 89;
+  const freight = subtotal >= FT || subtotal === 0 ? 0 : FF;
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
@@ -68,7 +70,7 @@ export default function CartDrawer() {
           <div className="dfoot">
             <div className="line"><span>Subtotal</span><span>{money(subtotal)}</span></div>
             <div className="line">
-              <span>Freight {subtotal >= 999 ? "(free over $999)" : ""}</span>
+              <span>Freight {subtotal >= FT ? `(free over ${money(FT)})` : ""}</span>
               <span>{freight ? money(freight) : "FREE"}</span>
             </div>
             <div className="total">
