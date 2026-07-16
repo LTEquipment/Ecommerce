@@ -73,16 +73,21 @@ export default function AdminCatalog() {
     if (!rows) return null;
     const s = q.trim().toLowerCase();
     if (!s) return rows;
-    return rows.filter((r) => r.name.toLowerCase().includes(s) || r.sku.toLowerCase().includes(s));
-  }, [rows, q]);
+    return rows.filter((r) =>
+      r.name.toLowerCase().includes(s) ||
+      r.sku.toLowerCase().includes(s) ||
+      (r.brand ?? "").toLowerCase().includes(s) ||
+      (r.category_id ? (catName[r.category_id] ?? r.category_id) : "").toLowerCase().includes(s)
+    );
+  }, [rows, q, catName]);
 
   const nextSort = (rows?.reduce((m, r) => Math.max(m, r.sort), 0) ?? 0) + 1;
 
   return (
     <>
       <div className="admin-seg" role="tablist">
-        <button role="tab" className={view === "products" ? "on" : ""} onClick={() => setView("products")}>Products <span>{rows?.length ?? "·"}</span></button>
-        <button role="tab" className={view === "categories" ? "on" : ""} onClick={() => setView("categories")}>Categories <span>{cats.length || "·"}</span></button>
+        <button role="tab" aria-selected={view === "products"} className={view === "products" ? "on" : ""} onClick={() => setView("products")}>Products <span>{rows?.length ?? "·"}</span></button>
+        <button role="tab" aria-selected={view === "categories"} className={view === "categories" ? "on" : ""} onClick={() => setView("categories")}>Categories <span>{cats.length || "·"}</span></button>
       </div>
 
       {view === "categories" ? (
@@ -112,6 +117,7 @@ export default function AdminCatalog() {
                 const out = invEnabled && r.stock_qty <= 0;
                 return (
                   <div className="prod-row" key={r.slug}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <div className="prod-thumb">{r.images[0] ? <img src={r.images[0]} alt="" /> : <span className="prod-noimg" />}</div>
                     <div className="prod-id">
                       <div className="prod-sku">{r.sku}{r.badge && <em className={`tag ${r.badge === "Sale" ? "sale" : "new"}`}>{r.badge}</em>}</div>

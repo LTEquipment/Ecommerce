@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { logAudit } from "@/lib/audit";
 import { useStore } from "../StoreProvider";
@@ -22,14 +22,20 @@ export default function AdminCategories({
   const { toast } = useStore();
   const { user } = useAuth();
   const [rows, setRows] = useState<CategoryRow[]>(categories);
-  const [orig] = useState<Record<string, CategoryRow>>(() => Object.fromEntries(categories.map((c) => [c.id, { ...c }])));
+  const orig = useRef<Record<string, CategoryRow>>(Object.fromEntries(categories.map((c) => [c.id, { ...c }])));
+  // Resync editable rows and the dirty baseline whenever the parent refetches
+  // (after a save/create/delete elsewhere), so normalized server values flow back.
+  useEffect(() => {
+    setRows(categories);
+    orig.current = Object.fromEntries(categories.map((c) => [c.id, { ...c }]));
+  }, [categories]);
   const [saving, setSaving] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState<CategoryRow>({ id: "", name: "", art: "range", blurb: "", count: "", sort: (categories.at(-1)?.sort ?? 0) + 1 });
 
   const edit = (id: string, patch: Partial<CategoryRow>) => setRows((p) => p.map((c) => (c.id === id ? { ...c, ...patch } : c)));
   const dirty = (c: CategoryRow) => {
-    const o = orig[c.id];
+    const o = orig.current[c.id];
     return !o || o.name !== c.name || o.art !== c.art || (o.blurb ?? "") !== (c.blurb ?? "") || (o.count ?? "") !== (c.count ?? "") || o.sort !== c.sort;
   };
 
@@ -39,20 +45,20 @@ export default function AdminCategories({
     setSaving(c.id);
     const { error } = await sb.from("categories").update({ name: c.name, art: c.art, blurb: c.blurb || null, count: c.count || null, sort: c.sort }).eq("id", c.id);
     setSaving(null);
-    if (error) return toast(error.message);
-    orig[c.id] = { ...c };
+    if (error) return toast(error.message, "error");
+    orig.current[c.id] = { ...c };
     logAudit(user, "category.update", c.name, `Edited category`);
     toast(`${c.name} saved`);
     onChanged();
   };
 
   const remove = async (c: CategoryRow) => {
-    if ((productCounts[c.id] ?? 0) > 0) return toast(`Move or delete its ${productCounts[c.id]} products first.`);
+    if ((productCounts[c.id] ?? 0) > 0) return toast(`Move or delete its ${productCounts[c.id]} products first.`, "error");
     if (!window.confirm(`Delete category “${c.name}”? This cannot be undone.`)) return;
     const sb = getBrowserSupabase();
     if (!sb) return;
     const { error } = await sb.from("categories").delete().eq("id", c.id);
-    if (error) return toast(error.message);
+    if (error) return toast(error.message, "error");
     setRows((p) => p.filter((x) => x.id !== c.id));
     logAudit(user, "category.delete", c.name, "Deleted category");
     toast(`${c.name} deleted`);
@@ -63,15 +69,15 @@ export default function AdminCategories({
     const sb = getBrowserSupabase();
     if (!sb) return;
     const id = slugify(draft.id || draft.name);
-    if (!id) return toast("Category id/name required");
-    if (rows.some((c) => c.id === id)) return toast("That id already exists");
+    if (!id) return toast("Category id/name required", "error");
+    if (rows.some((c) => c.id === id)) return toast("That id already exists", "error");
     setSaving("__new");
     const row = { id, name: draft.name.trim() || id, art: draft.art, blurb: draft.blurb || null, count: draft.count || null, sort: Number(draft.sort) || 0 };
     const { error } = await sb.from("categories").insert(row);
     setSaving(null);
-    if (error) return toast(error.message);
+    if (error) return toast(error.message, "error");
     setRows((p) => [...p, { ...row }].sort((a, b) => a.sort - b.sort));
-    orig[id] = { ...row };
+    orig.current[id] = { ...row };
     logAudit(user, "category.create", row.name, "Created category");
     toast(`${row.name} created`);
     setAdding(false);
@@ -105,6 +111,10 @@ export default function AdminCategories({
             <button className="btn btn-primary btn-sm" onClick={create} disabled={saving === "__new"}>{saving === "__new" ? "Creating…" : "Create category"}</button>
           </div>
         </div>
+      )}
+
+      {sorted.length === 0 && !adding && (
+        <div className="emptybox"><Plus /><div className="m">No categories yet</div><div className="s">Add a department to group products across the storefront.</div></div>
       )}
 
       <div className="cat-list">
