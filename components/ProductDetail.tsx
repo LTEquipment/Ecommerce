@@ -12,10 +12,12 @@ import { estimateMonthly, FINANCE_MIN } from "@/lib/financing";
 import { safeHref } from "@/lib/safeHref";
 import { COMPANY, telHref } from "@/lib/company";
 import { ILLUS } from "@/lib/illus";
-import { Star, Plus, Truck, Shield, Card, Search, Close, FileText } from "./icons";
+import { Plus, Truck, Shield, Card, Search, Close, FileText } from "./icons";
+import Stars from "./Stars";
 import type { Product } from "@/lib/types";
+import type { ReviewStats } from "@/lib/reviews";
 
-export default function ProductDetail({ p: initial }: { p: Product }) {
+export default function ProductDetail({ p: initial, stats }: { p: Product; stats?: ReviewStats | null }) {
   const p = useLiveProduct(initial);
   const { add, openCart } = useStore();
   const [active, setActive] = useState(0);
@@ -113,9 +115,13 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
           {p.brand && <div className="brand-tag">{p.brand}</div>}
           <h1>{p.name}</h1>
           <div className="sku">Model {p.sku}</div>
-          <div className="rate">
-            <span className="stars"><Star /></span> {p.rating.toFixed(1)} · {p.n} reviews
-          </div>
+          {stats && stats.count > 0 ? (
+            <a href="#reviews" className="rate rate-link">
+              <Stars value={stats.avg} /> <b>{stats.avg.toFixed(1)}</b> · {stats.count} review{stats.count === 1 ? "" : "s"}
+            </a>
+          ) : (
+            <a href="#reviews" className="rate rate-empty">Be the first to review</a>
+          )}
           <div className="priced">
             <span className="price">{money(p.price)}</span>
             {p.was ? <span className="was" style={{ fontSize: 16, color: "var(--muted)", textDecoration: "line-through" }}>{money(p.was)}</span> : null}
@@ -145,10 +151,11 @@ export default function ProductDetail({ p: initial }: { p: Product }) {
             ) : (
               <button className="btn btn-line btn-lg">Notify me when available</button>
             )}
-            <WishlistButton p={p} variant="pdp" />
           </div>
 
-          <div className="pdp-compare-row">
+          <div className="pdp-actions">
+            <WishlistButton p={p} variant="pdp" />
+            <span className="pdp-actions-div" aria-hidden="true" />
             <CompareButton p={p} variant="pdp" />
           </div>
 

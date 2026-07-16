@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useStore } from "./StoreProvider";
 import { useLiveProducts } from "@/lib/useLiveProducts";
 import ProductCard from "./ProductCard";
+import { useReviewStatsMap } from "./ReviewStatsProvider";
 import { Check, Filter } from "./icons";
 import type { Category, Product } from "@/lib/types";
 
@@ -30,6 +31,7 @@ export default function Catalog({
   anchor?: string;
 }) {
   const products = useLiveProducts(initialProducts);
+  const statsMap = useReviewStatsMap();
   const {
     activeCat, setActiveCat,
     priceBracket, setPriceBracket,
@@ -63,9 +65,17 @@ export default function Catalog({
     );
     if (sortBy === "low") l = [...l].sort((a, b) => a.price - b.price);
     else if (sortBy === "high") l = [...l].sort((a, b) => b.price - a.price);
-    else if (sortBy === "rating") l = [...l].sort((a, b) => b.rating - a.rating);
+    else if (sortBy === "rating") {
+      // Sort by real aggregate: higher average first, then more reviews.
+      // Products without published reviews sort last.
+      const score = (p: Product) => {
+        const s = statsMap.get(p.slug);
+        return s && s.count > 0 ? s.avg + Math.min(s.count, 50) / 1000 : -1;
+      };
+      l = [...l].sort((a, b) => score(b) - score(a));
+    }
     return l;
-  }, [scoped, lockedCat, activeCat, priceBracket, inStock, query, sortBy]);
+  }, [scoped, lockedCat, activeCat, priceBracket, inStock, query, sortBy, statsMap]);
 
   return (
     <section id={anchor} style={anchor ? { paddingTop: 0 } : undefined}>
