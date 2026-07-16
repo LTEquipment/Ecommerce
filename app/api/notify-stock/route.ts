@@ -32,6 +32,20 @@ export async function POST(req: Request) {
   const product = await getProduct(slug);
   if (!product) return NextResponse.json({ error: "Unknown product" }, { status: 400 });
 
+  // Soft rate limit per email (mirrors /api/quotes) — needs the service key to read
+  // the RLS-protected table; skipped gracefully when it isn't configured.
+  const srv = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (srv) {
+    const svc = createClient(url, srv, { auth: { persistSession: false } });
+    const since = new Date(Date.now() - 60_000).toISOString();
+    const { count } = await svc
+      .from("stock_notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("email", email)
+      .gte("created_at", since);
+    if ((count ?? 0) >= 10) return NextResponse.json({ error: "Too many requests — please wait a moment." }, { status: 429 });
+  }
+
   const sb = createClient(url, anon, { auth: { persistSession: false } });
   const { error } = await sb
     .from("stock_notifications")
