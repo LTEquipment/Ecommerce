@@ -37,6 +37,8 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [people, setPeople] = useState<Record<string, { email: string; company: string }>>({});
   const [open, setOpen] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [q, setQ] = useState("");
 
   const load = useCallback(async () => {
     const sb = getBrowserSupabase();
@@ -88,6 +90,42 @@ export default function AdminOrders() {
 
   const who = (o: Order) => (o.customer_id ? people[o.customer_id] : undefined);
 
+  const filtered = useMemo(() => {
+    if (!orders) return [];
+    const query = q.trim().toLowerCase();
+    return orders.filter((o) => {
+      if (statusFilter !== "all" && o.status !== statusFilter) return false;
+      if (!query) return true;
+      const c = o.customer_id ? people[o.customer_id] : undefined;
+      return (
+        o.id.toLowerCase().includes(query) ||
+        (c?.company ?? "").toLowerCase().includes(query) ||
+        (c?.email ?? "").toLowerCase().includes(query)
+      );
+    });
+  }, [orders, statusFilter, q, people]);
+
+  const exportCsv = () => {
+    const head = ["Order", "Date", "Status", "Customer", "Email", "SKU", "Item", "Qty", "Unit price", "Order total"];
+    const rows: string[][] = [head];
+    for (const o of filtered) {
+      const c = o.customer_id ? people[o.customer_id] : undefined;
+      const date = new Date(o.created_at).toISOString().slice(0, 10);
+      const base = [o.id.slice(0, 8), date, o.status, c?.company ?? "", c?.email ?? ""];
+      const items = o.order_items ?? [];
+      if (items.length === 0) rows.push([...base, "", "", "", "", String(o.total)]);
+      for (const it of items) rows.push([...base, it.sku ?? "", it.name, String(it.qty), String(it.unit_price), String(o.total)]);
+    }
+    const csv = rows.map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (orders === null) return <div>{[0, 1, 2].map((i) => <div key={i} className="skel skel-row" />)}</div>;
 
   return (
@@ -95,8 +133,21 @@ export default function AdminOrders() {
       {orders.length === 0 ? (
         <div className="emptybox"><Package /><div className="m">No orders yet</div><div className="s">Orders placed on the storefront appear here.</div></div>
       ) : (
+        <>
+        <div className="ord-toolbar">
+          <div className="ord-filters">
+            {["all", ...STATUSES].map((s) => (
+              <button key={s} className={`ord-chip${statusFilter === s ? " on" : ""}`} onClick={() => setStatusFilter(s)}>{s}</button>
+            ))}
+          </div>
+          <input className="ord-search" placeholder="Search order, company, email…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search orders" />
+          <button className="btn btn-line ord-export" onClick={exportCsv}>Export CSV</button>
+        </div>
+        {filtered.length === 0 ? (
+          <div className="emptybox"><Package /><div className="m">No orders match</div><div className="s">Try a different status or search term.</div></div>
+        ) : (
         <div className="admin-cards">
-          {orders.map((o) => {
+          {filtered.map((o) => {
             const items = o.order_items ?? [];
             const isOpen = open === o.id;
             const c = who(o);
@@ -162,6 +213,8 @@ export default function AdminOrders() {
             );
           })}
         </div>
+        )}
+        </>
       )}
     </>
   );

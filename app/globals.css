@@ -1796,6 +1796,14 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 @media(max-width:640px){.pe-grid{grid-template-columns:1fr 1fr}.pe-col2{grid-column:span 2}}
 
 /* order cards — expandable detail */
+.ord-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:var(--s4)}
+.ord-filters{display:flex;gap:6px;flex-wrap:wrap}
+.ord-chip{padding:6px 13px;font-size:12.5px;font-weight:600;text-transform:capitalize;border:1px solid var(--line-2);border-radius:var(--rp);color:var(--muted);background:var(--white);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.ord-chip:hover{border-color:var(--ink);color:var(--ink)}
+.ord-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.ord-search{flex:1;min-width:180px;border:1.5px solid var(--line-2);border-radius:var(--r);padding:9px 13px;font:inherit;font-size:13.5px;background:var(--white)}
+.ord-search:focus{outline:none;border-color:var(--red)}
+.ord-export{padding:8px 16px;font-size:13px;flex:0 0 auto}
 .ord-card{background:var(--white);border:1px solid var(--line);border-radius:var(--rl);overflow:hidden}
 .ord-card.open{border-color:var(--line-2)}
 .ord-summary{display:grid;grid-template-columns:18px 1fr auto auto;gap:var(--s4);align-items:center;width:100%;text-align:left;padding:var(--s3) var(--s4)}
