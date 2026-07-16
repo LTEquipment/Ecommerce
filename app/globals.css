@@ -125,15 +125,22 @@ body > header{position:sticky;top:0;z-index:40;background:var(--white);border-bo
 
 /* account dropdown */
 .acct-wrap{position:relative}
-.acct-menu{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--white);border:1px solid var(--line);
-  border-radius:var(--rl);box-shadow:var(--shadow-lg);padding:8px;z-index:50}
-.acct-menu .who{padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
-.acct-menu .who b{display:block;font-size:14px}
-.acct-menu .who span{font-size:12px;color:var(--muted)}
-.acct-menu a,.acct-menu button{display:flex;width:100%;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);
-  font-size:13.5px;font-weight:500;text-align:left}
-.acct-menu a:hover,.acct-menu button:hover{background:var(--panel)}
-.acct-menu svg{width:16px;height:16px;color:var(--muted)}
+.acct-menu{position:absolute;top:calc(100% + 10px);right:0;width:258px;background:var(--white);border:1px solid var(--line);
+  border-radius:var(--rl);box-shadow:var(--shadow-lg);padding:7px;z-index:50}
+.acct-menu .who{display:flex;align-items:center;gap:11px;padding:8px 9px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.acct-menu .who .ava{width:38px;height:38px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;background:var(--ink);color:#fff;font-family:var(--disp);font-weight:800;font-size:15px;overflow:hidden}
+.acct-menu .who .ava img{width:100%;height:100%;object-fit:cover;display:block}
+.acct-menu .who-txt{min-width:0}
+.acct-menu .who b{display:block;font-size:13.5px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct-menu .who span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.acct-menu a,.acct-menu button{display:flex;width:100%;align-items:center;gap:11px;padding:9px 10px;border-radius:var(--r);
+  font-size:13.5px;font-weight:500;text-align:left;color:var(--ink-2);transition:background .14s,color .14s}
+.acct-menu a:hover,.acct-menu button:hover{background:var(--panel);color:var(--ink)}
+.acct-menu svg{width:17px;height:17px;color:var(--muted);flex:0 0 auto;transition:color .14s}
+.acct-menu a:hover svg,.acct-menu button:hover svg{color:var(--ink)}
+.acct-menu-sep{height:1px;background:var(--line);margin:6px 4px}
+.acct-menu .signout:hover{background:var(--red-tint);color:var(--red)}
+.acct-menu .signout:hover svg{color:var(--red)}
 
 /* department nav row */
 .navrow{border-bottom:1px solid var(--line);background:var(--white)}

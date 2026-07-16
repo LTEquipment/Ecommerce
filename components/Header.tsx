@@ -17,6 +17,8 @@ const NAV = CATEGORIES.slice(0, 6);
 export default function Header() {
   const { query, setQuery, openCart, openNav, count, subtotal } = useStore();
   const { user, isAdmin, displayName, signOut } = useAuth();
+  const avatarUrl = (user?.user_metadata?.avatar_url as string) || "";
+  const acctInitial = displayName?.[0]?.toUpperCase() || "L";
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [deptOpen, setDeptOpen] = useState(false);
@@ -106,8 +108,13 @@ export default function Header() {
               {menuOpen && (
                 <div className="acct-menu" role="menu">
                   <div className="who">
-                    <b>{displayName}</b>
-                    <span>{user.email}</span>
+                    <span className="ava">
+                      {avatarUrl ? <img src={avatarUrl} alt="" /> : acctInitial}
+                    </span>
+                    <div className="who-txt">
+                      <b title={displayName}>{displayName}</b>
+                      <span title={user.email}>{user.email}</span>
+                    </div>
                   </div>
                   <Link href="/account" role="menuitem" onClick={() => setMenuOpen(false)}>
                     <User /> Account
@@ -123,7 +130,8 @@ export default function Header() {
                       <TrendingUp /> Admin
                     </Link>
                   )}
-                  <button role="menuitem" onClick={() => { setMenuOpen(false); signOut(); }}>
+                  <div className="acct-menu-sep" role="separator" />
+                  <button className="signout" role="menuitem" onClick={() => { setMenuOpen(false); signOut(); }}>
                     <LogOut /> Sign out
                   </button>
                 </div>
