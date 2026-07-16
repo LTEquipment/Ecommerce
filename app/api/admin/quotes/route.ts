@@ -47,10 +47,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Bad request" }, { status: 400 });
   }
   const svc = serviceClient();
-  await svc.from("quote_requests").update({ status }).eq("id", id);
+  const { data, error } = await svc.from("quote_requests").update({ status }).eq("id", id).select("id,company,name");
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!data || data.length === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const label = data[0].company || data[0].name || id.slice(0, 8);
   await svc
     .from("audit_log")
-    .insert({ actor_id: admin.id, actor_email: admin.email, action: `quote.${status}`, target: id })
+    .insert({ actor_id: admin.id, actor_email: admin.email, action: "quote.status", target: label, detail: `Marked ${status}` })
     .then(() => {}, () => {});
   return NextResponse.json({ ok: true });
 }

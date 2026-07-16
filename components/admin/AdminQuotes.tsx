@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useStore } from "../StoreProvider";
 import { FileText } from "../icons";
 import { money } from "@/lib/format";
 
@@ -21,6 +22,7 @@ type Quote = {
 const STATUSES = ["new", "quoted", "won", "lost"] as const;
 
 export default function AdminQuotes() {
+  const { toast } = useStore();
   const [rows, setRows] = useState<Quote[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -37,13 +39,23 @@ export default function AdminQuotes() {
 
   const setStatus = async (id: string, status: string) => {
     setBusy(id);
-    await fetch("/api/admin/quotes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    }).catch(() => {});
-    setBusy(null);
-    load();
+    // optimistic status pill
+    setRows((prev) => prev?.map((q) => (q.id === id ? { ...q, status } : q)) ?? prev);
+    try {
+      const res = await fetch("/api/admin/quotes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      toast(`Marked ${status}`);
+      load();
+    } catch {
+      toast("Couldn’t update the quote — try again", "error");
+      load(); // resync the optimistic pill from the server
+    } finally {
+      setBusy(null);
+    }
   };
 
   return (

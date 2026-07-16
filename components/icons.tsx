@@ -58,6 +58,9 @@ export const Star = (p: P) => (
 export const Check = (p: P) => (
   <svg {...base} strokeWidth={3} {...p}><path d="M20 6 9 17l-5-5" /></svg>
 );
+export const AlertTriangle = (p: P) => (
+  <svg {...base} {...p}><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+);
 export const Truck = (p: P) => (
   <svg {...base} strokeWidth={1.8} {...p}><path d="M3 7h13v10H3zM16 10h4l1 3v4h-5" /><circle cx="7" cy="18" r="1.6" /><circle cx="18" cy="18" r="1.6" /></svg>
 );

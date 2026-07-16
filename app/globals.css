@@ -1502,6 +1502,8 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
   padding:14px 20px;border-radius:var(--r);display:flex;gap:10px;align-items:center;font-size:14px;font-weight:500;
   opacity:0;visibility:hidden;transition:all .3s;box-shadow:var(--shadow-lg);max-width:92vw}
 .toast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}.toast svg{width:17px;height:17px;flex:0 0 auto}
+/* Error variant — a red accent so failures never read as a green-check success. */
+.toast.err{background:var(--red);color:#fff}.toast.err svg{color:#fff}
 
 /* ============================================================
    REDESIGN — company / commerce / account-admin-auth
@@ -1649,6 +1651,7 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .sub-row a{color:var(--ink);font-weight:600}
 .sub-row a:hover{color:var(--red)}
 .sub-row span:last-child{color:var(--muted);font-size:12.5px}
+.sub-row-end{display:inline-flex;align-items:center;gap:14px;flex:0 0 auto}
 @media(max-width:640px){.admin-card{flex-wrap:wrap}.ac-status{width:100%;justify-content:space-between}}
 
 /* analytics — KPI cards */

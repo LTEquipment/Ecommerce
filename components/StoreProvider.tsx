@@ -32,7 +32,8 @@ type Store = {
   closeNav: () => void;
 
   toastMsg: string | null;
-  toast: (m: string) => void;
+  toastKind: "success" | "error";
+  toast: (m: string, kind?: "success" | "error") => void;
 
   query: string;
   setQuery: (q: string) => void;
@@ -62,6 +63,7 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toastKind, setToastKind] = useState<"success" | "error">("success");
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("all");
   const [priceBracket, setPriceBracket] = useState("all");
@@ -90,10 +92,12 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [cart, hydrated]);
 
-  const toast = useCallback((m: string) => {
+  const toast = useCallback((m: string, kind: "success" | "error" = "success") => {
     setToastMsg(m);
+    setToastKind(kind);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToastMsg(null), 2400);
+    // errors linger a little longer so they aren't missed
+    toastTimer.current = setTimeout(() => setToastMsg(null), kind === "error" ? 4000 : 2400);
   }, []);
 
   const add = useCallback(
@@ -160,6 +164,7 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
     openNav: () => setNavOpen(true),
     closeNav: () => setNavOpen(false),
     toastMsg,
+    toastKind,
     toast,
     query,
     setQuery,
