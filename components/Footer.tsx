@@ -82,9 +82,10 @@ export default async function Footer() {
           <div className={`foot-nav${investorRelationsEnabled ? "" : " cols-4"}`}>
           <div className="fcol">
             <h5>Departments</h5>
-            {CATEGORIES.slice(0, 6).map((c) => (
+            {CATEGORIES.slice(0, 5).map((c) => (
               <Link key={c.id} href={`/category/${c.id}`}>{c.name}</Link>
             ))}
+            <Link href="/brands">Shop by brand</Link>
           </div>
           <div className="fcol">
             <h5>Ordering</h5>

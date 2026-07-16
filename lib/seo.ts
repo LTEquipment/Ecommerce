@@ -161,6 +161,17 @@ export function productLd(
   };
 }
 
+/** Brand entity for a brand landing page. */
+export function brandLd(name: string, slug: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Brand",
+    "@id": `${SITE}/brands/${slug}#brand`,
+    name: name.replace(/[®™]/g, "").trim(),
+    url: `${SITE}/brands/${slug}`,
+  };
+}
+
 /** ItemList for a category / collection page. */
 export function itemListLd(products: Product[], name: string) {
   return {

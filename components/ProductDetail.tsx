@@ -11,6 +11,7 @@ import { recordView } from "@/lib/recentlyViewed";
 import { money } from "@/lib/format";
 import { estimateMonthly, FINANCE_MIN } from "@/lib/financing";
 import { safeHref } from "@/lib/safeHref";
+import { brandSlug } from "@/lib/brands";
 import { COMPANY, telHref } from "@/lib/company";
 import { ILLUS } from "@/lib/illus";
 import { Plus, Truck, Shield, Card, Search, Close, FileText } from "./icons";
@@ -113,7 +114,7 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
         </div>
 
         <div className="pinfo">
-          {p.brand && <div className="brand-tag">{p.brand}</div>}
+          {p.brand && <Link href={`/brands/${brandSlug(p.brand)}`} className="brand-tag">{p.brand}</Link>}
           <h1>{p.name}</h1>
           <div className="sku">Model {p.sku}</div>
           {stats && stats.count > 0 ? (

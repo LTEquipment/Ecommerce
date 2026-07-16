@@ -6,6 +6,7 @@ import { useStore } from "./StoreProvider";
 import { useLiveProducts } from "@/lib/useLiveProducts";
 import ProductCard from "./ProductCard";
 import { useReviewStatsMap } from "./ReviewStatsProvider";
+import { brandSlug } from "@/lib/brands";
 import { Check, Filter } from "./icons";
 import type { Category, Product } from "@/lib/types";
 
@@ -21,6 +22,7 @@ export default function Catalog({
   products: initialProducts,
   title = "Best sellers",
   lockedCat,
+  lockedBrand,
   anchor,
 }: {
   categories: Category[];
@@ -28,6 +30,8 @@ export default function Catalog({
   title?: string;
   /** When set, filter to this category and hide the department facet. */
   lockedCat?: string;
+  /** When set, filter to this brand slug (brand landing pages). */
+  lockedBrand?: string;
   anchor?: string;
 }) {
   const products = useLiveProducts(initialProducts);
@@ -48,9 +52,14 @@ export default function Catalog({
     if (urlQ) setQuery(urlQ);
   }, [urlQ, setQuery]);
 
-  const scoped = lockedCat ? products.filter((p) => p.cat === lockedCat) : products;
+  const scoped = lockedBrand
+    ? products.filter((p) => p.brand && brandSlug(p.brand) === lockedBrand)
+    : lockedCat
+    ? products.filter((p) => p.cat === lockedCat)
+    : products;
+  const countBase = lockedBrand ? scoped : products;
   const countFor = (catId: string) =>
-    products.filter((p) => catId === "all" || p.cat === catId).length;
+    countBase.filter((p) => catId === "all" || p.cat === catId).length;
 
   const list = useMemo(() => {
     const q = query.toLowerCase();

@@ -530,7 +530,15 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .gallery .thumbs button.on{border-color:var(--ink)}
 .gallery .thumbs img{width:100%;height:100%;object-fit:contain}
 
-.pinfo .brand-tag{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.pinfo .brand-tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);text-decoration:none}
+.pinfo a.brand-tag:hover{text-decoration:underline;text-underline-offset:3px}
+/* Brand landing index */
+.brand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(224px,1fr));gap:16px;margin:var(--s2) 0 var(--s7)}
+.brand-card{display:flex;flex-direction:column;gap:7px;padding:22px 22px 24px;border:1px solid var(--line);border-radius:var(--rl);background:var(--white);transition:border-color .18s,transform .1s}
+.brand-card:hover{border-color:var(--ink)}
+.brand-card:active{transform:translateY(1px)}
+.brand-card-name{font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.01em;color:var(--ink)}
+.brand-card-meta{font-size:12.5px;color:var(--muted)}
 .pinfo h1{font-size:clamp(26px,2.6vw,34px);font-weight:800;line-height:1.12;letter-spacing:-.02em;margin:8px 0 10px}
 .pinfo .sku{font-size:12.5px;color:var(--muted);margin-bottom:14px}
 .pinfo .rate{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:16px;text-decoration:none}
