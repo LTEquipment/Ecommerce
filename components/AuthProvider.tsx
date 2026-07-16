@@ -115,9 +115,17 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return user.email?.split("@")[0] ?? "Account";
   }, [user]);
 
+  // `role` is a display hint from user_metadata (self-writable). The actual
+  // ENTITLEMENT (isDealer -> contract pricing) is gated on app_metadata, which
+  // only the service-role admin approve route can set — a user cannot self-grant
+  // it via supabase.auth.updateUser().
   const role = ((user?.user_metadata?.role as AccountRole) || "customer");
-  const dealerStatus = ((user?.user_metadata?.dealer_status as DealerStatus) ?? null);
-  const isDealer = role === "dealer" && dealerStatus === "approved";
+  const appMeta = (user?.app_metadata ?? {}) as Record<string, unknown>;
+  const approved = appMeta.dealer_status === "approved";
+  const dealerStatus: DealerStatus = approved
+    ? "approved"
+    : ((user?.user_metadata?.dealer_status as DealerStatus) ?? null);
+  const isDealer = approved;
 
   const value: Auth = {
     configured: supabaseConfigured,
