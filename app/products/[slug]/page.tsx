@@ -3,12 +3,14 @@ import { getProduct, getRelated, getCategory } from "@/lib/catalog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductDetail from "@/components/ProductDetail";
 import ProductReviews from "@/components/ProductReviews";
+import ProductQA from "@/components/ProductQA";
 import RelatedProducts from "@/components/RelatedProducts";
 import RelatedGuides from "@/components/RelatedGuides";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import JsonLd from "@/components/JsonLd";
 import { productLd, breadcrumbLd } from "@/lib/seo";
 import { getProductReviews, getReviewStats } from "@/lib/reviews";
+import { getProductQuestions } from "@/lib/questions";
 
 export const dynamic = "force-dynamic";
 
@@ -37,11 +39,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const p = await getProduct(slug);
   if (!p) notFound();
-  const [cat, related, reviews, stats] = await Promise.all([
+  const [cat, related, reviews, stats, questions] = await Promise.all([
     getCategory(p.cat),
     getRelated(p.slug, 4),
     getProductReviews(p.slug),
     getReviewStats(p.slug),
+    getProductQuestions(p.slug),
   ]);
   return (
     <>
@@ -65,6 +68,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </div>
       <ProductDetail p={p} stats={stats} />
       <ProductReviews slug={p.slug} initialReviews={reviews} initialStats={stats} />
+      <ProductQA slug={p.slug} initialQuestions={questions} />
       <RelatedProducts products={related} />
       <RelatedGuides query={`${cat?.name ?? ""} ${p.name}`} />
       <RecentlyViewed excludeSlug={p.slug} />
