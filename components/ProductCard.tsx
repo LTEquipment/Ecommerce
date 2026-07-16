@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useStore } from "./StoreProvider";
 import WishlistButton from "./WishlistButton";
 import CompareButton from "./CompareButton";
@@ -21,7 +22,12 @@ export default function ProductCard({ p }: { p: Product }) {
           <span className={`badge${p.badge === "New" ? " new" : ""}`}>{p.badge}</span>
         ) : null}
         {p.images[0] ? (
-          <img src={p.images[0]} alt={p.name} loading="lazy" />
+          <Image
+            src={p.images[0]}
+            alt={p.name}
+            fill
+            sizes="(max-width:640px) 45vw, (max-width:1024px) 30vw, 260px"
+          />
         ) : (
           <div className="ph" dangerouslySetInnerHTML={{ __html: ILLUS[p.art] }} />
         )}
