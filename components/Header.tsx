@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import WishlistIcon from "./WishlistIcon";
+import SearchAutocomplete from "./SearchAutocomplete";
 import { money } from "@/lib/format";
 import { COMPANY } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
@@ -15,11 +15,10 @@ import { Search, User, UserRound, Bag, ShieldCheck, Grid, SignOut, Cart, Menu, C
 const NAV = CATEGORIES.slice(0, 6);
 
 export default function Header() {
-  const { query, setQuery, openCart, openNav, count, subtotal } = useStore();
+  const { openCart, openNav, count, subtotal } = useStore();
   const { user, isAdmin, displayName, signOut } = useAuth();
   const avatarUrl = (user?.user_metadata?.avatar_url as string) || "";
   const acctInitial = displayName?.[0]?.toUpperCase() || "L";
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [deptOpen, setDeptOpen] = useState(false);
   const [deptPos, setDeptPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
@@ -57,12 +56,6 @@ export default function Header() {
     return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", esc); };
   }, []);
 
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const q = query.trim();
-    router.push(q ? `/products?q=${encodeURIComponent(q)}` : "/products");
-  };
-
   return (
     <header>
       <div className="wrap hdr">
@@ -74,15 +67,7 @@ export default function Header() {
           </span>
         </Link>
 
-        <form className="big-search" onSubmit={submitSearch} role="search">
-          <Search />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products, models & categories…"
-            aria-label="Search products"
-          />
-        </form>
+        <SearchAutocomplete />
 
         <div className="hdr-actions">
           <Link className="qcta" href="/contact">
