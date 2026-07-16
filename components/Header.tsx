@@ -86,7 +86,7 @@ export default function Header() {
 
         <div className="hdr-actions">
           <Link className="qcta" href="/contact">
-            <FileText /> Request a quote
+            <FileText /> Get a quote
           </Link>
 
           {/* desktop account */}
