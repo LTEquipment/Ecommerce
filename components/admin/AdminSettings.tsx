@@ -27,22 +27,29 @@ export default function AdminSettings() {
       .catch(() => setEnabled(false));
   }, []);
 
+  // Auto-dismiss the save notices so they don't linger indefinitely.
+  useEffect(() => { if (!shipMsg) return; const id = setTimeout(() => setShipMsg(null), 3000); return () => clearTimeout(id); }, [shipMsg]);
+  useEffect(() => { if (!msg) return; const id = setTimeout(() => setMsg(null), 3000); return () => clearTimeout(id); }, [msg]);
+
   async function saveShipping() {
+    const t = parseFloat(ft), f = parseFloat(ff), tp = parseFloat(taxPct);
+    const LABELS: Record<string, string> = { freight_threshold: "free-freight threshold", freight_fee: "freight fee", tax_rate: "sales tax" };
+    const entries: Array<[string, number]> = [];
+    if (Number.isFinite(t)) entries.push(["freight_threshold", t]);
+    if (Number.isFinite(f)) entries.push(["freight_fee", f]);
+    if (Number.isFinite(tp)) entries.push(["tax_rate", tp / 100]);
+    if (entries.length === 0) { setShipMsg({ ok: false, text: "Enter a value to save" }); return; }
     setSavingShip(true);
     setShipMsg(null);
-    const t = parseFloat(ft), f = parseFloat(ff), tp = parseFloat(taxPct);
-    const posts: Array<Promise<Response>> = [];
-    const post = (key: string, value: number) =>
-      fetch("/api/admin/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ key, value }) });
-    if (Number.isFinite(t)) posts.push(post("freight_threshold", t));
-    if (Number.isFinite(f)) posts.push(post("freight_fee", f));
-    if (Number.isFinite(tp)) posts.push(post("tax_rate", tp / 100));
     try {
-      const rs = await Promise.all(posts);
-      if (rs.every((r) => r.ok)) setShipMsg({ ok: true, text: "Saved" });
-      else setShipMsg({ ok: false, text: "Some values were rejected" });
+      const rs = await Promise.all(entries.map(([key, value]) =>
+        fetch("/api/admin/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ key, value }) })
+          .then((r) => ({ key, ok: r.ok }))
+      ));
+      const failed = rs.filter((r) => !r.ok).map((r) => LABELS[r.key] ?? r.key);
+      setShipMsg(failed.length === 0 ? { ok: true, text: "Saved" } : { ok: false, text: `Couldn’t save ${failed.join(", ")}` });
     } catch {
-      setShipMsg({ ok: false, text: "Couldn't save — try again" });
+      setShipMsg({ ok: false, text: "Couldn’t save — try again" });
     } finally {
       setSavingShip(false);
     }

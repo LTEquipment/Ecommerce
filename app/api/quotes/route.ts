@@ -94,7 +94,11 @@ export async function POST(req: Request) {
   const { error: liErr } = await admin
     .from("quote_request_items")
     .insert(lines.map((l) => ({ ...l, quote_id: quote.id })));
-  if (liErr) return NextResponse.json({ error: "Could not save the items" }, { status: 500 });
+  if (liErr) {
+    // Roll back the header so a failed items-insert doesn't strand an itemless quote.
+    await admin.from("quote_requests").delete().eq("id", quote.id);
+    return NextResponse.json({ error: "Could not save the items" }, { status: 500 });
+  }
 
   return NextResponse.json({ id: quote.id });
 }
