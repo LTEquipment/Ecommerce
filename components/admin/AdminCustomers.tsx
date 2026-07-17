@@ -43,7 +43,14 @@ export default function AdminCustomers() {
   const CONFIRM: Record<string, (c: Customer) => string> = {
     "grant-admin": (c) => `Grant full admin console access to ${c.email}?`,
     "revoke-admin": (c) => `Revoke admin access from ${c.email}?`,
-    "reject-dealer": (c) => `Reject the trade-account request from ${c.email}?`,
+    "reject-dealer": (c) => c.dealerStatus === "approved"
+      ? `Revoke dealer status and contract pricing from ${c.email}?`
+      : `Reject the trade-account request from ${c.email}?`,
+    // Approving a reviewed pending request needs no extra confirm; directly
+    // granting dealer status to any other account does (it unlocks pricing).
+    "approve-dealer": (c) => c.dealerStatus === "pending"
+      ? ""
+      : `Grant dealer status and contract pricing to ${c.email}?`,
     "send-reset": (c) => `Email a password-reset link to ${c.email}?`,
     "resend-confirmation": (c) => `Resend the confirmation email to ${c.email}?`,
     "confirm-email": (c) => `Manually mark ${c.email} as confirmed (skips the email)?`,
@@ -165,11 +172,15 @@ export default function AdminCustomers() {
                   <div className="cust-date" data-label="Joined">{new Date(c.createdAt).toLocaleDateString()}</div>
                   <div className="cust-date" data-label="Last active">{c.lastSignInAt ? new Date(c.lastSignInAt).toLocaleDateString() : "—"}</div>
                   <div className="cust-actions" onClick={(e) => e.stopPropagation()}>
-                    {c.dealerStatus === "pending" && (
+                    {c.dealerStatus === "pending" ? (
                       <>
                         <button className="btn btn-primary btn-xs" disabled={busy === c.id + "approve-dealer"} onClick={() => act(c, "approve-dealer")}>Approve</button>
                         <button className="btn btn-line btn-xs" disabled={busy === c.id + "reject-dealer"} onClick={() => act(c, "reject-dealer")}>Reject</button>
                       </>
+                    ) : c.role === "dealer" && c.dealerStatus === "approved" ? (
+                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "reject-dealer"} onClick={() => act(c, "reject-dealer")}>Revoke dealer</button>
+                    ) : (
+                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "approve-dealer"} onClick={() => act(c, "approve-dealer")}>Make dealer</button>
                     )}
                     {c.isAdmin ? (
                       <button className="btn btn-line btn-xs" disabled={busy === c.id + "revoke-admin"} onClick={() => act(c, "revoke-admin")}>Revoke admin</button>
