@@ -56,6 +56,35 @@ export async function POST(req: Request) {
   const items = (quote.quote_request_items ?? []) as QI[];
   if (items.length === 0) return NextResponse.json({ error: "Quote has no line items" }, { status: 400 });
 
+  // Atomically CLAIM the quote before doing any work. Two concurrent convert
+  // requests (two admins, two tabs, or a reload mid-request) both saw
+  // converted_order_id null above; without this claim they would each insert a
+  // full duplicate order (the stamp at the end is last-writer-wins). The claim is
+  // a single conditional UPDATE — only the request that flips the status off its
+  // current value wins; the rest bail before creating anything. Status-based so
+  // it works whether or not the converted_order_id migration has been applied.
+  const priorStatus = (quote.status as string) || "new";
+  const { data: claimed } = await svc
+    .from("quote_requests")
+    .update({ status: "converting" })
+    .eq("id", id)
+    .neq("status", "converting")
+    .neq("status", "won")
+    .select("id")
+    .maybeSingle();
+  if (!claimed) {
+    // Lost the race. If the winner already finished, return its order; else 409.
+    const { data: fresh } = await svc.from("quote_requests").select("*").eq("id", id).maybeSingle();
+    if (fresh?.converted_order_id) {
+      return NextResponse.json({ ok: true, orderId: fresh.converted_order_id as string, already: true });
+    }
+    return NextResponse.json({ error: "This quote is already being converted.", inProgress: true }, { status: 409 });
+  }
+  // Release the claim (restore the prior status) if order creation fails, so the
+  // conversion can be retried instead of being stuck in "converting".
+  const releaseClaim = () =>
+    svc.from("quote_requests").update({ status: priorStatus }).eq("id", id).then(() => {}, () => {});
+
   const lines = items.map((it) => ({
     sku: it.sku,
     name: it.name,
@@ -85,12 +114,16 @@ export async function POST(req: Request) {
       .from("orders").insert({ customer_id: customerId, status: "submitted", subtotal, freight, total })
       .select("id").single());
   }
-  if (error || !order) return NextResponse.json({ error: "Could not create the order" }, { status: 500 });
+  if (error || !order) {
+    await releaseClaim();
+    return NextResponse.json({ error: "Could not create the order" }, { status: 500 });
+  }
 
   const { error: liErr } = await svc.from("order_items").insert(lines.map((l) => ({ ...l, order_id: order!.id })));
   if (liErr) {
     // Roll back the order header so a failed items-insert doesn't strand an empty order.
     await svc.from("orders").delete().eq("id", order.id);
+    await releaseClaim();
     return NextResponse.json({ error: "Could not save the order items" }, { status: 500 });
   }
 

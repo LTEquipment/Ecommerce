@@ -76,16 +76,33 @@ export async function getReviewStats(slug: string): Promise<ReviewStats | null> 
 }
 
 /**
+ * Order statuses that represent a STAFF-CONFIRMED purchase. Any signed-in user
+ * can self-create an order server-side — it lands as "submitted" with no payment
+ * (the wire/PO flow), so "submitted" must NOT confer verified-purchase rights or
+ * anyone could fabricate a "Verified Purchase" review by placing a free order.
+ * Only an admin can advance an order past "submitted" (RLS: no client UPDATE on
+ * orders), so these fulfillment states are the trustworthy signal. Status-based
+ * (not payment_status) because payment is collected offline, so paid orders sit
+ * at "processing"/"shipped"/"delivered" rather than payment_status='paid'.
+ */
+const PURCHASED_STATUSES = ["processing", "shipped", "delivered"];
+
+/**
  * Has this user purchased the product? Verified against order_items.sku for the
- * user's own orders. Accepts any Supabase client scoped to the user (RLS lets a
- * user read their own orders/order_items), so callers pass the session client.
+ * user's own STAFF-CONFIRMED orders. Accepts any Supabase client scoped to the
+ * user (RLS lets a user read their own orders/order_items), so callers pass the
+ * session client.
  */
 export async function hasPurchased(
   sb: SupabaseClient,
   userId: string,
   sku: string
 ): Promise<boolean> {
-  const { data: orders } = await sb.from("orders").select("id").eq("customer_id", userId);
+  const { data: orders } = await sb
+    .from("orders")
+    .select("id")
+    .eq("customer_id", userId)
+    .in("status", PURCHASED_STATUSES);
   const ids = (orders ?? []).map((o) => o.id as string);
   if (ids.length === 0) return false;
   const { data: items } = await sb
