@@ -1,5 +1,7 @@
 import { money } from "@/lib/format";
 import { trackingUrl } from "@/lib/tracking";
+import { COMPANY } from "@/lib/company";
+import PrintButton from "./PrintButton";
 
 type Item = { name: string; sku: string | null; unit_price: number; qty: number };
 export type OrderLike = {
@@ -49,10 +51,21 @@ export default function OrderReceipt({ order }: { order: OrderLike }) {
 
   return (
     <div className="receipt">
+      {/* Print-only letterhead — turns the receipt into an itemized invoice. */}
+      <div className="receipt-print-head">
+        <div className="rph-co">
+          <b>{COMPANY.legalName}</b>
+          <span>{COMPANY.hqAddress}</span>
+          <span>{COMPANY.mainPhone} · {COMPANY.email}</span>
+        </div>
+        <div className="rph-title">Order invoice</div>
+      </div>
+
       <div className="receipt-head">
         <div><span className="receipt-lbl">Order</span><b>#{order.id.slice(0, 8).toUpperCase()}</b></div>
         {order.created_at && <div><span className="receipt-lbl">Placed</span>{new Date(order.created_at).toLocaleDateString()}</div>}
         <div><span className="receipt-lbl">Status</span><span className={`pill ${tone(order.status)}`}>{STATUS_LABEL[order.status ?? ""] ?? order.status ?? "—"}</span></div>
+        <PrintButton />
       </div>
 
       {track && (
