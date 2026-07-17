@@ -43,7 +43,8 @@ export default function ProjectLists() {
   const createList = async () => {
     const sb = getBrowserSupabase();
     if (!sb || !user || !newName.trim()) return;
-    await sb.from("saved_lists").insert({ user_id: user.id, name: newName.trim() });
+    const { error } = await sb.from("saved_lists").insert({ user_id: user.id, name: newName.trim() });
+    if (error) return toast(error.message || "Couldn’t create the list — try again", "error"); // keep the typed name
     setNewName("");
     load();
   };
@@ -51,13 +52,15 @@ export default function ProjectLists() {
     if (!window.confirm("Delete this list?")) return;
     const sb = getBrowserSupabase();
     if (!sb) return;
-    await sb.from("saved_lists").delete().eq("id", id);
+    const { error } = await sb.from("saved_lists").delete().eq("id", id);
+    if (error) return toast(error.message || "Couldn’t delete the list", "error");
     load();
   };
   const removeItem = async (listId: string, sku: string) => {
     const sb = getBrowserSupabase();
     if (!sb) return;
-    await sb.from("saved_list_items").delete().eq("list_id", listId).eq("sku", sku);
+    const { error } = await sb.from("saved_list_items").delete().eq("list_id", listId).eq("sku", sku);
+    if (error) return toast(error.message || "Couldn’t remove the item", "error");
     load();
   };
   const addAll = (list: ListWithItems) => {

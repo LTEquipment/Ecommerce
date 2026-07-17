@@ -52,6 +52,8 @@ type Store = {
 
 const Ctx = createContext<Store | null>(null);
 const CART_KEY = "lt-cart-v1";
+/** Per-line quantity cap — matches the server clamp in /api/orders. */
+const MAX_QTY = 999;
 
 export function useStore(): Store {
   const c = useContext(Ctx);
@@ -107,7 +109,9 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
     (p: Product, qty = 1) => {
       setCart((c) => ({
         ...c,
-        [p.sku]: { product: p, qty: (c[p.sku]?.qty || 0) + qty },
+        // cap per line at MAX_QTY so the placed order can't exceed what /api/orders
+        // stores (it clamps to 999) — the reviewed total always matches the charge.
+        [p.sku]: { product: p, qty: Math.min(MAX_QTY, (c[p.sku]?.qty || 0) + qty) },
       }));
       toast(`${p.sku} added to cart.`);
     },
@@ -118,7 +122,7 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
     setCart((c) => {
       const cur = c[sku];
       if (!cur) return c;
-      const q = cur.qty + d;
+      const q = Math.min(MAX_QTY, cur.qty + d);
       const next = { ...c };
       if (q <= 0) delete next[sku];
       else next[sku] = { ...cur, qty: q };
