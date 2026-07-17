@@ -6,6 +6,7 @@ import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
 import { toCsv } from "@/lib/csv";
 import { Search, User, ChevronDown } from "../icons";
+import RowMenu from "./RowMenu";
 
 type Customer = {
   id: string; email: string; company: string; role: string;
@@ -22,7 +23,6 @@ export default function AdminCustomers() {
   const [list, setList] = useState<Customer[] | null>(null);
   const [q, setQ] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [busy, setBusy] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, Detail>>({});
 
@@ -66,12 +66,10 @@ export default function AdminCustomers() {
   const act = async (c: Customer, action: string) => {
     const confirmMsg = CONFIRM[action]?.(c);
     if (confirmMsg && !window.confirm(confirmMsg)) return;
-    setBusy(c.id + action);
     const res = await fetch("/api/admin/customers", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: c.id, action }),
     });
     const json = await res.json().catch(() => ({}));
-    setBusy(null);
     if (!res.ok) return toast(json.error || "Action failed", "error");
     toast(SUCCESS_MSG[action] || "Updated.");
     if (!NO_REFETCH.has(action)) load();
@@ -172,28 +170,32 @@ export default function AdminCustomers() {
                   <div className="cust-date" data-label="Joined">{new Date(c.createdAt).toLocaleDateString()}</div>
                   <div className="cust-date" data-label="Last active">{c.lastSignInAt ? new Date(c.lastSignInAt).toLocaleDateString() : "—"}</div>
                   <div className="cust-actions" onClick={(e) => e.stopPropagation()}>
-                    {c.dealerStatus === "pending" ? (
-                      <>
-                        <button className="btn btn-primary btn-xs" disabled={busy === c.id + "approve-dealer"} onClick={() => act(c, "approve-dealer")}>Approve</button>
-                        <button className="btn btn-line btn-xs" disabled={busy === c.id + "reject-dealer"} onClick={() => act(c, "reject-dealer")}>Reject</button>
-                      </>
-                    ) : c.role === "dealer" && c.dealerStatus === "approved" ? (
-                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "reject-dealer"} onClick={() => act(c, "reject-dealer")}>Revoke dealer</button>
-                    ) : (
-                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "approve-dealer"} onClick={() => act(c, "approve-dealer")}>Make dealer</button>
-                    )}
-                    {c.isAdmin ? (
-                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "revoke-admin"} onClick={() => act(c, "revoke-admin")}>Revoke admin</button>
-                    ) : (
-                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "grant-admin"} onClick={() => act(c, "grant-admin")}>Make admin</button>
-                    )}
-                    <button className="btn btn-line btn-xs" disabled={busy === c.id + "send-reset"} onClick={() => act(c, "send-reset")}>Reset password</button>
-                    {!c.confirmed && (
-                      <>
-                        <button className="btn btn-line btn-xs" disabled={busy === c.id + "resend-confirmation"} onClick={() => act(c, "resend-confirmation")}>Resend confirmation</button>
-                        <button className="btn btn-line btn-xs" disabled={busy === c.id + "confirm-email"} onClick={() => act(c, "confirm-email")}>Confirm email</button>
-                      </>
-                    )}
+                    <RowMenu label={`Actions for ${c.email}`}>
+                      {c.dealerStatus === "pending" ? (
+                        <>
+                          <button className="rowmenu-item" onClick={() => act(c, "approve-dealer")}>Approve trade account</button>
+                          <button className="rowmenu-item" onClick={() => act(c, "reject-dealer")}>Reject trade request</button>
+                        </>
+                      ) : c.role === "dealer" && c.dealerStatus === "approved" ? (
+                        <button className="rowmenu-item" onClick={() => act(c, "reject-dealer")}>Revoke dealer status</button>
+                      ) : (
+                        <button className="rowmenu-item" onClick={() => act(c, "approve-dealer")}>Make dealer</button>
+                      )}
+                      <div className="rowmenu-sep" role="separator" />
+                      {c.isAdmin ? (
+                        <button className="rowmenu-item" onClick={() => act(c, "revoke-admin")}>Revoke admin access</button>
+                      ) : (
+                        <button className="rowmenu-item" onClick={() => act(c, "grant-admin")}>Make admin</button>
+                      )}
+                      <div className="rowmenu-sep" role="separator" />
+                      <button className="rowmenu-item" onClick={() => act(c, "send-reset")}>Reset password</button>
+                      {!c.confirmed && (
+                        <>
+                          <button className="rowmenu-item" onClick={() => act(c, "resend-confirmation")}>Resend confirmation</button>
+                          <button className="rowmenu-item" onClick={() => act(c, "confirm-email")}>Confirm email</button>
+                        </>
+                      )}
+                    </RowMenu>
                   </div>
                 </div>
 

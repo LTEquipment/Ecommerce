@@ -76,6 +76,9 @@ export const Chat = (p: P) => (
 export const ChevronDown = (p: P) => (
   <svg {...base} {...p}><path d="m6 9 6 6 6-6" /></svg>
 );
+export const MoreVertical = (p: P) => (
+  <svg {...base} {...p} fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="12" cy="19" r="1.7" /></svg>
+);
 export const Package = (p: P) => (
   <svg {...base} strokeWidth={1.8} {...p}><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5 12 12l8-4.5M12 12v9" /></svg>
 );
