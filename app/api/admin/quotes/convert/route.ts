@@ -37,13 +37,20 @@ export async function POST(req: Request) {
   if (!id) return NextResponse.json({ error: "Bad request" }, { status: 400 });
 
   const svc = serviceClient();
+  // select * so converted_order_id loads when present (migration-resilient).
   const { data: quote, error: qErr } = await svc
     .from("quote_requests")
-    .select("id,customer_id,company,status,quote_request_items(sku,name,unit_price,qty)")
+    .select("*, quote_request_items(sku,name,unit_price,qty)")
     .eq("id", id)
     .maybeSingle();
   if (qErr) return NextResponse.json({ error: qErr.message }, { status: 500 });
   if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
+
+  // Idempotency: if this quote was already converted, return that order — never
+  // create a duplicate on a second click.
+  if (quote.converted_order_id) {
+    return NextResponse.json({ ok: true, orderId: quote.converted_order_id as string, already: true });
+  }
 
   type QI = { sku: string | null; name: string; unit_price: number; qty: number };
   const items = (quote.quote_request_items ?? []) as QI[];
@@ -87,8 +94,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Could not save the order items" }, { status: 500 });
   }
 
-  // Mark the quote won and record the conversion.
-  if (quote.status !== "won") await svc.from("quote_requests").update({ status: "won" }).eq("id", id).then(() => {}, () => {});
+  // Mark the quote won and stamp the conversion (so a repeat click is idempotent).
+  const { error: markErr } = await svc.from("quote_requests").update({ status: "won", converted_order_id: order.id }).eq("id", id);
+  if (markErr && /converted_order_id|column/.test(markErr.message)) {
+    // migration not run yet — at least record the status.
+    await svc.from("quote_requests").update({ status: "won" }).eq("id", id).then(() => {}, () => {});
+  }
   await svc.from("audit_log")
     .insert({ actor_id: admin.id, actor_email: admin.email, action: "quote.converted", target: quote.company || id.slice(0, 8), detail: `→ order #${order.id.slice(0, 8)}` })
     .then(() => {}, () => {});
