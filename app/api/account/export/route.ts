@@ -31,13 +31,16 @@ export async function GET() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
 
-  const [orders, addresses, savedLists, claims, registrations, tickets] = await Promise.all([
+  const [orders, addresses, savedLists, claims, registrations, tickets, quotes, reviews, questions] = await Promise.all([
     rows(sb.from("orders").select("*, order_items(*)").eq("customer_id", user.id).order("created_at", { ascending: false })),
     rows(sb.from("customer_addresses").select("*")),
     rows(sb.from("saved_lists").select("*, saved_list_items(*)")),
     rows(sb.from("warranty_claims").select("*")),
     rows(sb.from("warranty_registrations").select("*")),
     rows(sb.from("service_tickets").select("*")),
+    rows(sb.from("quote_requests").select("*, quote_request_items(*)").eq("customer_id", user.id).order("created_at", { ascending: false })),
+    rows(sb.from("product_reviews").select("*").eq("user_id", user.id)),
+    rows(sb.from("product_questions").select("*").eq("user_id", user.id)),
   ]);
 
   const payload = {
@@ -59,6 +62,9 @@ export async function GET() {
     warranty_claims: claims,
     warranty_registrations: registrations,
     service_tickets: tickets,
+    quote_requests: quotes,
+    product_reviews: reviews,
+    product_questions: questions,
   };
 
   return new NextResponse(JSON.stringify(payload, null, 2), {
