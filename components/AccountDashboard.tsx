@@ -498,7 +498,10 @@ export default function AccountDashboard() {
                       </div>
                     )}
                     <div className="order-foot">
-                      <button className="btn btn-line reorder-btn" onClick={() => reorder(o)}>Reorder</button>
+                      <div className="order-foot-actions">
+                        <button className="btn btn-line reorder-btn" onClick={() => reorder(o)}>Reorder</button>
+                        <Link className="btn btn-line" href={`/account/orders/${o.id}`}>Invoice</Link>
+                      </div>
                       <div className="order-foot-right">
                         <button className="order-toggle" onClick={() => setOpenOrder(isOpen ? null : o.id)}>
                           {isOpen ? "Hide details" : "View details"}
