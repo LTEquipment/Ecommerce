@@ -8,7 +8,12 @@ import { COMPANY, telHref } from "@/lib/company";
 import { getSiteSettings } from "@/lib/settings";
 import { ArrowRight, FileText } from "@/components/icons";
 
-export const metadata = { title: "Investor Relations — L&T Restaurant Equipment" };
+export const metadata = {
+  title: "Investor Relations — L&T Restaurant Equipment",
+  description:
+    "Investor relations for L&T Restaurant Equipment — company overview, operating highlights, corporate governance and how to reach our IR team.",
+  alternates: { canonical: "/investors" },
+};
 
 const HIGHLIGHTS = [
   { value: "40+", label: "Years of profitable operation" },

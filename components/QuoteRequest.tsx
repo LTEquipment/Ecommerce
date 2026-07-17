@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
+import { useDialog } from "@/lib/useDialog";
 import { money } from "@/lib/format";
 import { Close, FileText } from "./icons";
 
@@ -21,6 +22,7 @@ export default function QuoteRequest({ variant = "page" }: { variant?: "page" | 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [doneId, setDoneId] = useState<string | null>(null);
+  const dialogRef = useDialog<HTMLDivElement>(open, () => setOpen(false));
 
   const openModal = () => {
     const meta = (user?.user_metadata ?? {}) as Record<string, unknown>;
@@ -68,7 +70,7 @@ export default function QuoteRequest({ variant = "page" }: { variant?: "page" | 
 
       {open && typeof document !== "undefined" && createPortal(
         <div className="qr-overlay" onClick={() => setOpen(false)}>
-          <div className="qr-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Request a quote">
+          <div ref={dialogRef} className="qr-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Request a quote">
             <button className="qr-close" onClick={() => setOpen(false)} aria-label="Close"><Close /></button>
 
             {doneId ? (
@@ -93,18 +95,19 @@ export default function QuoteRequest({ variant = "page" }: { variant?: "page" | 
                   ))}
                 </div>
                 <div className="qr-grid">
-                  <input placeholder="Full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                  <input placeholder="Company / kitchen" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
-                  <input type="email" required placeholder="Email *" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                  <input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                  <input aria-label="Full name" autoComplete="name" placeholder="Full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                  <input aria-label="Company or kitchen" autoComplete="organization" placeholder="Company / kitchen" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+                  <input type="email" required aria-label="Email (required)" autoComplete="email" placeholder="Email *" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                  <input type="tel" aria-label="Phone" autoComplete="tel" placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
                 </div>
                 <textarea
+                  aria-label="Notes for our team"
                   placeholder="Anything we should know — install site, timing, gas type, delivery details…"
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   rows={3}
                 />
-                {err && <div className="qr-err">{err}</div>}
+                {err && <div className="qr-err" role="alert">{err}</div>}
                 <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={busy}>
                   {busy ? "Submitting…" : "Submit request"}
                 </button>

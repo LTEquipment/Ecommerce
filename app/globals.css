@@ -8,7 +8,7 @@
 :root {
   /* palette */
   --paper:#F6F7F8; --white:#FFFFFF; --panel:#EEF0F2; --panel-2:#E7EAED;
-  --ink:#17191C; --ink-2:#3C4147; --muted:#6C737A; --muted-2:#9AA0A6;
+  --ink:#17191C; --ink-2:#3C4147; --muted:#676E75; --muted-2:#9AA0A6;
   --line:#E2E5E8; --line-2:#D3D7DB; --black:#111316;
   --red:#BE1E2D; --red-600:#9E1826; --stock:#1F7A46;
 
@@ -54,6 +54,10 @@ img{max-width:100%;display:block}
 svg{display:block}
 h1,h2,h3,h4{font-family:var(--disp);letter-spacing:-.02em}
 :focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:2px}
+
+/* Skip-to-content link — off-screen until keyboard-focused, then slides in. */
+.skip-link{position:fixed;top:10px;left:10px;z-index:2000;transform:translateY(-160%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--r);font-weight:600;font-size:14px;text-decoration:none;box-shadow:0 6px 20px rgba(0,0,0,.28);transition:transform .16s var(--ease,ease)}
+.skip-link:focus{transform:translateY(0)}
 
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--s4)}
 .eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
@@ -1681,7 +1685,7 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .auth .brandside .bs-top{display:flex;align-items:center;gap:11px}
 .auth .brandside .bs-rule{width:26px;height:3px;background:var(--red);flex:0 0 auto}
 .auth .brandside .bs-kick{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#C7CCD2}
-.auth .brandside h2{font-family:var(--disp);font-weight:700;font-size:clamp(24px,2.4vw,32px);color:#fff;line-height:1.04;letter-spacing:-.02em;margin:0 0 18px}
+.auth .brandside h2,.auth .brandside .bs-cap-h{font-family:var(--disp);font-weight:700;font-size:clamp(24px,2.4vw,32px);color:#fff;line-height:1.04;letter-spacing:-.02em;margin:0 0 18px}
 .auth .brandside ul{list-style:none;margin:0;padding:0;border-top:1px solid rgba(255,255,255,.12)}
 .auth .brandside li{font-size:13.5px;line-height:1.5;color:#B7BCC3;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.09)}
 .auth .brandside li:last-child{border-bottom:0}

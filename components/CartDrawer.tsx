@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
 import QuoteRequest from "./QuoteRequest";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { useDialog } from "@/lib/useDialog";
 import { money } from "@/lib/format";
 import { ILLUS } from "@/lib/illus";
 import { Close, Cart } from "./icons";
@@ -15,18 +15,15 @@ export default function CartDrawer() {
   const items = Object.values(cart);
   const freight = subtotal >= FT || subtotal === 0 ? 0 : FF;
 
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeCart();
-    };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [closeCart]);
+  // Move focus into the drawer on open, trap Tab, Escape-to-close, restore focus.
+  const drawerRef = useDialog<HTMLElement>(drawerOpen, closeCart);
 
   return (
     <>
       <div className={`scrim${drawerOpen ? " open" : ""}`} onClick={closeCart} />
-      <aside className={`drawer${drawerOpen ? " open" : ""}`} aria-label="Shopping cart" aria-hidden={!drawerOpen}>
+      {/* inert (not just aria-hidden) so the off-screen drawer's controls leave the
+          tab order entirely while closed. */}
+      <aside ref={drawerRef} className={`drawer${drawerOpen ? " open" : ""}`} role="dialog" aria-modal="true" aria-label="Shopping cart" inert={!drawerOpen}>
         <div className="dhead">
           <h3>
             Cart {count > 0 && <span>· {count} item{count > 1 ? "s" : ""}</span>}

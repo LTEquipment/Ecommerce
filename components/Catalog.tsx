@@ -135,22 +135,22 @@ export default function Catalog({
       <div className="wrap">
         <div className={`sec-head${title ? "" : " shop-nohead"}`}>
           {title && <h2>{title}</h2>}
-          <button className="filters-toggle" onClick={() => setMobileOpen((o) => !o)} aria-expanded={mobileOpen}>
+          <button className="filters-toggle" onClick={() => setMobileOpen((o) => !o)} aria-expanded={mobileOpen} aria-controls="catalog-facets">
             <Filter style={{ width: 16, height: 16 }} /> Filters
           </button>
         </div>
         <div className="shop">
-          <aside className={`facets${mobileOpen ? " open" : ""}`} aria-label="Filters">
+          <aside id="catalog-facets" className={`facets${mobileOpen ? " open" : ""}`} aria-label="Filters">
             {!lockedCat && (
               <div className="facet">
                 <h4>Department</h4>
-                <button className={`opt${activeCat === "all" ? " on" : ""}`} onClick={() => setActiveCat("all")}>
-                  <span className="lft"><span className="box"><Check /></span>All departments</span>
+                <button className={`opt${activeCat === "all" ? " on" : ""}`} aria-pressed={activeCat === "all"} onClick={() => setActiveCat("all")}>
+                  <span className="lft"><span className="box" aria-hidden="true"><Check /></span>All departments</span>
                   <span className="cnt">{countFor("all")}</span>
                 </button>
                 {categories.map((c) => (
-                  <button className={`opt${activeCat === c.id ? " on" : ""}`} key={c.id} onClick={() => setActiveCat(c.id)}>
-                    <span className="lft"><span className="box"><Check /></span>{c.name}</span>
+                  <button className={`opt${activeCat === c.id ? " on" : ""}`} aria-pressed={activeCat === c.id} key={c.id} onClick={() => setActiveCat(c.id)}>
+                    <span className="lft"><span className="box" aria-hidden="true"><Check /></span>{c.name}</span>
                     <span className="cnt">{countFor(c.id)}</span>
                   </button>
                 ))}
@@ -159,12 +159,12 @@ export default function Catalog({
             {brands.length > 1 && (
               <div className="facet">
                 <h4>Brand</h4>
-                <button className={`opt${activeBrand === "all" ? " on" : ""}`} onClick={() => setActiveBrand("all")}>
-                  <span className="lft"><span className="box"><Check /></span>All brands</span>
+                <button className={`opt${activeBrand === "all" ? " on" : ""}`} aria-pressed={activeBrand === "all"} onClick={() => setActiveBrand("all")}>
+                  <span className="lft"><span className="box" aria-hidden="true"><Check /></span>All brands</span>
                 </button>
                 {brands.map((b) => (
-                  <button className={`opt${activeBrand === b ? " on" : ""}`} key={b} onClick={() => setActiveBrand(b)}>
-                    <span className="lft"><span className="box"><Check /></span>{b}</span>
+                  <button className={`opt${activeBrand === b ? " on" : ""}`} aria-pressed={activeBrand === b} key={b} onClick={() => setActiveBrand(b)}>
+                    <span className="lft"><span className="box" aria-hidden="true"><Check /></span>{b}</span>
                     <span className="cnt">{qScoped.filter((p) => p.brand === b).length}</span>
                   </button>
                 ))}
@@ -172,19 +172,19 @@ export default function Catalog({
             )}
             <div className="facet">
               <h4>Price</h4>
-              <button className={`opt${priceBracket === "all" ? " on" : ""}`} onClick={() => setPriceBracket("all")}>
-                <span className="lft"><span className="box"><Check /></span>Any price</span>
+              <button className={`opt${priceBracket === "all" ? " on" : ""}`} aria-pressed={priceBracket === "all"} onClick={() => setPriceBracket("all")}>
+                <span className="lft"><span className="box" aria-hidden="true"><Check /></span>Any price</span>
               </button>
               {PRICES.map((pr) => (
-                <button className={`opt${priceBracket === pr.id ? " on" : ""}`} key={pr.id} onClick={() => setPriceBracket(pr.id)}>
-                  <span className="lft"><span className="box"><Check /></span>{pr.name}</span>
+                <button className={`opt${priceBracket === pr.id ? " on" : ""}`} aria-pressed={priceBracket === pr.id} key={pr.id} onClick={() => setPriceBracket(pr.id)}>
+                  <span className="lft"><span className="box" aria-hidden="true"><Check /></span>{pr.name}</span>
                 </button>
               ))}
             </div>
             <div className="facet">
               <h4>Availability</h4>
-              <button className={`opt${inStock ? " on" : ""}`} onClick={() => setInStock(!inStock)}>
-                <span className="lft"><span className="box"><Check /></span>In stock only</span>
+              <button className={`opt${inStock ? " on" : ""}`} aria-pressed={inStock} onClick={() => setInStock(!inStock)}>
+                <span className="lft"><span className="box" aria-hidden="true"><Check /></span>In stock only</span>
               </button>
             </div>
             <button className="facet-clear" onClick={clearFilters}>Clear all filters</button>

@@ -98,18 +98,18 @@ export default function AddressBook() {
           )}
           {adding && (
             <div className="addr-form">
-              <input placeholder="Label (e.g. Main kitchen)" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />
+              <input aria-label="Address label" autoComplete="off" placeholder="Label (e.g. Main kitchen)" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} />
               <div className="addr-form-grid">
-                <input placeholder="Full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                <input placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+                <input aria-label="Full name" autoComplete="name" placeholder="Full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <input aria-label="Company" autoComplete="organization" placeholder="Company" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
               </div>
-              <input placeholder="Street address *" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              <input aria-label="Street address (required)" aria-required="true" autoComplete="street-address" placeholder="Street address *" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
               <div className="addr-form-grid3">
-                <input placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-                <input placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
-                <input placeholder="ZIP" value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} />
+                <input aria-label="City" autoComplete="address-level2" placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+                <input aria-label="State" autoComplete="address-level1" placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
+                <input aria-label="ZIP code" autoComplete="postal-code" placeholder="ZIP" value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} />
               </div>
-              <input placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              <input aria-label="Phone" type="tel" autoComplete="tel" placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
               <div className="addr-form-actions">
                 <button className="btn btn-primary" onClick={add} disabled={busy || !form.address.trim()}>
                   {busy ? "Saving…" : "Save address"}

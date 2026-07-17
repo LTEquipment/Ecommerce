@@ -93,6 +93,16 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
             onMouseLeave={() => setHoverZoom(false)}
             onMouseMove={hoverZoom ? onMove : undefined}
             onClick={() => { if (p.images[active]) setLightbox(true); }}
+            {...(p.images[active]
+              ? {
+                  role: "button",
+                  tabIndex: 0,
+                  "aria-label": "Expand image",
+                  onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+                    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLightbox(true); }
+                  },
+                }
+              : {})}
           >
             {p.images[active] ? (
               <>

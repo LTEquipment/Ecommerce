@@ -176,17 +176,19 @@ export default function ProductReviews({
         ) : showForm ? (
           <div className="rv-form">
             <h3>{editing ? "Edit your review" : "Write a review"}</h3>
-            <div className="rv-stars-pick" onMouseLeave={() => setHover(0)}>
+            <div className="rv-stars-pick" role="radiogroup" aria-label="Your rating" onMouseLeave={() => setHover(0)}>
               {[1, 2, 3, 4, 5].map((i) => (
                 <button
                   type="button"
                   key={i}
+                  role="radio"
+                  aria-checked={rating === i}
                   className={`rv-star ${i <= activeStars ? "on" : ""}`}
                   onMouseEnter={() => setHover(i)}
                   onClick={() => setRating(i)}
                   aria-label={`${i} star${i === 1 ? "" : "s"}`}
                 >
-                  <Star />
+                  <Star aria-hidden="true" />
                 </button>
               ))}
               <span className="rv-star-hint">{activeStars ? `${activeStars} / 5` : "Tap to rate"}</span>

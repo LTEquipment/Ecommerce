@@ -58,16 +58,16 @@ export default function ContactForm() {
     <form className="form-card" onSubmit={submit}>
       <h2 style={{ marginTop: 0 }}>{role ? `Apply — ${role}` : "Send us a message"}</h2>
       <div className="field-row">
-        <div className="field"><label>Name</label><input required value={f.name} onChange={set("name")} /></div>
-        <div className="field"><label>Company</label><input value={f.company} onChange={set("company")} /></div>
+        <div className="field"><label htmlFor="cf-name">Name</label><input id="cf-name" autoComplete="name" required value={f.name} onChange={set("name")} /></div>
+        <div className="field"><label htmlFor="cf-company">Company</label><input id="cf-company" autoComplete="organization" value={f.company} onChange={set("company")} /></div>
       </div>
       <div className="field-row">
-        <div className="field"><label>Email</label><input type="email" required value={f.email} onChange={set("email")} /></div>
-        <div className="field"><label>Phone</label><input value={f.phone} onChange={set("phone")} /></div>
+        <div className="field"><label htmlFor="cf-email">Email</label><input id="cf-email" type="email" autoComplete="email" required value={f.email} onChange={set("email")} /></div>
+        <div className="field"><label htmlFor="cf-phone">Phone</label><input id="cf-phone" type="tel" autoComplete="tel" value={f.phone} onChange={set("phone")} /></div>
       </div>
       <div className="field">
-        <label>{role ? "Your background" : "How can we help?"}</label>
-        <textarea rows={role ? 6 : 4} required value={f.message} onChange={set("message")} placeholder={role ? "Tell us about your experience and why you'd be a fit…" : "Tell us about your kitchen and what you're looking to spec…"} />
+        <label htmlFor="cf-message">{role ? "Your background" : "How can we help?"}</label>
+        <textarea id="cf-message" rows={role ? 6 : 4} required value={f.message} onChange={set("message")} placeholder={role ? "Tell us about your experience and why you'd be a fit…" : "Tell us about your kitchen and what you're looking to spec…"} />
       </div>
       <button className="btn btn-primary btn-lg" type="submit" disabled={busy}>
         {busy ? "Sending…" : role ? "Submit application" : "Send message"}

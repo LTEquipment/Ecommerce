@@ -91,7 +91,9 @@ export default function AuthForm() {
             <span className="bs-kick">Panda&reg; · Made in New York</span>
           </div>
           <div className="bs-cap">
-            <h2>Your account,<br />one sign-in.</h2>
+            {/* Decorative brandside caption — a <p>, not a heading, so the page's
+                <h1> ("Sign in") remains the first heading in reading order. */}
+            <p className="bs-cap-h">Your account,<br />one sign-in.</p>
             <ul>
               {BULLETS.map((b) => (
                 <li key={b}>{b}</li>
@@ -110,27 +112,27 @@ export default function AuthForm() {
               : "One account for orders, warranty, service and parts. Buying for a business? Request trade pricing below."}
           </p>
 
-          {!configured && <div className="msg info">{BACKEND_OFFLINE}</div>}
-          {msg && <div className={`msg ${msg.kind}`}>{msg.text}</div>}
+          {!configured && <div className="msg info" role="status">{BACKEND_OFFLINE}</div>}
+          {msg && <div className={`msg ${msg.kind}`} role={msg.kind === "err" ? "alert" : "status"}>{msg.text}</div>}
 
           <form onSubmit={submit}>
             {mode === "register" && (
               <div className="field">
-                <label>Company / kitchen name</label>
-                <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Golden Wok LLC" />
+                <label htmlFor="auth-company">Company / kitchen name</label>
+                <input id="auth-company" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Golden Wok LLC" />
               </div>
             )}
             <div className="field">
-              <label>Email</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@yourkitchen.com" />
+              <label htmlFor="auth-email">Email</label>
+              <input id="auth-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@yourkitchen.com" />
             </div>
             {mode !== "reset" && (
               <div className="field">
-                <label className="field-lbl-row">
-                  Password
+                <div className="field-lbl-row">
+                  <label htmlFor="auth-password">Password</label>
                   {mode === "login" && <button type="button" className="linklike field-forgot" onClick={() => go("reset")}>Forgot password?</button>}
-                </label>
-                <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+                </div>
+                <input id="auth-password" type="password" required minLength={6} autoComplete={mode === "register" ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
               </div>
             )}
 

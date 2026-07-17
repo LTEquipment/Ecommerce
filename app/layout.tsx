@@ -80,6 +80,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${archivo.variable} ${inter.variable}`}>
       <body>
+        <a href="#main" className="skip-link">Skip to content</a>
         {/* Warm up cross-origin connections (hero video, map tiles, backend) — Next hoists these to <head>. */}
         <link rel="preconnect" href="https://ltusa.s3.us-east-1.amazonaws.com" />
         <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com" />
@@ -98,7 +99,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <Header />
                 <MobileNav />
               </SiteChrome>
-              <main>{children}</main>
+              <main id="main">{children}</main>
               <SiteChrome>
                 <Footer />
                 <CartDrawer />
