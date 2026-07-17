@@ -8,6 +8,7 @@ const DEFAULTS: SiteSettings = {
   freightThreshold: 999,
   freightFee: 89,
   taxRate: 0.08875,
+  dealerDiscountPct: 0,
 };
 
 const Ctx = createContext<SiteSettings>(DEFAULTS);

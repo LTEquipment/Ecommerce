@@ -11,6 +11,7 @@ export default function AdminSettings() {
   const [ft, setFt] = useState("");
   const [ff, setFf] = useState("");
   const [taxPct, setTaxPct] = useState("");
+  const [dealerPct, setDealerPct] = useState("");
   const [savingShip, setSavingShip] = useState(false);
   const [shipMsg, setShipMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -23,6 +24,7 @@ export default function AdminSettings() {
         setFt(String(n("freight_threshold", 999)));
         setFf(String(n("freight_fee", 89)));
         setTaxPct(String(+(n("tax_rate", 0.08875) * 100).toFixed(4)));
+        setDealerPct(String(n("dealer_discount_pct", 0)));
       })
       .catch(() => setEnabled(false));
   }, []);
@@ -32,12 +34,13 @@ export default function AdminSettings() {
   useEffect(() => { if (!msg) return; const id = setTimeout(() => setMsg(null), 3000); return () => clearTimeout(id); }, [msg]);
 
   async function saveShipping() {
-    const t = parseFloat(ft), f = parseFloat(ff), tp = parseFloat(taxPct);
-    const LABELS: Record<string, string> = { freight_threshold: "free-freight threshold", freight_fee: "freight fee", tax_rate: "sales tax" };
+    const t = parseFloat(ft), f = parseFloat(ff), tp = parseFloat(taxPct), dp = parseFloat(dealerPct);
+    const LABELS: Record<string, string> = { freight_threshold: "free-freight threshold", freight_fee: "freight fee", tax_rate: "sales tax", dealer_discount_pct: "dealer discount" };
     const entries: Array<[string, number]> = [];
     if (Number.isFinite(t)) entries.push(["freight_threshold", t]);
     if (Number.isFinite(f)) entries.push(["freight_fee", f]);
     if (Number.isFinite(tp)) entries.push(["tax_rate", tp / 100]);
+    if (Number.isFinite(dp)) entries.push(["dealer_discount_pct", dp]);
     if (entries.length === 0) { setShipMsg({ ok: false, text: "Enter a value to save" }); return; }
     setSavingShip(true);
     setShipMsg(null);
@@ -109,10 +112,11 @@ export default function AdminSettings() {
 
       <div className="set-card">
         <div className="set-info">
-          <h3>Shipping &amp; tax</h3>
+          <h3>Shipping, tax &amp; dealer pricing</h3>
           <p>
             Freight and sales tax used across the cart, checkout and the authoritative order total.
-            Changes apply immediately storefront-wide.
+            Dealer discount is the % off list applied automatically to <b>approved</b> trade accounts
+            at checkout and on quotes (0 = list price). Changes apply immediately storefront-wide.
           </p>
         </div>
         <div className="set-nums">
@@ -124,6 +128,9 @@ export default function AdminSettings() {
           </label>
           <label>Sales tax (%)
             <input type="number" min={0} max={25} step={0.001} value={taxPct} onChange={(e) => setTaxPct(e.target.value)} />
+          </label>
+          <label>Dealer discount (%)
+            <input type="number" min={0} max={90} step={0.5} value={dealerPct} onChange={(e) => setDealerPct(e.target.value)} />
           </label>
         </div>
         <div className="set-foot">

@@ -16,6 +16,8 @@ export type SiteSettings = {
   freightFee: number;
   /** Sales tax rate as a decimal (0.08875 = 8.875%). */
   taxRate: number;
+  /** Contract discount for APPROVED dealers, as a percent off list (0 = none). */
+  dealerDiscountPct: number;
 };
 
 /**
@@ -29,6 +31,7 @@ const DEFAULTS: SiteSettings = {
   freightThreshold: 999,
   freightFee: 89,
   taxRate: 0.08875,
+  dealerDiscountPct: 0,
 };
 
 async function readSettings(): Promise<SiteSettings> {
@@ -49,6 +52,7 @@ async function readSettings(): Promise<SiteSettings> {
       freightThreshold: num("freight_threshold", DEFAULTS.freightThreshold),
       freightFee: num("freight_fee", DEFAULTS.freightFee),
       taxRate: num("tax_rate", DEFAULTS.taxRate),
+      dealerDiscountPct: num("dealer_discount_pct", DEFAULTS.dealerDiscountPct),
     };
   } catch {
     return DEFAULTS;

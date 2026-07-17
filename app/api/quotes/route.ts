@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getProducts } from "@/lib/catalog";
+import { getSiteSettings } from "@/lib/settings";
 
 export const runtime = "nodejs";
 
@@ -46,6 +47,19 @@ export async function POST(req: Request) {
   const phone = clampStr(b.phone, 40) || null;
   const notes = clampStr(b.notes, 2000) || null;
 
+  // Resolve the (optional) signed-in customer first so approved dealers get their
+  // contract discount applied to the quoted line prices.
+  let customerId: string | null = null;
+  let approvedDealer = false;
+  const sb = await getServerSupabase();
+  if (sb) {
+    const { data: { user } } = await sb.auth.getUser();
+    customerId = user?.id ?? null;
+    approvedDealer = ((user?.app_metadata as Record<string, unknown> | undefined)?.dealer_status) === "approved";
+  }
+  const { dealerDiscountPct } = await getSiteSettings();
+  const discountMult = approvedDealer && dealerDiscountPct > 0 ? 1 - dealerDiscountPct / 100 : 1;
+
   // Authoritative prices from the catalog — never trust client-sent prices.
   const catalog = await getProducts();
   const bySku = new Map(catalog.map((p) => [p.sku, p]));
@@ -55,21 +69,12 @@ export async function POST(req: Request) {
     const qty = Math.max(1, Math.min(999, Math.floor(Number(it?.qty) || 0)));
     const p = bySku.get(String(it?.sku));
     if (!p) continue; // silently drop items no longer in the catalog
-    subtotal += p.price * qty;
-    lines.push({ sku: p.sku, name: p.name, unit_price: p.price, qty });
+    const unit = round2(p.price * discountMult);
+    subtotal += unit * qty;
+    lines.push({ sku: p.sku, name: p.name, unit_price: unit, qty });
   }
   if (lines.length === 0) return NextResponse.json({ error: "No valid items to quote" }, { status: 400 });
   subtotal = round2(subtotal);
-
-  // Link the customer when signed in (optional — guests are allowed).
-  let customerId: string | null = null;
-  const sb = await getServerSupabase();
-  if (sb) {
-    const {
-      data: { user },
-    } = await sb.auth.getUser();
-    customerId = user?.id ?? null;
-  }
 
   const admin = createClient(url, srv, { auth: { persistSession: false } });
 

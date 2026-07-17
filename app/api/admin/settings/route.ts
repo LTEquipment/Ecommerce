@@ -27,6 +27,7 @@ const NUMERIC_KEYS: Record<string, [number, number]> = {
   freight_threshold: [0, 1_000_000],
   freight_fee: [0, 100_000],
   tax_rate: [0, 0.25],
+  dealer_discount_pct: [0, 90],
 };
 
 export async function GET() {
