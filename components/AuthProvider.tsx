@@ -31,6 +31,8 @@ type Auth = {
   signIn: (email: string, password: string) => Promise<Result>;
   signUp: (email: string, password: string, company?: string, isTrade?: boolean) => Promise<Result>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<Result>;
+  resendConfirmation: (email: string) => Promise<Result>;
 };
 
 const Ctx = createContext<Auth | null>(null);
@@ -116,6 +118,22 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     setAdminChecked(true);
   }, []);
 
+  const resetPassword = useCallback(async (email: string): Promise<Result> => {
+    const supabase = getBrowserSupabase();
+    if (!supabase) return { error: NOT_CONFIGURED };
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return error ? { error: error.message } : {};
+  }, []);
+
+  const resendConfirmation = useCallback(async (email: string): Promise<Result> => {
+    const supabase = getBrowserSupabase();
+    if (!supabase) return { error: NOT_CONFIGURED };
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    return error ? { error: error.message } : {};
+  }, []);
+
   const displayName = useMemo(() => {
     if (!user) return "";
     const company = (user.user_metadata?.company as string) || "";
@@ -149,6 +167,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signUp,
     signOut,
+    resetPassword,
+    resendConfirmation,
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
