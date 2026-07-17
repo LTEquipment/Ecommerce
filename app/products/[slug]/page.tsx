@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProduct, getRelated, getCategory } from "@/lib/catalog";
+import { getProduct, getRelated, getAddOns, getCategory } from "@/lib/catalog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductDetail from "@/components/ProductDetail";
 import ProductReviews from "@/components/ProductReviews";
@@ -39,9 +39,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const p = await getProduct(slug);
   if (!p) notFound();
-  const [cat, related, reviews, stats, questions] = await Promise.all([
+  const [cat, related, addOns, reviews, stats, questions] = await Promise.all([
     getCategory(p.cat),
     getRelated(p.slug, 4),
+    getAddOns(p.slug, 4),
     getProductReviews(p.slug),
     getReviewStats(p.slug),
     getProductQuestions(p.slug),
@@ -70,6 +71,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <ProductReviews slug={p.slug} initialReviews={reviews} initialStats={stats} />
       <ProductQA slug={p.slug} initialQuestions={questions} />
       <RelatedProducts products={related} />
+      <RelatedProducts products={addOns} heading="Complete your kitchen" sub="Smallwares and accessories that pair well with a new line." />
       <RelatedGuides query={`${cat?.name ?? ""} ${p.name}`} />
       <RecentlyViewed excludeSlug={p.slug} />
     </>
