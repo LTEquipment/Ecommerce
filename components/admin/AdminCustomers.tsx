@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useStore } from "../StoreProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { money } from "@/lib/format";
+import { toCsv } from "@/lib/csv";
 import { Search, User, ChevronDown } from "../icons";
 
 type Customer = {
@@ -95,7 +96,7 @@ export default function AdminCustomers() {
       new Date(c.createdAt).toISOString().slice(0, 10),
       c.lastSignInAt ? new Date(c.lastSignInAt).toISOString().slice(0, 10) : "",
     ]);
-    const csv = [head, ...body].map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const csv = toCsv([head, ...body]);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

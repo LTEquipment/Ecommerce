@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { toCsv } from "@/lib/csv";
 import { FileText } from "../icons";
 
 type Entry = { id: string; actor_email: string | null; action: string; target: string | null; detail: string | null; created_at: string };
@@ -103,7 +104,7 @@ export default function AdminAudit() {
       r.target ?? "",
       r.detail ?? "",
     ]);
-    const csv = [head, ...body].map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const csv = toCsv([head, ...body]);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

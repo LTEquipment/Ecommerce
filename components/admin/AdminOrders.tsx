@@ -6,6 +6,7 @@ import { useAuth } from "../AuthProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { logAudit } from "@/lib/audit";
 import { money } from "@/lib/format";
+import { toCsv } from "@/lib/csv";
 import { CARRIERS, trackingUrl } from "@/lib/tracking";
 import { Package, ChevronDown } from "../icons";
 
@@ -148,7 +149,7 @@ export default function AdminOrders() {
       // Order total only on the first line so summing the column doesn't multiply revenue.
       items.forEach((it, idx) => rows.push([...base, it.sku ?? "", it.name, String(it.qty), String(it.unit_price), idx === 0 ? String(o.total) : ""]));
     }
-    const csv = rows.map((r) => r.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const csv = toCsv(rows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
