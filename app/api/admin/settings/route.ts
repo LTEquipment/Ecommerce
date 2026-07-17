@@ -29,6 +29,10 @@ const NUMERIC_KEYS: Record<string, [number, number]> = {
   tax_rate: [0, 0.25],
   dealer_discount_pct: [0, 90],
 };
+// Free-text settings with a max length (stored trimmed; empty string clears them).
+const STRING_KEYS: Record<string, number> = {
+  announcement: 200,
+};
 
 export async function GET() {
   const admin = await requireAdmin();
@@ -46,13 +50,17 @@ export async function POST(req: Request) {
   const { key, value } = (await req.json().catch(() => ({}))) as { key?: string; value?: unknown };
   const isBool = !!key && BOOLEAN_KEYS.has(key);
   const isNum = !!key && key in NUMERIC_KEYS;
-  if (!key || (!isBool && !isNum)) {
+  const isStr = !!key && key in STRING_KEYS;
+  if (!key || (!isBool && !isNum && !isStr)) {
     return NextResponse.json({ error: "Invalid key" }, { status: 400 });
   }
-  let stored: boolean | number;
+  let stored: boolean | number | string;
   if (isBool) {
     if (typeof value !== "boolean") return NextResponse.json({ error: "Expected a boolean" }, { status: 400 });
     stored = value;
+  } else if (isStr) {
+    if (typeof value !== "string") return NextResponse.json({ error: "Expected text" }, { status: 400 });
+    stored = value.trim().slice(0, STRING_KEYS[key]);
   } else {
     const n = Number(value);
     const [min, max] = NUMERIC_KEYS[key];

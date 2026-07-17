@@ -14,6 +14,9 @@ export default function AdminSettings() {
   const [dealerPct, setDealerPct] = useState("");
   const [savingShip, setSavingShip] = useState(false);
   const [shipMsg, setShipMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [ann, setAnn] = useState("");
+  const [savingAnn, setSavingAnn] = useState(false);
+  const [annMsg, setAnnMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -25,6 +28,7 @@ export default function AdminSettings() {
         setFf(String(n("freight_fee", 89)));
         setTaxPct(String(+(n("tax_rate", 0.08875) * 100).toFixed(4)));
         setDealerPct(String(n("dealer_discount_pct", 0)));
+        setAnn(typeof d.settings?.announcement === "string" ? (d.settings.announcement as string) : "");
       })
       .catch(() => setEnabled(false));
   }, []);
@@ -32,6 +36,25 @@ export default function AdminSettings() {
   // Auto-dismiss the save notices so they don't linger indefinitely.
   useEffect(() => { if (!shipMsg) return; const id = setTimeout(() => setShipMsg(null), 3000); return () => clearTimeout(id); }, [shipMsg]);
   useEffect(() => { if (!msg) return; const id = setTimeout(() => setMsg(null), 3000); return () => clearTimeout(id); }, [msg]);
+  useEffect(() => { if (!annMsg) return; const id = setTimeout(() => setAnnMsg(null), 3000); return () => clearTimeout(id); }, [annMsg]);
+
+  async function saveAnnouncement() {
+    setSavingAnn(true);
+    setAnnMsg(null);
+    try {
+      const r = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ key: "announcement", value: ann.trim().slice(0, 200) }),
+      });
+      if (!r.ok) throw new Error();
+      setAnnMsg({ ok: true, text: "Saved" });
+    } catch {
+      setAnnMsg({ ok: false, text: "Couldn’t save — try again" });
+    } finally {
+      setSavingAnn(false);
+    }
+  }
 
   async function saveShipping() {
     const t = parseFloat(ft), f = parseFloat(ff), tp = parseFloat(taxPct), dp = parseFloat(dealerPct);
@@ -138,6 +161,34 @@ export default function AdminSettings() {
             {savingShip ? "Saving…" : "Save shipping & tax"}
           </button>
           {shipMsg && <span className={`set-msg${shipMsg.ok ? "" : " err"}`}>{shipMsg.text}</span>}
+        </div>
+      </div>
+
+      <div className="set-card">
+        <div className="set-info">
+          <h3>Announcement banner</h3>
+          <p>
+            A short message shown in a bar across the top of every storefront page — free-freight offers,
+            holiday hours, lead-time notices. Leave it blank to hide the bar. Changes appear site-wide
+            within a few minutes.
+          </p>
+        </div>
+        <div className="set-ann">
+          <input
+            type="text"
+            maxLength={200}
+            value={ann}
+            onChange={(e) => setAnn(e.target.value)}
+            placeholder="e.g. Free freight on orders over $999 — ships in 24–48h"
+            aria-label="Announcement banner text"
+          />
+          {ann.trim() && <div className="set-ann-preview" aria-hidden="true">{ann.trim()}</div>}
+        </div>
+        <div className="set-foot">
+          <button type="button" className="btn btn-primary" disabled={savingAnn} onClick={saveAnnouncement}>
+            {savingAnn ? "Saving…" : ann.trim() ? "Save announcement" : "Clear announcement"}
+          </button>
+          {annMsg && <span className={`set-msg${annMsg.ok ? "" : " err"}`}>{annMsg.text}</span>}
         </div>
       </div>
     </div>

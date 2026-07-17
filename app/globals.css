@@ -1163,6 +1163,14 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .set-card{border:1px solid var(--line);border-radius:var(--rl);padding:var(--s5);background:var(--white)}
 .admin-settings .set-card + .set-card{margin-top:var(--s4)}
 .set-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:16px 0}
+.set-ann{display:flex;flex-direction:column;gap:var(--s2);margin:16px 0}
+.set-ann input{width:100%;font:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--line-2);border-radius:var(--r);background:var(--white);color:var(--ink)}
+.set-ann input:focus{border-color:var(--ink);outline:none}
+.set-ann-preview{background:var(--ink);color:#fff;padding:7px 12px;border-radius:var(--rp);font-size:12.5px;text-align:center}
+
+/* site-wide announcement bar */
+.announce{background:var(--ink)}
+.announce-in{padding:8px var(--s4);font-size:12.5px;font-weight:500;letter-spacing:.01em;text-align:center;color:#fff}
 .set-nums label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;font-weight:600;color:var(--muted)}
 .set-nums input{border:1.5px solid var(--line-2);border-radius:var(--r);padding:10px 12px;font:inherit;font-size:15px;color:var(--ink);background:var(--white)}
 .set-nums input:focus{outline:none;border-color:var(--red)}

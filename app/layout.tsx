@@ -7,6 +7,7 @@ import { ReviewStatsProvider } from "@/components/ReviewStatsProvider";
 import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
 import { getSiteSettings } from "@/lib/settings";
 import TopBar from "@/components/TopBar";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
@@ -92,6 +93,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <StoreProvider>
             <SiteSettingsProvider value={settings}>
             <ReviewStatsProvider>
+              <AnnouncementBanner />
               <SiteChrome>
                 <ScrollProgress />
                 <SiteFx />

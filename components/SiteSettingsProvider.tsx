@@ -9,6 +9,7 @@ const DEFAULTS: SiteSettings = {
   freightFee: 89,
   taxRate: 0.08875,
   dealerDiscountPct: 0,
+  announcement: "",
 };
 
 const Ctx = createContext<SiteSettings>(DEFAULTS);

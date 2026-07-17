@@ -18,6 +18,8 @@ export type SiteSettings = {
   taxRate: number;
   /** Contract discount for APPROVED dealers, as a percent off list (0 = none). */
   dealerDiscountPct: number;
+  /** Site-wide announcement banner text; empty string hides the banner. */
+  announcement: string;
 };
 
 /**
@@ -32,6 +34,7 @@ const DEFAULTS: SiteSettings = {
   freightFee: 89,
   taxRate: 0.08875,
   dealerDiscountPct: 0,
+  announcement: "",
 };
 
 async function readSettings(): Promise<SiteSettings> {
@@ -47,12 +50,17 @@ async function readSettings(): Promise<SiteSettings> {
       const v = map.get(key);
       return typeof v === "number" && Number.isFinite(v) ? v : def;
     };
+    const str = (key: string, def: string) => {
+      const v = map.get(key);
+      return typeof v === "string" ? v : def;
+    };
     return {
       investorRelationsEnabled: map.get("investor_relations_enabled") === true,
       freightThreshold: num("freight_threshold", DEFAULTS.freightThreshold),
       freightFee: num("freight_fee", DEFAULTS.freightFee),
       taxRate: num("tax_rate", DEFAULTS.taxRate),
       dealerDiscountPct: num("dealer_discount_pct", DEFAULTS.dealerDiscountPct),
+      announcement: str("announcement", DEFAULTS.announcement).slice(0, 200),
     };
   } catch {
     return DEFAULTS;
