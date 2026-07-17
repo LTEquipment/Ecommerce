@@ -119,6 +119,16 @@ export default function AdminQA() {
     });
   }, [rows, filter, q]);
 
+  // Drop hidden rows from the selection so a bulk action never touches a row the
+  // filter/search has hidden.
+  useEffect(() => {
+    setSelected((prev) => {
+      const visible = new Set(filtered.map((r) => r.id));
+      const next = new Set([...prev].filter((id) => visible.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [filtered]);
+
   return (
     <>
       <div className="admin-sec-head">

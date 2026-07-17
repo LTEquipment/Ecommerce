@@ -159,7 +159,7 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
             <div className="qtybox">
               <button onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Decrease">−</button>
               <span>{qty}</span>
-              <button onClick={() => setQty((q) => q + 1)} aria-label="Increase">+</button>
+              <button onClick={() => setQty((q) => Math.min(999, q + 1))} aria-label="Increase">+</button>
             </div>
             {inStock ? (
               <button className="btn btn-primary btn-lg" onClick={() => { add(p, qty); openCart(); }}>

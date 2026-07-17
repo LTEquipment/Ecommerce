@@ -45,7 +45,8 @@ export default function AdminDashboard() {
   // Active tab lives in the URL (?tab=) so refresh, deep-link and Back all work.
   const rawTab = searchParams.get("tab");
   const tab: Tab = TABS.some((t) => t.id === rawTab) ? (rawTab as Tab) : "overview";
-  const setTab = (id: Tab) => router.replace(`/admin?tab=${id}`, { scroll: false });
+  // push (not replace) so Back steps through visited tabs.
+  const setTab = (id: Tab) => { if (id !== tab) router.push(`/admin?tab=${id}`, { scroll: false }); };
   const [dateStr, setDateStr] = useState("");
 
   useEffect(() => {

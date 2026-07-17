@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -49,6 +50,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminChecked, setAdminChecked] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Bumped on every auth transition; a slow admins lookup that resolves after a
+  // newer transition is discarded (prevents a stale isAdmin=true after switching
+  // from an admin to a non-admin account in the same tab).
+  const authEpochRef = useRef(0);
 
   useEffect(() => {
     const supabase = getBrowserSupabase();
@@ -57,11 +62,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const checkAdmin = async (u: User | null) => {
+      const epoch = ++authEpochRef.current;
       if (!u) { setIsAdmin(false); setAdminChecked(true); return; }
       // re-checking for a (possibly new) user — hold adminChecked until it resolves
       // so the admin console shows Loading, never a "Not authorized" flash.
       setAdminChecked(false);
       const { data } = await supabase.from("admins").select("user_id").eq("user_id", u.id).maybeSingle();
+      if (authEpochRef.current !== epoch) return; // a newer auth event superseded this
       setIsAdmin(Boolean(data));
       setAdminChecked(true);
     };
@@ -110,6 +117,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signOut = useCallback(async () => {
+    authEpochRef.current++; // invalidate any in-flight admin check
     const supabase = getBrowserSupabase();
     if (supabase) await supabase.auth.signOut();
     setUser(null);

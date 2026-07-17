@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { useAuth } from "./AuthProvider";
+import { useStore } from "./StoreProvider";
 import { ADDRESS_COLS, type Address } from "@/lib/addresses";
 
 const EMPTY = { label: "", name: "", company: "", phone: "", address: "", city: "", state: "", zip: "" };
@@ -10,6 +11,7 @@ const EMPTY = { label: "", name: "", company: "", phone: "", address: "", city: 
 /** Manage saved shipping addresses (own rows via RLS). Used in the account. */
 export default function AddressBook() {
   const { user } = useAuth();
+  const { toast } = useStore();
   const [rows, setRows] = useState<Address[] | null>(null);
   const [form, setForm] = useState(EMPTY);
   const [adding, setAdding] = useState(false);
@@ -33,8 +35,9 @@ export default function AddressBook() {
     const sb = getBrowserSupabase();
     if (!sb || !user || !form.address.trim()) return;
     setBusy(true);
-    await sb.from("customer_addresses").insert({ ...form, user_id: user.id });
+    const { error } = await sb.from("customer_addresses").insert({ ...form, user_id: user.id });
     setBusy(false);
+    if (error) return toast(error.message || "Couldn’t save the address — try again", "error"); // keep the typed form
     setAdding(false);
     setForm(EMPTY);
     load();
@@ -43,7 +46,8 @@ export default function AddressBook() {
   const del = async (id: string) => {
     const sb = getBrowserSupabase();
     if (!sb) return;
-    await sb.from("customer_addresses").delete().eq("id", id);
+    const { error } = await sb.from("customer_addresses").delete().eq("id", id);
+    if (error) return toast(error.message || "Couldn’t remove the address", "error");
     load();
   };
 
