@@ -109,6 +109,8 @@ export default function ProductDetail({ p: initial, stats }: { p: Product; stats
                 <img
                   src={p.images[active]}
                   alt={p.name}
+                  fetchPriority="high"
+                  decoding="async"
                   style={{ transform: hoverZoom ? "scale(2)" : "scale(1)", transformOrigin: origin }}
                 />
                 <span className="zoom-hint" aria-hidden="true"><Search /> Hover to zoom · click to expand</span>

@@ -277,7 +277,7 @@ export default function CheckoutFlow() {
           <div className="sum-items">
             {items.map(({ product: p, qty }) => (
               <div className="sum-item" key={p.sku}>
-                <span className="th">{p.images[0] ? <img src={p.images[0]} alt="" /> : null}</span>
+                <span className="th">{p.images[0] ? <img src={p.images[0]} alt="" loading="lazy" decoding="async" /> : null}</span>
                 <span className="nm">{p.name}<span className="qn"> · Qty {qty}</span></span>
                 <span className="lp">{money(p.price * qty)}</span>
               </div>

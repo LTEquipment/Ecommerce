@@ -32,7 +32,7 @@ export default function QuickView({ p }: { p: Product }) {
         <div className="qv-overlay" onClick={() => setOpen(false)}>
           <div className="qv-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={p.name}>
             <button className="qv-close" onClick={() => setOpen(false)} aria-label="Close"><Close /></button>
-            <div className="qv-media">{p.images[0] ? <img src={p.images[0]} alt={p.name} /> : null}</div>
+            <div className="qv-media">{p.images[0] ? <img src={p.images[0]} alt={p.name} loading="lazy" decoding="async" /> : null}</div>
             <div className="qv-info">
               {p.brand && <div className="qv-brand">{p.brand}</div>}
               <h3>{p.name}</h3>

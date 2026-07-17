@@ -124,7 +124,7 @@ export default function AdminCatalog() {
                 return (
                   <div className="prod-row" key={r.slug}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <div className="prod-thumb">{r.images[0] ? <img src={r.images[0]} alt="" /> : <span className="prod-noimg" />}</div>
+                    <div className="prod-thumb">{r.images[0] ? <img src={r.images[0]} alt="" loading="lazy" decoding="async" /> : <span className="prod-noimg" />}</div>
                     <div className="prod-id">
                       <div className="prod-sku">{r.sku}{r.badge && <em className={`tag ${r.badge === "Sale" ? "sale" : "new"}`}>{r.badge}</em>}</div>
                       <Link href={`/products/${r.slug}`} target="_blank">{r.name}</Link>

@@ -42,7 +42,7 @@ export default function CompareTray() {
             {items.map((p) => (
               <div className="cmp-thumb" key={p.slug} title={p.name}>
                 {p.images[0] ? (
-                  <img src={p.images[0]} alt={p.name} />
+                  <img src={p.images[0]} alt={p.name} loading="lazy" decoding="async" />
                 ) : (
                   <span className="cmp-thumb-ph" dangerouslySetInnerHTML={{ __html: ILLUS[p.art] }} />
                 )}

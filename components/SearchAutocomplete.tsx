@@ -126,7 +126,7 @@ export default function SearchAutocomplete() {
                   onMouseEnter={() => setActive(i)}
                   onClick={() => go(s)}
                 >
-                  <span className="ss-thumb">{s.img ? <img src={s.img} alt="" /> : null}</span>
+                  <span className="ss-thumb">{s.img ? <img src={s.img} alt="" loading="lazy" decoding="async" /> : null}</span>
                   <span className="ss-txt">
                     <span className="ss-name">{s.name}</span>
                     <span className="ss-sku">Model {s.sku}</span>

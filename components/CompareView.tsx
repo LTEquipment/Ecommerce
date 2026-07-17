@@ -59,7 +59,7 @@ export default function CompareView() {
                 <th key={p.slug} className="cmp-prod">
                   <button className="cmp-col-x" onClick={() => removeCompare(p.slug)} aria-label={`Remove ${p.name}`}><Close /></button>
                   <Link href={`/products/${p.slug}`} className="cmp-prod-img">
-                    {p.images[0] ? <img src={p.images[0]} alt={p.name} /> : <span className="cmp-thumb-ph" dangerouslySetInnerHTML={{ __html: ILLUS[p.art] }} />}
+                    {p.images[0] ? <img src={p.images[0]} alt={p.name} loading="lazy" decoding="async" /> : <span className="cmp-thumb-ph" dangerouslySetInnerHTML={{ __html: ILLUS[p.art] }} />}
                   </Link>
                   {p.brand && <span className="cmp-brand">{p.brand}</span>}
                   <Link href={`/products/${p.slug}`} className="cmp-prod-name">{p.name}</Link>

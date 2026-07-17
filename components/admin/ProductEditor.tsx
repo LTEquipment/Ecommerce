@@ -289,7 +289,7 @@ export default function ProductEditor({
               {p.images.map((src, i) => (
                 <div className={`pe-img${i === 0 ? " primary" : ""}`} key={src + i}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" />
+                  <img src={src} alt="" loading="lazy" decoding="async" />
                   {i === 0 && <span className="pe-primary-tag">Primary</span>}
                   <div className="pe-img-actions">
                     {i !== 0 && <button title="Set as primary" onClick={() => makePrimary(i)}><Star /></button>}
