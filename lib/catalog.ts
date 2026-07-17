@@ -90,6 +90,29 @@ export async function getRelated(slug: string, n = 4): Promise<Product[]> {
   return [...same, ...rest].slice(0, n);
 }
 
+/** Categories treated as add-ons / smallwares for the "Complete your kitchen" module. */
+const ADDON_CATS = ["kitchenware", "accessories"];
+
+/**
+ * Add-on suggestions for a product page — smallwares and accessories to pair with
+ * an equipment purchase. Not compatibility-specific (that needs a real parts
+ * mapping); it's honest attach-rate merchandising. Returns [] when the product is
+ * itself an add-on, so we don't just echo its own category.
+ */
+export async function getAddOns(slug: string, n = 4): Promise<Product[]> {
+  const all = await getProducts();
+  const self = all.find((p) => p.slug === slug);
+  if (self && ADDON_CATS.includes(self.cat)) return [];
+  const pool = all.filter((p) => ADDON_CATS.includes(p.cat) && p.slug !== slug);
+  // In-stock first, kitchenware (smallwares) before larger accessories.
+  pool.sort((a, b) => {
+    const stock = Number(b.stock === "in") - Number(a.stock === "in");
+    if (stock) return stock;
+    return Number(a.cat === "accessories") - Number(b.cat === "accessories");
+  });
+  return pool.slice(0, n);
+}
+
 /** Slugs for generateStaticParams — from mock so builds don't require the DB. */
 export function allProductSlugs(): string[] {
   return MOCK_PRODUCTS.map((p) => p.slug);
