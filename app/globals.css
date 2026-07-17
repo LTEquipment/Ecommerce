@@ -1335,6 +1335,18 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .guide-card p{font-size:14px;color:var(--muted);line-height:1.55;margin:0 0 16px;flex:1}
 .guide-more{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--red)}
 .guide-more svg{width:15px;height:15px}
+/* Support hub */
+.sup-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:var(--s6)}
+.sup-ic{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:var(--r);background:var(--panel);color:var(--red);margin-bottom:12px}
+.sup-ic svg{width:19px;height:19px}
+.sup-contact{margin-top:var(--s7);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--s5);background:var(--panel);border-radius:var(--rl);padding:var(--s6)}
+.sup-contact-copy h2{font-family:var(--disp);font-weight:800;font-size:clamp(22px,2.4vw,30px);letter-spacing:-.02em;margin:8px 0;color:var(--ink)}
+.sup-contact-copy p{font-size:14.5px;color:var(--muted);margin:0;max-width:48ch;line-height:1.55}
+.sup-contact-lines{display:flex;flex-direction:column;gap:12px}
+.sup-contact-lines a{display:inline-flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:var(--ink);font-family:var(--disp)}
+.sup-contact-lines a:hover{color:var(--red)}
+.sup-contact-lines svg{width:18px;height:18px;color:var(--red)}
+@media(max-width:640px){.sup-contact{flex-direction:column;align-items:flex-start}}
 .guide{max-width:680px;margin:var(--s5) auto 0}
 /* Body fills the article column so the headline, lede, divider and text all
    share one edge (was capped narrower by .prose, leaving a ragged right).
