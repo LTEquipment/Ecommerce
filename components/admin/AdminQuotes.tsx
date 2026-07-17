@@ -16,6 +16,7 @@ type Quote = {
   notes: string | null;
   subtotal: number;
   status: string;
+  converted_order_id?: string | null;
   quote_request_items: QuoteItem[];
 };
 
@@ -70,7 +71,7 @@ export default function AdminQuotes() {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "");
-      toast(`Order #${String(json.orderId ?? "").slice(0, 8)} created`);
+      toast(json.already ? `Already converted — order #${String(json.orderId ?? "").slice(0, 8)}` : `Order #${String(json.orderId ?? "").slice(0, 8)} created`);
       load();
     } catch (e) {
       const m = (e as Error).message;
@@ -142,7 +143,9 @@ export default function AdminQuotes() {
                 </div>
                 {q.notes && <div className="ac-sub ac-msg">{q.notes}</div>}
                 <div className="qr-admin-total">List subtotal: <b>{money(q.subtotal)}</b></div>
-                {q.status !== "lost" && (
+                {q.converted_order_id ? (
+                  <span className="qr-converted">✓ Converted to order #{q.converted_order_id.slice(0, 8)}</span>
+                ) : q.status !== "lost" && (
                   <button className="btn btn-line btn-sm qr-convert" disabled={busy === q.id} onClick={() => convert(q)}>
                     {busy === q.id ? "Working…" : "Create order from quote →"}
                   </button>

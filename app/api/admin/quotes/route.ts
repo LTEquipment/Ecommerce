@@ -30,9 +30,10 @@ export async function GET() {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const svc = serviceClient();
+  // select * so converted_order_id loads when present (migration-resilient).
   const { data } = await svc
     .from("quote_requests")
-    .select("id,created_at,name,company,email,phone,notes,subtotal,status,quote_request_items(sku,name,unit_price,qty)")
+    .select("*, quote_request_items(sku,name,unit_price,qty)")
     .order("created_at", { ascending: false })
     .limit(500);
   return NextResponse.json({ quotes: data ?? [] });
