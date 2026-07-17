@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { useStore } from "./StoreProvider";
 import { useLiveProducts } from "@/lib/useLiveProducts";
 import ProductCard from "./ProductCard";
@@ -46,12 +46,20 @@ export default function Catalog({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Make search URL-addressable: /products?q=… (shared links + the schema.org
-  // SearchAction) seed the store query so results filter on arrival.
+  // SearchAction) seed the store query. StoreProvider is mounted once at the root,
+  // so its filter state would otherwise LEAK across client-side navigation (a
+  // search or facet set on one page silently emptying the next). Sync the query
+  // unconditionally, and reset the facets whenever the route changes.
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const urlQ = searchParams.get("q") ?? "";
+  useEffect(() => { setQuery(urlQ); }, [urlQ, setQuery]);
   useEffect(() => {
-    if (urlQ) setQuery(urlQ);
-  }, [urlQ, setQuery]);
+    setActiveCat("all");
+    setActiveBrand("all");
+    setPriceBracket("all");
+    setInStock(false);
+  }, [pathname, setActiveCat, setActiveBrand, setPriceBracket, setInStock]);
 
   const scoped = lockedBrand
     ? products.filter((p) => p.brand && brandSlug(p.brand) === lockedBrand)
@@ -118,7 +126,7 @@ export default function Catalog({
                 <h4>Department</h4>
                 <button className={`opt${activeCat === "all" ? " on" : ""}`} onClick={() => setActiveCat("all")}>
                   <span className="lft"><span className="box"><Check /></span>All departments</span>
-                  <span className="cnt">{products.length}</span>
+                  <span className="cnt">{countFor("all")}</span>
                 </button>
                 {categories.map((c) => (
                   <button className={`opt${activeCat === c.id ? " on" : ""}`} key={c.id} onClick={() => setActiveCat(c.id)}>
