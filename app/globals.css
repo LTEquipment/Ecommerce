@@ -2186,6 +2186,9 @@ label.notif-row{cursor:pointer}
 .ord-grand{border-top:1px solid var(--line-2);padding-top:6px;margin-top:3px}
 .ord-grand span{font-size:14px}
 .ord-grand b{font-family:var(--disp);font-weight:800;font-size:16px}
+.ord-pay{align-items:center;border-top:1px solid var(--line);padding-top:6px;margin-top:3px}
+.ord-pay .ord-paid{color:var(--stock)}
+.ord-pay .ord-pay-mut{color:var(--muted)}
 .ord-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line)}
 .ord-cust{font-size:12.5px}
 .ord-cust b{display:block;font-size:13px}

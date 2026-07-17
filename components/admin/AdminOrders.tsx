@@ -25,6 +25,8 @@ type Order = {
   po_number?: string | null;
   tax_exempt?: boolean;
   resale_cert?: string | null;
+  payment_status?: string | null;
+  amount_paid?: number | null;
   guest_email?: string | null;
   ship_name?: string | null;
   ship_company?: string | null;
@@ -76,6 +78,24 @@ export default function AdminOrders() {
       setPeople(map);
     }).catch(() => {});
   }, []);
+
+  // Record an offline (wire / PO / check) payment — the storefront's real money
+  // path. Sets payment_status='paid' with the full total; degrades with a clear
+  // message if the payments migration isn't applied.
+  const markPaid = async (o: Order) => {
+    if (!window.confirm(`Mark order #${o.id.slice(0, 8)} as PAID (${money(Number(o.total))})? Do this once payment has cleared.`)) return;
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    setOrders((prev) => prev?.map((x) => (x.id === o.id ? { ...x, payment_status: "paid", amount_paid: Number(o.total) } : x)) ?? prev);
+    const { error } = await sb.from("orders").update({ payment_status: "paid", amount_paid: Number(o.total), paid_at: new Date().toISOString() }).eq("id", o.id);
+    if (error) {
+      toast(/payment_|amount_paid|paid_at|column/.test(error.message) ? "Enable the payments migration to record payment." : error.message, "error");
+      load();
+      return;
+    }
+    logAudit(user, "order.paid", `#${o.id.slice(0, 8)}`, `Marked paid · ${money(Number(o.total))}`);
+    toast(`Order #${o.id.slice(0, 8)} marked paid`);
+  };
 
   const setStatus = async (id: string, status: string) => {
     if (status === "cancelled" && !window.confirm(`Cancel order #${id.slice(0, 8)}? It will be marked cancelled.`)) return;
@@ -219,6 +239,16 @@ export default function AdminOrders() {
                         return tax > 0.005 ? <div><span>Tax</span><b>{money(tax)}</b></div> : null;
                       })()}
                       <div className="ord-grand"><span>Total</span><b>{money(Number(o.total))}</b></div>
+                      <div className="ord-pay">
+                        <span>Payment</span>
+                        {o.payment_status === "paid" ? (
+                          <b className="ord-paid">Paid{o.amount_paid ? ` · ${money(Number(o.amount_paid))}` : ""}</b>
+                        ) : o.status === "cancelled" ? (
+                          <b className="ord-pay-mut">—</b>
+                        ) : (
+                          <button className="btn btn-line btn-xs" onClick={() => markPaid(o)}>Mark paid</button>
+                        )}
+                      </div>
                     </div>
                     {(o.po_number || o.tax_exempt || (o.guest_email && !o.customer_id)) && (
                       <div className="ord-b2b">
