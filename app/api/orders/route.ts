@@ -61,22 +61,30 @@ export async function POST(req: Request) {
   const catalog = await getProducts();
   const bySku = new Map(catalog.map((p) => [p.sku, p]));
 
+  // Contract pricing: approved dealers get the admin-set discount applied per line.
+  const { freightThreshold, freightFee, taxRate, dealerDiscountPct } = await getSiteSettings();
+  const approvedDealer = ((user?.app_metadata as Record<string, unknown> | undefined)?.dealer_status) === "approved";
+  const discountMult = approvedDealer && dealerDiscountPct > 0 ? 1 - dealerDiscountPct / 100 : 1;
+
   let subtotal = 0;
   const lines: Array<{ sku: string; name: string; unit_price: number; qty: number }> = [];
   for (const it of reqItems) {
     const qty = Math.max(1, Math.min(999, Math.floor(Number(it?.qty) || 0)));
     const p = bySku.get(String(it?.sku));
     if (!p) return NextResponse.json({ error: `Unknown item: ${String(it?.sku)}` }, { status: 400 });
-    subtotal += p.price * qty;
-    lines.push({ sku: p.sku, name: p.name, unit_price: p.price, qty });
+    const unit = round2(p.price * discountMult);
+    subtotal += unit * qty;
+    lines.push({ sku: p.sku, name: p.name, unit_price: unit, qty });
   }
   subtotal = round2(subtotal);
-  // Freight + tax from site settings (defaults match the storefront's displayed
-  // summary). This is the authoritative total.
-  const { freightThreshold, freightFee, taxRate } = await getSiteSettings();
+  // Freight from settings; tax is 0 for a tax-exempt order (verified by staff
+  // before payment, since nothing is charged online). This is the authoritative total.
   const freight = subtotal >= freightThreshold || subtotal === 0 ? 0 : freightFee;
-  const tax = round2(subtotal * taxRate);
+  const taxExempt = (b as { tax_exempt?: unknown }).tax_exempt === true;
+  const tax = taxExempt ? 0 : round2(subtotal * taxRate);
   const total = round2(subtotal + freight + tax);
+  const poNumber = typeof (b as { po_number?: unknown }).po_number === "string" ? ((b as { po_number: string }).po_number).trim().slice(0, 60) || null : null;
+  const resaleCert = typeof (b as { resale_cert?: unknown }).resale_cert === "string" ? ((b as { resale_cert: string }).resale_cert).trim().slice(0, 120) || null : null;
 
   // Service-role client for the writes (bypasses RLS). customer_id is taken from
   // the verified session, never from the request body.
@@ -97,36 +105,22 @@ export async function POST(req: Request) {
 
   if (user) await admin.from("customers").upsert({ id: user.id, company, price_list_id: null }, { onConflict: "id" });
 
-  const guestFields: { guest_email?: string; guest_name?: string | null; guest_phone?: string | null } =
-    user ? {} : { guest_email: guestEmail, guest_name: shipStr(b.name, 120) ?? shipping.ship_name, guest_phone: shipStr(b.phone, 40) ?? shipping.ship_phone };
-  const fullRow = {
+  const guestFields = user ? {} : { guest_email: guestEmail, guest_name: shipStr(b.name, 120) ?? shipping.ship_name, guest_phone: shipStr(b.phone, 40) ?? shipping.ship_phone };
+  // One mutable row; if an optional column group is missing (its migration not run),
+  // strip that group and retry — the order always saves on its core columns.
+  const row: Record<string, unknown> = {
     customer_id: user?.id ?? null, status: "submitted", subtotal, freight, total,
     payment_method: method, payment_status: "pending", amount_paid: 0, paid_at: null,
+    po_number: poNumber, tax_exempt: taxExempt, resale_cert: resaleCert,
     ...shipping, ...guestFields,
   };
-  const coreRow = { customer_id: user?.id ?? null, status: "submitted", subtotal, freight, total, ...guestFields };
-  let order: { id: string } | null = null;
-  let error: { message: string } | null = null;
-  ({ data: order, error } = await admin.from("orders").insert(fullRow).select("id").single());
-  if (error && /ship_|column/.test(error.message)) {
-    // order-shipping.sql not run yet — retry without the ship_ columns (keep payment + guest).
-    const { ship_name, ship_company, ship_phone, ship_address, ship_city, ship_state, ship_zip, ...noShip } = fullRow;
-    void ship_name; void ship_company; void ship_phone; void ship_address; void ship_city; void ship_state; void ship_zip;
-    ({ data: order, error } = await admin.from("orders").insert(noShip).select("id").single());
-  }
-  if (error && /guest_|column/.test(error.message)) {
-    // guest-orders.sql not run yet — drop guest_ columns (order still saved, just not guest-lookuppable).
-    const { guest_email, guest_name, guest_phone, ...noGuest } = fullRow as Record<string, unknown>;
-    void guest_email; void guest_name; void guest_phone;
-    ({ data: order, error } = await admin.from("orders").insert(noGuest).select("id").single());
-  }
-  if (error && /payment_|amount_paid|paid_at|column/.test(error.message)) {
-    // payments.sql migration not run yet — fall back to core order columns.
-    ({ data: order, error } = await admin.from("orders").insert(coreRow).select("id").single());
-  }
-  if (error && /guest_|column/.test(error.message)) {
-    ({ data: order, error } = await admin.from("orders").insert({ customer_id: user?.id ?? null, status: "submitted", subtotal, freight, total }).select("id").single());
-  }
+  const insertRow = () => admin.from("orders").insert(row).select("id").single();
+  const strip = (keys: string[]) => { keys.forEach((k) => delete row[k]); return insertRow(); };
+  let { data: order, error } = await insertRow();
+  if (error && /po_number|tax_exempt|resale_cert/.test(error.message)) ({ data: order, error } = await strip(["po_number", "tax_exempt", "resale_cert"]));
+  if (error && /ship_|column/.test(error.message)) ({ data: order, error } = await strip(["ship_name", "ship_company", "ship_phone", "ship_address", "ship_city", "ship_state", "ship_zip"]));
+  if (error && /guest_|column/.test(error.message)) ({ data: order, error } = await strip(["guest_email", "guest_name", "guest_phone"]));
+  if (error && /payment_|amount_paid|paid_at|column/.test(error.message)) ({ data: order, error } = await strip(["payment_method", "payment_status", "amount_paid", "paid_at"]));
   if (error || !order) return NextResponse.json({ error: "Could not create order" }, { status: 500 });
 
   const { error: liErr } = await admin.from("order_items")

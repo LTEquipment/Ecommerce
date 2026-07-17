@@ -13,23 +13,31 @@ import { Check, ArrowRight, Shield, Cart } from "./icons";
 
 const STEPS = ["Contact", "Shipping", "Payment", "Review"];
 
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
 export default function CheckoutFlow() {
   const { cart, subtotal, count, clear, toast } = useStore();
-  const { user } = useAuth();
+  const { user, isDealer } = useAuth();
   const router = useRouter();
-  const { freightThreshold, freightFee, taxRate } = useSiteSettings();
+  const { freightThreshold, freightFee, taxRate, dealerDiscountPct } = useSiteSettings();
   const items = Object.values(cart);
-  const freight = subtotal >= freightThreshold || subtotal === 0 ? 0 : freightFee;
-  const tax = Math.round(subtotal * taxRate * 100) / 100;
-  const total = subtotal + freight + tax;
 
   const [step, setStep] = useState(0);
   const [method, setMethod] = useState<"card" | "affirm" | "wire">("card");
   const [placing, setPlacing] = useState(false);
+  const [taxExempt, setTaxExempt] = useState(false);
   const [f, setF] = useState({
     email: "", phone: "", name: "", company: "", address: "", city: "", state: "", zip: "",
-    card: "", exp: "", cvc: "", cardName: "",
+    card: "", exp: "", cvc: "", cardName: "", po: "", resaleCert: "",
   });
+
+  // Contract pricing for approved dealers, computed per line to match the server.
+  const dealerPct = isDealer ? dealerDiscountPct : 0;
+  const netSubtotal = round2(items.reduce((s, { product: p, qty }) => s + round2(p.price * (1 - dealerPct / 100)) * qty, 0));
+  const dealerDiscount = round2(subtotal - netSubtotal);
+  const freight = netSubtotal >= freightThreshold || netSubtotal === 0 ? 0 : freightFee;
+  const tax = taxExempt ? 0 : round2(netSubtotal * taxRate);
+  const total = round2(netSubtotal + freight + tax);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setF((s) => ({ ...s, [k]: e.target.value }));
 
@@ -68,6 +76,9 @@ export default function CheckoutFlow() {
           payment_method: method,
           company: f.company || null,
           email: f.email, name: f.name, phone: f.phone,
+          po_number: f.po || null,
+          tax_exempt: taxExempt,
+          resale_cert: taxExempt ? (f.resaleCert || null) : null,
           shipping: {
             name: f.name, company: f.company, phone: f.phone,
             address: f.address, city: f.city, state: f.state, zip: f.zip,
@@ -231,6 +242,20 @@ export default function CheckoutFlow() {
                     </div>
                   ))}
                 </div>
+
+                <div className="co-b2b">
+                  <div className="field"><label>PO number <span className="co-opt">optional</span></label><input value={f.po} onChange={set("po")} placeholder="Your purchase order #" /></div>
+                  <label className="trade-check co-exempt">
+                    <input type="checkbox" checked={taxExempt} onChange={(e) => setTaxExempt(e.target.checked)} />
+                    <span>
+                      <b>Tax-exempt purchase (resale / reseller)</b>
+                      <em>We&apos;ll verify your certificate before payment — nothing is charged today.</em>
+                    </span>
+                  </label>
+                  {taxExempt && (
+                    <div className="field"><label>Resale / exemption certificate #</label><input value={f.resaleCert} onChange={set("resaleCert")} placeholder="Certificate number" /></div>
+                  )}
+                </div>
               </>
             )}
 
@@ -258,15 +283,18 @@ export default function CheckoutFlow() {
               </div>
             ))}
           </div>
-          {subtotal < 999 && (
+          {netSubtotal > 0 && netSubtotal < freightThreshold && (
             <div className="freight-nudge">
-              Add <b>{money(999 - subtotal)}</b> more for free freight
-              <span className="fbar"><i style={{ width: `${Math.min(100, (subtotal / 999) * 100)}%` }} /></span>
+              Add <b>{money(freightThreshold - netSubtotal)}</b> more for free freight
+              <span className="fbar"><i style={{ width: `${Math.min(100, (netSubtotal / freightThreshold) * 100)}%` }} /></span>
             </div>
           )}
           <div className="line"><span>Subtotal ({count})</span><b>{money(subtotal)}</b></div>
+          {dealerDiscount > 0 && (
+            <div className="line co-disc"><span>Dealer discount ({dealerPct}%)</span><b>−{money(dealerDiscount)}</b></div>
+          )}
           <div className="line"><span>Freight</span><b>{freight ? money(freight) : "FREE"}</b></div>
-          <div className="line"><span>Tax (est.)</span><b>{money(tax)}</b></div>
+          <div className="line"><span>{taxExempt ? "Tax (exempt)" : "Tax (est.)"}</span><b>{taxExempt ? "$0.00" : money(tax)}</b></div>
           <div className="total"><span>Total</span><span className="v">{money(total)}</span></div>
           <div className="note">Secure demo checkout · nothing is charged</div>
         </div>

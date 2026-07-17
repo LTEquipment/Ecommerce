@@ -21,6 +21,10 @@ type Order = {
   carrier?: string | null;
   tracking_number?: string | null;
   shipped_at?: string | null;
+  po_number?: string | null;
+  tax_exempt?: boolean;
+  resale_cert?: string | null;
+  guest_email?: string | null;
   ship_name?: string | null;
   ship_company?: string | null;
   ship_phone?: string | null;
@@ -215,6 +219,13 @@ export default function AdminOrders() {
                       })()}
                       <div className="ord-grand"><span>Total</span><b>{money(Number(o.total))}</b></div>
                     </div>
+                    {(o.po_number || o.tax_exempt || (o.guest_email && !o.customer_id)) && (
+                      <div className="ord-b2b">
+                        {o.po_number && <span>PO <b>{o.po_number}</b></span>}
+                        {o.tax_exempt && <span className="ord-exempt">Tax-exempt{o.resale_cert ? ` · cert ${o.resale_cert}` : " · unverified"}</span>}
+                        {o.guest_email && !o.customer_id && <span>Guest · <a href={`mailto:${o.guest_email}`}>{o.guest_email}</a></span>}
+                      </div>
+                    )}
                     {(o.ship_name || o.ship_address) && (
                       <div className="ord-ship">
                         <div className="ord-ship-h">Ship to</div>
