@@ -32,10 +32,12 @@ export default function AdminCatalog() {
   const [cats, setCats] = useState<CategoryRow[]>([]);
   const [invEnabled, setInvEnabled] = useState(true);
   const [q, setQ] = useState("");
+  const [lowOnly, setLowOnly] = useState(false);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 50;
   const [editing, setEditing] = useState<{ row: ProductRow; isNew: boolean } | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [stockEdit, setStockEdit] = useState<{ slug: string; val: string } | null>(null);
 
   const load = useCallback(async () => {
     const sb = getBrowserSupabase();
@@ -71,20 +73,42 @@ export default function AdminCatalog() {
     toast(`${r.sku} deleted`);
   };
 
+  // Inline restock: set on-hand quantity and derive the stock flag from it, so an
+  // admin can reorder without opening the full editor.
+  const isLow = useCallback((r: ProductRow) => invEnabled && r.stock_qty <= (r.low_stock || 0), [invEnabled]);
+  const saveStock = async (r: ProductRow, raw: string) => {
+    setStockEdit(null);
+    const n = Math.max(0, Math.floor(Number(raw)));
+    if (!Number.isFinite(n) || n === r.stock_qty) return;
+    const stock = n > 0 ? "in" : "back";
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    setRows((p) => p?.map((x) => (x.slug === r.slug ? { ...x, stock_qty: n, stock } : x)) ?? p);
+    const { error } = await sb.from("products").update({ stock_qty: n, stock }).eq("slug", r.slug);
+    if (error) { toast(error.message, "error"); load(); return; }
+    logAudit(user, "product.stock", r.sku, `Stock → ${n}`);
+    toast(`${r.sku} stock → ${n}`);
+  };
+
+  const lowCount = useMemo(() => (rows ?? []).filter(isLow).length, [rows, isLow]);
+
   const filtered = useMemo(() => {
     if (!rows) return null;
     const s = q.trim().toLowerCase();
-    if (!s) return rows;
-    return rows.filter((r) =>
-      r.name.toLowerCase().includes(s) ||
-      r.sku.toLowerCase().includes(s) ||
-      (r.brand ?? "").toLowerCase().includes(s) ||
-      (r.category_id ? (catName[r.category_id] ?? r.category_id) : "").toLowerCase().includes(s)
-    );
-  }, [rows, q, catName]);
+    return rows.filter((r) => {
+      if (lowOnly && !isLow(r)) return false;
+      if (!s) return true;
+      return (
+        r.name.toLowerCase().includes(s) ||
+        r.sku.toLowerCase().includes(s) ||
+        (r.brand ?? "").toLowerCase().includes(s) ||
+        (r.category_id ? (catName[r.category_id] ?? r.category_id) : "").toLowerCase().includes(s)
+      );
+    });
+  }, [rows, q, catName, lowOnly, isLow]);
 
   const nextSort = (rows?.reduce((m, r) => Math.max(m, r.sort), 0) ?? 0) + 1;
-  useEffect(() => { setPage(0); }, [q]);
+  useEffect(() => { setPage(0); }, [q, lowOnly]);
   const pageCount = Math.max(1, Math.ceil((filtered?.length ?? 0) / PAGE_SIZE));
   const pageSafe = Math.min(page, pageCount - 1);
 
@@ -105,6 +129,16 @@ export default function AdminCatalog() {
               <Search />
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products…" aria-label="Search products" />
             </span>
+            {invEnabled && (
+              <button
+                className={`ord-chip cat-lowchip${lowOnly ? " on" : ""}`}
+                onClick={() => setLowOnly((v) => !v)}
+                aria-pressed={lowOnly}
+                title="Products at or below their low-stock threshold"
+              >
+                Low stock{lowCount ? ` · ${lowCount}` : ""}
+              </button>
+            )}
           </div>
 
           {!invEnabled && rows && rows.length > 0 && (
@@ -134,9 +168,27 @@ export default function AdminCatalog() {
                     <div className="prod-stock">
                       <span className={`pill ${out ? "mut" : r.stock === "in" ? "ok" : "warn"}`}>{r.stock === "in" ? "In stock" : "Backorder"}</span>
                       {invEnabled && (
-                        <span className={`prod-qty${low ? " low" : ""}${out ? " out" : ""}`}>
-                          {out ? "0 · out" : `${r.stock_qty} on hand${low ? " · low" : ""}`}
-                        </span>
+                        stockEdit?.slug === r.slug ? (
+                          <input
+                            className="prod-qty-input"
+                            type="number"
+                            min={0}
+                            autoFocus
+                            value={stockEdit.val}
+                            onChange={(e) => setStockEdit({ slug: r.slug, val: e.target.value })}
+                            onBlur={() => saveStock(r, stockEdit.val)}
+                            onKeyDown={(e) => { if (e.key === "Enter") saveStock(r, stockEdit.val); if (e.key === "Escape") setStockEdit(null); }}
+                            aria-label={`On-hand quantity for ${r.sku}`}
+                          />
+                        ) : (
+                          <button
+                            className={`prod-qty prod-qty-btn${low ? " low" : ""}${out ? " out" : ""}`}
+                            onClick={() => setStockEdit({ slug: r.slug, val: String(r.stock_qty) })}
+                            title="Click to edit on-hand quantity"
+                          >
+                            {out ? "0 · out" : `${r.stock_qty} on hand${low ? " · low" : ""}`}
+                          </button>
+                        )
                       )}
                     </div>
                     <div className="prod-actions">

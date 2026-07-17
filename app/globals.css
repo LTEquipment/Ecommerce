@@ -2068,6 +2068,10 @@ label.notif-row{cursor:pointer}
 .prod-qty{font-size:11.5px;color:var(--muted)}
 .prod-qty.low{color:#8A5A00;font-weight:600}
 .prod-qty.out{color:var(--red);font-weight:600}
+.prod-qty-btn{background:none;border:0;padding:2px 0;cursor:pointer;text-align:left;font:inherit;font-size:11.5px;color:var(--muted);border-bottom:1px dashed var(--line-2)}
+.prod-qty-btn:hover{color:var(--ink);border-bottom-color:var(--muted)}
+.prod-qty-input{width:76px;font:inherit;font-size:12px;padding:2px 6px;border:1.5px solid var(--ink);border-radius:var(--rp);background:var(--white);color:var(--ink)}
+.cat-lowchip{white-space:nowrap}
 .prod-actions{display:flex;gap:7px;justify-content:flex-end}
 .prod-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--white);border:1.5px solid var(--line-2);border-radius:var(--r);transition:all var(--ease)}
 .prod-btn svg{width:15px;height:15px}
