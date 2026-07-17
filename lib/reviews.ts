@@ -121,7 +121,7 @@ export async function hasPurchased(
  * Unknowns — or a value that is only an email — show as "Verified buyer".
  */
 export function deriveAuthorName(meta: Record<string, unknown> | null | undefined): string {
-  const raw = String((meta?.full_name ?? meta?.name ?? meta?.first_name ?? "") ?? "").trim();
+  const raw = String(meta?.full_name ?? meta?.name ?? meta?.first_name ?? "").trim();
   // Never emit an email: strip any token containing "@" before reducing to initials.
   const tokens = raw.split(/\s+/).filter((t) => t && !t.includes("@"));
   if (tokens.length === 0) return "Verified buyer";
