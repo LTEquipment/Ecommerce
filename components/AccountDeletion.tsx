@@ -36,7 +36,10 @@ export default function AccountDeletion() {
       .eq("user_id", user.id)
       .in("status", OPEN)
       .maybeSingle()
-      .then(({ data }) => { setReq((data as Req) ?? null); setLoaded(true); });
+      .then(
+        ({ data }) => { setReq((data as Req) ?? null); setLoaded(true); },
+        () => { setReq(null); setLoaded(true); }, // query rejected (e.g. pre-migration) — still render the intro
+      );
   }, [user]);
 
   const submit = async () => {
