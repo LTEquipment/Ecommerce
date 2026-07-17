@@ -107,7 +107,7 @@ export default function PrivacyPage() {
 
       <h2 id="choices">Your choices &amp; rights</h2>
       <ul>
-        <li><strong>Access, correction, and deletion</strong> — you may request access to, correction of, or deletion of your personal information by emailing <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.</li>
+        <li><strong>Access, correction, and deletion</strong> — when signed in, you can <a href="/account">download a copy of your data and request account deletion</a> directly from your account, and update your details there. Account deletion is a reviewed request — we confirm it by email and retain records we are legally required to keep. You may also request access, correction, or deletion by emailing <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.</li>
         <li><strong>Account</strong> — you can review and update your account and order details when signed in.</li>
         <li><strong>Marketing</strong> — you can unsubscribe from marketing emails using the link in any such email, or by contacting us.</li>
         <li><strong>Cookies</strong> — you can manage analytics and marketing cookies through Your Privacy Choices, and control cookies in your browser.</li>
