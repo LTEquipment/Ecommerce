@@ -812,6 +812,10 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .pdp-actions-div{width:1px;height:16px;background:var(--line-2);flex:0 0 auto}
 /* Related guides (category/product → guides internal links) */
 .rel-guides{margin:var(--s6) auto 0;padding:var(--s6) var(--s4) 0;border-top:1px solid var(--line)}
+/* When it's the last thing on the page (e.g. a category page), restore the
+   standard bottom gap so the cards don't butt straight into the footer. On the
+   PDP another section (RecentlyViewed) follows, so no extra gap is added. */
+.rel-guides:last-child{padding-bottom:var(--s7)}
 .rel-guides-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:var(--s4)}
 .rel-guides-head h2{font-size:22px;letter-spacing:-.02em}
 .rel-guides-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
