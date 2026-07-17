@@ -10,6 +10,7 @@ import AdminCatalog from "./admin/AdminCatalog";
 import AdminOrders from "./admin/AdminOrders";
 import AdminCustomers from "./admin/AdminCustomers";
 import AdminService from "./admin/AdminService";
+import AdminDeletionRequests from "./admin/AdminDeletionRequests";
 import AdminInbox from "./admin/AdminInbox";
 import AdminQuotes from "./admin/AdminQuotes";
 import AdminReviews from "./admin/AdminReviews";
@@ -109,7 +110,7 @@ export default function AdminDashboard() {
           {tab === "overview" && <AdminAnalytics go={setTab} />}
           {tab === "catalog" && <AdminCatalog />}
           {tab === "orders" && <AdminOrders />}
-          {tab === "customers" && <AdminCustomers />}
+          {tab === "customers" && <><AdminDeletionRequests /><AdminCustomers /></>}
           {tab === "service" && <AdminService />}
           {tab === "quotes" && <AdminQuotes />}
           {tab === "inbox" && <AdminInbox />}
