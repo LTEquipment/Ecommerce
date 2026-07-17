@@ -67,7 +67,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           ]}
         />
       </div>
-      <ProductDetail p={p} stats={stats} />
+      {/* key on slug forces a clean remount when soft-navigating between product
+          pages — without it ProductDetail keeps the previous product's live-state,
+          gallery index and qty, and would add the WRONG item to the cart. */}
+      <ProductDetail key={p.slug} p={p} stats={stats} />
       <ProductReviews slug={p.slug} initialReviews={reviews} initialStats={stats} />
       <ProductQA slug={p.slug} initialQuestions={questions} />
       <RelatedProducts products={related} />

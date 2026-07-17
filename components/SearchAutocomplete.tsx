@@ -71,6 +71,12 @@ export default function SearchAutocomplete() {
   };
 
   const onKey = (e: React.KeyboardEvent) => {
+    // Escape must work even on the "No matches" dropdown (items.length === 0).
+    if (e.key === "Escape") {
+      setOpen(false);
+      setActive(-1);
+      return;
+    }
     if (!showDropdown || items.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -78,9 +84,6 @@ export default function SearchAutocomplete() {
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActive((a) => Math.max(a - 1, -1));
-    } else if (e.key === "Escape") {
-      setOpen(false);
-      setActive(-1);
     }
   };
 
@@ -111,7 +114,7 @@ export default function SearchAutocomplete() {
         autoComplete="off"
       />
       {showDropdown && (
-        <div className="search-suggest" id="search-suggest" role="listbox">
+        <div className="search-suggest" id="search-suggest" role="listbox" onMouseLeave={() => setActive(-1)}>
           {items.length === 0 ? (
             <div className="ss-empty">No matches — press Enter to search all equipment.</div>
           ) : (
