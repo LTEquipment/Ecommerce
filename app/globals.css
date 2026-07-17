@@ -1020,6 +1020,8 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .co-opt{font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}
 .co-exempt{margin:0}
 .co-disc b{color:var(--stock)}
+.co-notice{margin:var(--s2) 0 0;font-size:12.5px;line-height:1.45;color:var(--ink);background:var(--red-tint);border:1px solid var(--red-tint-line);border-radius:var(--r);padding:8px 11px}
+.co-gone{color:var(--red);font-weight:600}
 .ord-b2b{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:var(--s3);font-size:12.5px;color:var(--muted)}
 .ord-b2b b{color:var(--ink)}
 .ord-b2b a{color:var(--red);font-weight:600}

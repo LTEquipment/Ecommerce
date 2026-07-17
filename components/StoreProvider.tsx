@@ -97,6 +97,23 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [cart, hydrated]);
 
+  // Adopt cart changes from OTHER tabs (mirrors wishlist/compare) so concurrent
+  // tabs converge instead of last-write-wins clobbering each other — and a tab
+  // that placed an order clears the cart everywhere. Compare the serialized value
+  // first so an identical write can't trigger a persist→storage→setState loop.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== CART_KEY) return;
+      const incoming = e.newValue ?? "{}";
+      setCart((cur) => {
+        if (JSON.stringify(cur) === incoming) return cur;
+        try { return JSON.parse(incoming); } catch { return cur; }
+      });
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
   const toast = useCallback((m: string, kind: "success" | "error" = "success") => {
     setToastMsg(m);
     setToastKind(kind);

@@ -109,7 +109,9 @@ export default function ProductEditor({
     const json = await res.json().catch(() => ({}));
     setUploading(false);
     if (!res.ok) return toast(json.error || "Upload failed", "error");
-    set("images", [...p.images, json.url as string]);
+    // Functional update: read the freshest images inside setP, not the stale
+    // closure captured before this async upload started.
+    setP((prev) => ({ ...prev, images: [...prev.images, json.url as string] }));
   };
   const onPick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -140,7 +142,9 @@ export default function ProductEditor({
     const json = await res.json().catch(() => ({}));
     setDocUploading(false);
     if (!res.ok) { toast(json.error || "Upload failed", "error"); return; }
-    set("documents", [...(p.documents ?? []), { label: pendingLabel || f.name.replace(/\.[^.]+$/, ""), url: json.url as string }]);
+    // Functional update so a concurrent document edit isn't clobbered by this
+    // async upload's stale closure.
+    setP((prev) => ({ ...prev, documents: [...(prev.documents ?? []), { label: pendingLabel || f.name.replace(/\.[^.]+$/, ""), url: json.url as string }] }));
     setPendingLabel("");
   };
   const editDocLabel = (i: number, label: string) => set("documents", (p.documents ?? []).map((x, j) => (j === i ? { ...x, label } : x)));
@@ -172,7 +176,7 @@ export default function ProductEditor({
       slug, sku: p.sku.trim(), name: p.name.trim(), category_id: p.category_id || null,
       art: p.art || "range", brand: p.brand?.trim() || null, description: p.description?.trim() || null,
       price: Number(p.price), was_price: p.was_price != null && p.was_price !== 0 ? Number(p.was_price) : null,
-      images: p.images, specs: specObj, documents: p.documents ?? [], rating: Number(p.rating) || 4.7, reviews: Number(p.reviews) || 0,
+      images: p.images, specs: specObj, documents: p.documents ?? [], rating: Number.isFinite(Number(p.rating)) ? Number(p.rating) : 4.7, reviews: Number(p.reviews) || 0,
       badge: p.badge || "", stock: p.stock || "in", stock_qty: Number(p.stock_qty) || 0,
       low_stock: Number(p.low_stock) || 0, sort: Number(p.sort) || 0,
     };

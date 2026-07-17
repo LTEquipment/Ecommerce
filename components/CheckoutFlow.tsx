@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { getProducts } from "@/lib/catalog";
+import type { Product } from "@/lib/types";
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { ADDRESS_COLS, type Address } from "@/lib/addresses";
 import { money } from "@/lib/format";
@@ -16,7 +18,7 @@ const STEPS = ["Contact", "Shipping", "Payment", "Review"];
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export default function CheckoutFlow() {
-  const { cart, subtotal, count, clear, toast } = useStore();
+  const { cart, count, clear, toast } = useStore();
   const { user, isDealer } = useAuth();
   const router = useRouter();
   const { freightThreshold, freightFee, taxRate, dealerDiscountPct } = useSiteSettings();
@@ -31,10 +33,28 @@ export default function CheckoutFlow() {
     card: "", exp: "", cvc: "", cardName: "", po: "", resaleCert: "",
   });
 
-  // Contract pricing for approved dealers, computed per line to match the server.
+  // Reconcile every cart line against the LIVE catalog. The cart holds a price
+  // snapshot from add-to-cart time, but /api/orders recomputes the charge from
+  // live prices — so without this the "Place order · $X" button could show a
+  // stale total that differs from what's actually charged. Snapshot price is a
+  // fallback only until the live catalog loads.
+  const [live, setLive] = useState<Map<string, Product> | null>(null);
+  useEffect(() => {
+    let alive = true;
+    getProducts().then((ps) => { if (alive) setLive(new Map(ps.map((pp) => [pp.sku, pp]))); });
+    return () => { alive = false; };
+  }, []);
+
   const dealerPct = isDealer ? dealerDiscountPct : 0;
-  const netSubtotal = round2(items.reduce((s, { product: p, qty }) => s + round2(p.price * (1 - dealerPct / 100)) * qty, 0));
-  const dealerDiscount = round2(subtotal - netSubtotal);
+  const lines = items.map(({ product: p, qty }) => {
+    const lp = live?.get(p.sku);
+    return { p, qty, price: lp ? lp.price : p.price, gone: live ? !lp : false, changed: !!lp && lp.price !== p.price };
+  });
+  const pricesChanged = lines.some((l) => l.changed);
+  const hasUnavailable = lines.some((l) => l.gone);
+  const listSubtotal = round2(lines.reduce((s, l) => s + l.price * l.qty, 0));
+  const netSubtotal = round2(lines.reduce((s, l) => s + round2(l.price * (1 - dealerPct / 100)) * l.qty, 0));
+  const dealerDiscount = round2(listSubtotal - netSubtotal);
   const freight = netSubtotal >= freightThreshold || netSubtotal === 0 ? 0 : freightFee;
   const tax = taxExempt ? 0 : round2(netSubtotal * taxRate);
   const total = round2(netSubtotal + freight + tax);
@@ -62,6 +82,12 @@ export default function CheckoutFlow() {
     }));
 
   const placeOrder = async () => {
+    // A line whose product left the catalog would be rejected server-side and
+    // sink the whole order — stop early with a clear message instead.
+    if (hasUnavailable) {
+      toast("Remove the item(s) no longer available to place your order.", "error");
+      return;
+    }
     setPlacing(true);
     // Order creation is server-side: /api/orders recomputes every price and total
     // from the catalog and forces payment_status='pending'. The client sends only
@@ -236,9 +262,9 @@ export default function CheckoutFlow() {
                   </div>
                 </div>
                 <div style={{ borderTop: "1px solid var(--line)", marginTop: 16, paddingTop: 12 }}>
-                  {items.map(({ product: p, qty }) => (
+                  {lines.map(({ p, qty, price }) => (
                     <div key={p.sku} style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5, padding: "5px 0" }}>
-                      <span>{qty} × {p.name}</span><span>{money(p.price * qty)}</span>
+                      <span>{qty} × {p.name}</span><span>{money(price * qty)}</span>
                     </div>
                   ))}
                 </div>
@@ -275,21 +301,28 @@ export default function CheckoutFlow() {
         <div className="summary">
           <h2>Summary</h2>
           <div className="sum-items">
-            {items.map(({ product: p, qty }) => (
+            {lines.map(({ p, qty, price, gone }) => (
               <div className="sum-item" key={p.sku}>
                 <span className="th">{p.images[0] ? <img src={p.images[0]} alt="" loading="lazy" decoding="async" /> : null}</span>
-                <span className="nm">{p.name}<span className="qn"> · Qty {qty}</span></span>
-                <span className="lp">{money(p.price * qty)}</span>
+                <span className="nm">{p.name}<span className="qn"> · Qty {qty}</span>{gone && <span className="co-gone"> · no longer available</span>}</span>
+                <span className="lp">{money(price * qty)}</span>
               </div>
             ))}
           </div>
+          {(pricesChanged || hasUnavailable) && (
+            <p className="co-notice" role="status">
+              {hasUnavailable
+                ? "Some items are no longer available — remove them to continue."
+                : "Some prices changed since you added these items. The total below reflects current pricing."}
+            </p>
+          )}
           {netSubtotal > 0 && netSubtotal < freightThreshold && (
             <div className="freight-nudge">
               Add <b>{money(freightThreshold - netSubtotal)}</b> more for free freight
               <span className="fbar"><i style={{ width: `${Math.min(100, (netSubtotal / freightThreshold) * 100)}%` }} /></span>
             </div>
           )}
-          <div className="line"><span>Subtotal ({count})</span><b>{money(subtotal)}</b></div>
+          <div className="line"><span>Subtotal ({count})</span><b>{money(listSubtotal)}</b></div>
           {dealerDiscount > 0 && (
             <div className="line co-disc"><span>Dealer discount ({dealerPct}%)</span><b>−{money(dealerDiscount)}</b></div>
           )}
