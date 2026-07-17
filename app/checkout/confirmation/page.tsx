@@ -47,16 +47,16 @@ export default function ConfirmationPage() {
   return (
     <div className="wrap">
       <div className="conf">
-        <div className="conf-mark"><Check /></div>
-        <h1>Order placed</h1>
-        <p className="conf-lede">
+        <div className="conf-mark no-print"><Check /></div>
+        <h1 className="no-print">Order placed</h1>
+        <p className="conf-lede no-print">
           Thanks{name ? `, ${name.split(" ")[0]}` : ""}! We&apos;ve received your order. A confirmation and freight
           schedule will follow by email. Nothing is charged today — our team confirms pricing, freight and payment before production.
         </p>
 
         {order && <OrderReceipt order={order} />}
 
-        <div className="conf-actions">
+        <div className="conf-actions no-print">
           {user ? (
             <Link className="btn btn-primary" href="/account?tab=orders">View your orders</Link>
           ) : (
@@ -64,7 +64,7 @@ export default function ConfirmationPage() {
           )}
           <Link className="btn btn-line" href="/products">Keep shopping</Link>
         </div>
-        {!user && <p className="conf-tip">Tip: save your order number above — you can check its status anytime at <Link href="/track">/track</Link> with your email.</p>}
+        {!user && <p className="conf-tip no-print">Tip: save your order number above — you can check its status anytime at <Link href="/track">/track</Link> with your email.</p>}
       </div>
     </div>
   );
