@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useStore } from "./StoreProvider";
 import { ILLUS } from "@/lib/illus";
 import { money } from "@/lib/format";
+import { getProducts } from "@/lib/catalog";
 import { readCompare, removeCompare, clearCompare, COMPARE_EVENT } from "@/lib/compare";
 import { useReviewStatsMap } from "./ReviewStatsProvider";
 import { Star, Plus, Close, ArrowRight } from "./icons";
@@ -15,6 +16,7 @@ export default function CompareView() {
   const statsMap = useReviewStatsMap();
   // null until mounted (localStorage is client-only) so SSR/hydration match.
   const [items, setItems] = useState<Product[] | null>(null);
+  const [live, setLive] = useState<Map<string, Product> | null>(null);
 
   useEffect(() => {
     const load = () => setItems(readCompare());
@@ -27,9 +29,21 @@ export default function CompareView() {
     };
   }, []);
 
+  useEffect(() => {
+    let alive = true;
+    getProducts().then((ps) => { if (alive) setLive(new Map(ps.map((p) => [p.slug, p]))); });
+    return () => { alive = false; };
+  }, []);
+
   if (items === null) return null;
 
-  if (items.length === 0) {
+  // Reconcile the stored snapshots against the live catalog: live price/stock/
+  // name win, and a product that's gone from the catalog is dropped (so it can't
+  // be compared or added to the cart to poison an order). Until live loads, show
+  // the snapshots so there's no flash of empty.
+  const products: Product[] = live ? items.map((s) => live.get(s.slug)).filter((p): p is Product => !!p) : items;
+
+  if (products.length === 0) {
     return (
       <div className="cmp-empty">
         <h2>Nothing to compare yet</h2>
@@ -41,12 +55,12 @@ export default function CompareView() {
 
   // Union of every spec key across the compared products, first-seen order.
   const specKeys: string[] = [];
-  for (const p of items) for (const k of Object.keys(p.specs)) if (!specKeys.includes(k)) specKeys.push(k);
+  for (const p of products) for (const k of Object.keys(p.specs)) if (!specKeys.includes(k)) specKeys.push(k);
 
   return (
     <>
       <div className="sec-head">
-        <h2>Comparing {items.length} {items.length === 1 ? "product" : "products"}</h2>
+        <h2>Comparing {products.length} {products.length === 1 ? "product" : "products"}</h2>
         <button className="recently-clear" onClick={clearCompare}>Clear all</button>
       </div>
 
@@ -55,7 +69,7 @@ export default function CompareView() {
           <thead>
             <tr>
               <th className="cmp-corner" />
-              {items.map((p) => (
+              {products.map((p) => (
                 <th key={p.slug} className="cmp-prod">
                   <button className="cmp-col-x" onClick={() => removeCompare(p.slug)} aria-label={`Remove ${p.name}`}><Close /></button>
                   <Link href={`/products/${p.slug}`} className="cmp-prod-img">
@@ -71,7 +85,7 @@ export default function CompareView() {
           <tbody>
             <tr>
               <th>Price</th>
-              {items.map((p) => (
+              {products.map((p) => (
                 <td key={p.slug} className="cmp-price">
                   {money(p.price)}
                   {p.was ? <span className="cmp-was">{money(p.was)}</span> : null}
@@ -80,7 +94,7 @@ export default function CompareView() {
             </tr>
             <tr>
               <th>Rating</th>
-              {items.map((p) => {
+              {products.map((p) => {
                 const s = statsMap.get(p.slug);
                 return (
                   <td key={p.slug}>
@@ -95,7 +109,7 @@ export default function CompareView() {
             </tr>
             <tr>
               <th>Availability</th>
-              {items.map((p) => (
+              {products.map((p) => (
                 <td key={p.slug} className={p.stock === "in" ? "cmp-instock" : ""}>
                   {p.stock === "in" ? "In stock" : "Backorder"}
                 </td>
@@ -104,12 +118,12 @@ export default function CompareView() {
             {specKeys.map((k) => (
               <tr key={k}>
                 <th>{k}</th>
-                {items.map((p) => <td key={p.slug}>{p.specs[k] ?? <span className="cmp-na">—</span>}</td>)}
+                {products.map((p) => <td key={p.slug}>{p.specs[k] ?? <span className="cmp-na">—</span>}</td>)}
               </tr>
             ))}
             <tr className="cmp-actions">
               <th />
-              {items.map((p) => (
+              {products.map((p) => (
                 <td key={p.slug}>
                   {p.stock === "in" ? (
                     <button className="btn btn-primary btn-block" onClick={() => { add(p); openCart(); }}><Plus /> Add to cart</button>
