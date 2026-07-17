@@ -14,28 +14,40 @@ const BULLETS = [
   "Trade pricing for approved dealers",
 ];
 
+type Mode = "login" | "register" | "reset";
+
 export default function AuthForm() {
-  const { signIn, signUp, configured } = useAuth();
+  const { signIn, signUp, resetPassword, resendConfirmation, configured } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   // Only allow internal, non-protocol-relative paths — never redirect off-site.
   const rawNext = params.get("next") || "/account";
   const next = /^\/(?!\/)/.test(rawNext) ? rawNext : "/account";
 
-  const [mode, setMode] = useState<"login" | "register">(
-    params.get("mode") === "register" ? "register" : "login"
-  );
+  const [mode, setMode] = useState<Mode>(params.get("mode") === "register" ? "register" : "login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [company, setCompany] = useState("");
   const [isTrade, setIsTrade] = useState(params.get("trade") === "1");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ kind: "err" | "ok" | "info"; text: string } | null>(null);
+  const [showResend, setShowResend] = useState(false);
+
+  const go = (m: Mode) => { setMode(m); setMsg(null); setShowResend(false); };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     setMsg(null);
+
+    if (mode === "reset") {
+      const res = await resetPassword(email);
+      setBusy(false);
+      if (res.error) return setMsg({ kind: "err", text: res.error });
+      setMsg({ kind: "ok", text: "If an account exists for that email, a password-reset link is on its way. Check your inbox (and spam)." });
+      return;
+    }
+
     const res =
       mode === "login"
         ? await signIn(email, password)
@@ -52,11 +64,19 @@ export default function AuthForm() {
           ? "Account created. Check your email to confirm. Your trade pricing unlocks once L&T reviews the account."
           : "Account created. Check your email to confirm, then sign in.",
       });
+      setShowResend(true);
       setMode("login");
       return;
     }
     router.push(next);
     router.refresh();
+  };
+
+  const resend = async () => {
+    setBusy(true);
+    const res = await resendConfirmation(email);
+    setBusy(false);
+    setMsg(res.error ? { kind: "err", text: res.error } : { kind: "ok", text: "Confirmation email re-sent — check your inbox." });
   };
 
   return (
@@ -80,10 +100,12 @@ export default function AuthForm() {
         </aside>
 
         <div className="card">
-          <h1>{mode === "login" ? "Sign in" : "Create your account"}</h1>
+          <h1>{mode === "login" ? "Sign in" : mode === "reset" ? "Reset your password" : "Create your account"}</h1>
           <p className="sub">
             {mode === "login"
               ? "Access orders, warranty, service and parts — all in one place."
+              : mode === "reset"
+              ? "Enter your account email and we'll send a link to set a new password."
               : "One account for orders, warranty, service and parts. Buying for a business? Request trade pricing below."}
           </p>
 
@@ -101,10 +123,15 @@ export default function AuthForm() {
               <label>Email</label>
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@yourkitchen.com" />
             </div>
-            <div className="field">
-              <label>Password</label>
-              <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-            </div>
+            {mode !== "reset" && (
+              <div className="field">
+                <label className="field-lbl-row">
+                  Password
+                  {mode === "login" && <button type="button" className="linklike field-forgot" onClick={() => go("reset")}>Forgot password?</button>}
+                </label>
+                <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+              </div>
+            )}
 
             {mode === "register" && (
               <label className="trade-check">
@@ -117,15 +144,23 @@ export default function AuthForm() {
             )}
 
             <button className="btn btn-primary btn-lg" disabled={busy} type="submit">
-              {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
+              {busy ? "Please wait…" : mode === "login" ? "Sign in" : mode === "reset" ? "Send reset link" : "Create account"}
             </button>
           </form>
 
+          {showResend && (
+            <div className="alt">
+              Didn&apos;t get the email? <button className="linklike" onClick={resend} disabled={busy}>Resend confirmation</button>
+            </div>
+          )}
+
           <div className="alt">
             {mode === "login" ? (
-              <>New here? <button className="linklike" onClick={() => setMode("register")}>Create an account</button></>
+              <>New here? <button className="linklike" onClick={() => go("register")}>Create an account</button></>
+            ) : mode === "reset" ? (
+              <>Remembered it? <button className="linklike" onClick={() => go("login")}>Back to sign in</button></>
             ) : (
-              <>Already registered? <button className="linklike" onClick={() => setMode("login")}>Sign in</button></>
+              <>Already registered? <button className="linklike" onClick={() => go("login")}>Sign in</button></>
             )}
           </div>
         </div>
