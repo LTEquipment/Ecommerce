@@ -105,7 +105,13 @@ export async function POST(req: Request) {
 
   if (user) await admin.from("customers").upsert({ id: user.id, company, price_list_id: null }, { onConflict: "id" });
 
-  const guestFields = user ? {} : { guest_email: guestEmail, guest_name: shipStr(b.name, 120) ?? shipping.ship_name, guest_phone: shipStr(b.phone, 40) ?? shipping.ship_phone };
+  // Persist the typed contact email on EVERY order (members too) so the order is
+  // lookuppable at /track and /checkout/confirmation by the email the buyer
+  // actually entered — a member may route the confirmation to a different inbox.
+  const contactEmail = EMAIL_RE.test(guestEmail) ? guestEmail : null;
+  const guestFields: { guest_email?: string | null; guest_name?: string | null; guest_phone?: string | null } = user
+    ? (contactEmail ? { guest_email: contactEmail } : {})
+    : { guest_email: contactEmail, guest_name: shipStr(b.name, 120) ?? shipping.ship_name, guest_phone: shipStr(b.phone, 40) ?? shipping.ship_phone };
   // One mutable row; if an optional column group is missing (its migration not run),
   // strip that group and retry — the order always saves on its core columns.
   const row: Record<string, unknown> = {
@@ -125,7 +131,11 @@ export async function POST(req: Request) {
 
   const { error: liErr } = await admin.from("order_items")
     .insert(lines.map((l) => ({ ...l, order_id: order!.id })));
-  if (liErr) return NextResponse.json({ error: "Could not save items" }, { status: 500 });
+  if (liErr) {
+    // Roll back the header so a failed items-insert doesn't strand an itemless order.
+    await admin.from("orders").delete().eq("id", order.id);
+    return NextResponse.json({ error: "Could not save items" }, { status: 500 });
+  }
 
   return NextResponse.json({ id: order.id, total });
 }

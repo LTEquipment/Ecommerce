@@ -43,6 +43,9 @@ export default function OrderReceipt({ order }: { order: OrderLike }) {
   const tax = total - subtotal - freight;
   const track = trackingUrl(order.carrier, order.tracking_number);
   const hasShip = order.ship_name || order.ship_address;
+  // Only show money when we actually have it — never fabricate a $0.00 receipt
+  // from an order the lookup couldn't fully resolve.
+  const hasTotals = order.total != null || items.length > 0;
 
   return (
     <div className="receipt">
@@ -69,12 +72,14 @@ export default function OrderReceipt({ order }: { order: OrderLike }) {
         ))}
       </div>
 
-      <div className="receipt-totals">
-        <div><span>Subtotal</span><b>{money(subtotal)}</b></div>
-        <div><span>Freight</span><b>{freight ? money(freight) : "FREE"}</b></div>
-        {tax > 0.005 && <div><span>Tax</span><b>{money(tax)}</b></div>}
-        <div className="receipt-grand"><span>Total</span><b>{money(total)}</b></div>
-      </div>
+      {hasTotals && (
+        <div className="receipt-totals">
+          <div><span>Subtotal</span><b>{money(subtotal)}</b></div>
+          <div><span>Freight</span><b>{freight ? money(freight) : "FREE"}</b></div>
+          {tax > 0.005 && <div><span>Tax</span><b>{money(tax)}</b></div>}
+          <div className="receipt-grand"><span>Total</span><b>{money(total)}</b></div>
+        </div>
+      )}
 
       {hasShip && (
         <div className="receipt-ship">

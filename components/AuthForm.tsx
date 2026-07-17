@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 import Breadcrumbs from "./Breadcrumbs";
 import { ILLUS } from "@/lib/illus";
+import { safeInternalPath } from "@/lib/safeNext";
 import { BACKEND_OFFLINE } from "@/lib/backendMessage";
 
 const BULLETS = [
@@ -20,11 +21,11 @@ export default function AuthForm() {
   const { signIn, signUp, resetPassword, resendConfirmation, configured } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
-  // Only allow internal, non-protocol-relative paths — never redirect off-site.
-  const rawNext = params.get("next") || "/account";
-  const next = /^\/(?!\/)/.test(rawNext) ? rawNext : "/account";
+  // Only allow internal same-origin paths — never redirect off-site.
+  const next = safeInternalPath(params.get("next"));
 
-  const [mode, setMode] = useState<Mode>(params.get("mode") === "register" ? "register" : "login");
+  const initialMode = params.get("mode");
+  const [mode, setMode] = useState<Mode>(initialMode === "register" ? "register" : initialMode === "reset" ? "reset" : "login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [company, setCompany] = useState("");
