@@ -7,6 +7,7 @@ import { useAuth } from "./AuthProvider";
 import { useStore } from "./StoreProvider";
 import AddressBook from "./AddressBook";
 import ProjectLists from "./ProjectLists";
+import DataExport from "./DataExport";
 import AccountDeletion from "./AccountDeletion";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { getProducts } from "@/lib/catalog";
@@ -455,6 +456,7 @@ export default function AccountDashboard() {
               </div>
               <AddressBook />
               <ProjectLists />
+              <DataExport />
               <AccountDeletion />
             </div>
           )}
