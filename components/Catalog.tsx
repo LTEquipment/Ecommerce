@@ -65,10 +65,12 @@ export default function Catalog({
   // Category-name lookup (so search matches a department name too) and the brand
   // facet list — distinct brands present in scope, only shown off brand landings.
   const catName = useMemo(() => new Map(categories.map((c) => [c.id, c.name.toLowerCase()])), [categories]);
+  // Brands present in the CURRENT scope (a category page shows only its own
+  // brands, not the whole catalog).
   const brands = useMemo(() => {
     if (lockedBrand) return [] as string[];
-    return [...new Set(countBase.map((p) => p.brand).filter((b): b is string => Boolean(b)))].sort();
-  }, [countBase, lockedBrand]);
+    return [...new Set(scoped.map((p) => p.brand).filter((b): b is string => Boolean(b)))].sort();
+  }, [scoped, lockedBrand]);
 
   const list = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -135,7 +137,7 @@ export default function Catalog({
                 {brands.map((b) => (
                   <button className={`opt${activeBrand === b ? " on" : ""}`} key={b} onClick={() => setActiveBrand(b)}>
                     <span className="lft"><span className="box"><Check /></span>{b}</span>
-                    <span className="cnt">{countBase.filter((p) => p.brand === b).length}</span>
+                    <span className="cnt">{scoped.filter((p) => p.brand === b).length}</span>
                   </button>
                 ))}
               </div>
