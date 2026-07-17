@@ -59,6 +59,7 @@ h1,h2,h3,h4{font-family:var(--disp);letter-spacing:-.02em}
 .eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 section{padding:var(--s7) 0}
 .sec-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--s2);margin-bottom:var(--s6)}
+.sec-sub{font-size:14.5px;color:var(--muted);margin:0;max-width:52ch;line-height:1.5}
 .sec-head h2{font-weight:700;font-size:var(--t-h2);margin:0}
 .link-arrow{font-weight:600;font-size:var(--t-sm);display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
 .link-arrow:hover{color:var(--red)} .link-arrow svg{width:14px;height:14px}
