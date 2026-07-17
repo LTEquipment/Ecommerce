@@ -20,9 +20,10 @@ async function rows<T>(q: PromiseLike<{ data: T[] | null; error: unknown }>): Pr
 /**
  * GET /api/account/export
  * Streams a JSON copy of the signed-in user's own data (CCPA/GDPR access right).
- * Read-only, scoped to the caller: the session client means every table is
- * filtered by RLS to the user's own rows, and orders are additionally pinned to
- * their customer_id.
+ * EVERY query is explicitly pinned to the caller's id — we do NOT rely on RLS
+ * alone, because some tables (warranty_claims/registrations, service_tickets)
+ * have an `or is_admin()` read carve-out that would otherwise return every
+ * user's rows when an admin runs their own export.
  */
 export async function GET() {
   const sb = await getServerSupabase();
@@ -33,11 +34,11 @@ export async function GET() {
 
   const [orders, addresses, savedLists, claims, registrations, tickets, quotes, reviews, questions] = await Promise.all([
     rows(sb.from("orders").select("*, order_items(*)").eq("customer_id", user.id).order("created_at", { ascending: false })),
-    rows(sb.from("customer_addresses").select("*")),
-    rows(sb.from("saved_lists").select("*, saved_list_items(*)")),
-    rows(sb.from("warranty_claims").select("*")),
-    rows(sb.from("warranty_registrations").select("*")),
-    rows(sb.from("service_tickets").select("*")),
+    rows(sb.from("customer_addresses").select("*").eq("user_id", user.id)),
+    rows(sb.from("saved_lists").select("*, saved_list_items(*)").eq("user_id", user.id)),
+    rows(sb.from("warranty_claims").select("*").eq("user_id", user.id)),
+    rows(sb.from("warranty_registrations").select("*").eq("user_id", user.id)),
+    rows(sb.from("service_tickets").select("*").eq("user_id", user.id)),
     rows(sb.from("quote_requests").select("*, quote_request_items(*)").eq("customer_id", user.id).order("created_at", { ascending: false })),
     rows(sb.from("product_reviews").select("*").eq("user_id", user.id)),
     rows(sb.from("product_questions").select("*").eq("user_id", user.id)),
