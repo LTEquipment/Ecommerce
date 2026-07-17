@@ -8,14 +8,18 @@ import { useStore } from "./StoreProvider";
 import AddressBook from "./AddressBook";
 import ProjectLists from "./ProjectLists";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { getProducts } from "@/lib/catalog";
 import { money } from "@/lib/format";
 import { PRODUCTS } from "@/lib/products";
+import type { Product } from "@/lib/types";
 import { trackingUrl } from "@/lib/tracking";
 import { BACKEND_OFFLINE } from "@/lib/backendMessage";
 import { LogOut, Package, Shield, Chat, Google, Facebook } from "./icons";
 
-// Map order-item SKUs back to catalog products for one-click reorder.
-const BY_SKU = new Map(PRODUCTS.map((p) => [p.sku, p]));
+// Fallback SKU→product map from the bundled seed. Orders store SKUs from the
+// LIVE catalog (which admins can extend), so reorder resolves against the live
+// catalog fetched on mount and only falls back to this seed until it loads.
+const SEED_BY_SKU = new Map(PRODUCTS.map((p) => [p.sku, p]));
 
 const OAUTH = [
   { id: "google" as const, label: "Google", Icon: Google },
@@ -119,13 +123,26 @@ export default function AccountDashboard() {
   const { user, loading, configured, displayName, signOut, role, dealerStatus, isDealer } = useAuth();
   const { toast, add, openCart } = useStore();
 
+  // Live SKU→product map from the same catalog checkout uses. Until it loads we
+  // fall back to the bundled seed, so reorder never treats a live DB-only
+  // product as discontinued.
+  const [liveBySku, setLiveBySku] = useState<Map<string, Product> | null>(null);
+  useEffect(() => {
+    let alive = true;
+    getProducts().then((ps) => {
+      if (alive) setLiveBySku(new Map(ps.map((p) => [p.sku, p])));
+    });
+    return () => { alive = false; };
+  }, []);
+
   // Re-add every still-available line item from a past order to the cart.
   const reorder = (o: Order) => {
+    const bySku = liveBySku ?? SEED_BY_SKU;
     const items = o.order_items ?? [];
     let added = 0;
     let skipped = 0;
     for (const it of items) {
-      const p = it.sku ? BY_SKU.get(it.sku) : undefined;
+      const p = it.sku ? bySku.get(it.sku) : undefined;
       if (p) {
         add(p, Math.max(1, it.qty));
         added++;

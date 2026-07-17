@@ -27,13 +27,16 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       />
       <div className="wrap">
         <Breadcrumbs items={term ? [{ label: "Search results" }] : [{ label: "All equipment" }]} />
+        {/* On a search, the "Showing N" toolbar is the source of truth for the count,
+            so the header stat (catalog-wide) is dropped for the default call line to
+            avoid contradicting it. */}
         <PageHeader
           eyebrow={term ? "Search" : "The full line"}
           title={term ? `Results for “${term}”` : "All equipment"}
           intro={term
             ? "Matching by model number, name, brand, department and specs. Refine with the filters, or clear the search to browse everything."
             : "Every Panda® range, steamer, roaster, cooler and smallware — filter by department, brand, price and availability."}
-          meta={<StatMeta n={products.length} label="products" />}
+          meta={term ? undefined : <StatMeta n={products.length} label="products" />}
         />
       </div>
       <Catalog categories={categories} products={products} title="" />

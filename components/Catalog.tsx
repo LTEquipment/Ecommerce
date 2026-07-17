@@ -17,6 +17,23 @@ const PRICES: { id: string; name: string; t: (p: Product) => boolean }[] = [
   { id: "p4", name: "$10,000 & up", t: (p) => p.price >= 10000 },
 ];
 
+/**
+ * True when a product matches the search term `q` (already lowercased + trimmed).
+ * Shared by the results list AND the facet scope so brand/department options and
+ * counts reflect the search results — otherwise a facet advertises a count that
+ * yields zero results when selected on /products?q=…
+ */
+function matchesQuery(p: Product, q: string, catName: Map<string, string>): boolean {
+  return (
+    p.name.toLowerCase().includes(q) ||
+    p.sku.toLowerCase().includes(q) ||
+    (p.brand ?? "").toLowerCase().includes(q) ||
+    (catName.get(p.cat) ?? "").includes(q) ||
+    (p.description ?? "").toLowerCase().includes(q) ||
+    Object.values(p.specs ?? {}).some((v) => String(v).toLowerCase().includes(q))
+  );
+}
+
 export default function Catalog({
   categories,
   products: initialProducts,
@@ -66,19 +83,28 @@ export default function Catalog({
     : lockedCat
     ? products.filter((p) => p.cat === lockedCat)
     : products;
-  const countBase = lockedBrand ? scoped : products;
-  const countFor = (catId: string) =>
-    countBase.filter((p) => catId === "all" || p.cat === catId).length;
 
-  // Category-name lookup (so search matches a department name too) and the brand
-  // facet list — distinct brands present in scope, only shown off brand landings.
+  // Category-name lookup (so search matches a department name too).
   const catName = useMemo(() => new Map(categories.map((c) => [c.id, c.name.toLowerCase()])), [categories]);
-  // Brands present in the CURRENT scope (a category page shows only its own
-  // brands, not the whole catalog).
+
+  // The active search term narrows the scope the FACETS are built from — so on
+  // /products?q=… the brand list, brand counts and department counts reflect the
+  // search results, not the whole catalog (a facet must not advertise a count
+  // that yields zero results when picked).
+  const qScoped = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    return q ? scoped.filter((p) => matchesQuery(p, q, catName)) : scoped;
+  }, [scoped, query, catName]);
+
+  const countFor = (catId: string) =>
+    qScoped.filter((p) => catId === "all" || p.cat === catId).length;
+
+  // Brands present in the CURRENT (query-narrowed) scope — a category page shows
+  // only its own brands, a search page only the matching brands.
   const brands = useMemo(() => {
     if (lockedBrand) return [] as string[];
-    return [...new Set(scoped.map((p) => p.brand).filter((b): b is string => Boolean(b)))].sort();
-  }, [scoped, lockedBrand]);
+    return [...new Set(qScoped.map((p) => p.brand).filter((b): b is string => Boolean(b)))].sort();
+  }, [qScoped, lockedBrand]);
 
   const list = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -88,13 +114,7 @@ export default function Catalog({
         (lockedBrand || activeBrand === "all" || p.brand === activeBrand) &&
         (priceBracket === "all" || PRICES.find((x) => x.id === priceBracket)!.t(p)) &&
         (!inStock || p.stock === "in") &&
-        (!q ||
-          p.name.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          (p.brand ?? "").toLowerCase().includes(q) ||
-          (catName.get(p.cat) ?? "").includes(q) ||
-          (p.description ?? "").toLowerCase().includes(q) ||
-          Object.values(p.specs ?? {}).some((v) => String(v).toLowerCase().includes(q)))
+        (!q || matchesQuery(p, q, catName))
     );
     if (sortBy === "low") l = [...l].sort((a, b) => a.price - b.price);
     else if (sortBy === "high") l = [...l].sort((a, b) => b.price - a.price);
@@ -145,7 +165,7 @@ export default function Catalog({
                 {brands.map((b) => (
                   <button className={`opt${activeBrand === b ? " on" : ""}`} key={b} onClick={() => setActiveBrand(b)}>
                     <span className="lft"><span className="box"><Check /></span>{b}</span>
-                    <span className="cnt">{scoped.filter((p) => p.brand === b).length}</span>
+                    <span className="cnt">{qScoped.filter((p) => p.brand === b).length}</span>
                   </button>
                 ))}
               </div>
