@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useStore } from "../StoreProvider";
 import { FileText } from "../icons";
 import { money } from "@/lib/format";
+import { toCsv } from "@/lib/csv";
 
 type QuoteItem = { sku: string | null; name: string; unit_price: number; qty: number };
 type Quote = {
@@ -91,6 +92,28 @@ export default function AdminQuotes() {
     });
   }, [rows, statusFilter, q]);
 
+  const exportCsv = () => {
+    const header = ["Quote ID", "Date", "Company", "Name", "Email", "Phone", "Status", "Items", "Subtotal", "Converted order"];
+    const rowsOut = filtered.map((r) => [
+      r.id.slice(0, 8),
+      new Date(r.created_at).toISOString().slice(0, 10),
+      r.company ?? "",
+      r.name ?? "",
+      r.email ?? "",
+      r.phone ?? "",
+      r.status,
+      (r.quote_request_items ?? []).map((it) => `${it.qty}× ${it.sku ?? it.name}`).join("; "),
+      String(Number(r.subtotal) || 0),
+      r.converted_order_id ? r.converted_order_id.slice(0, 8) : "",
+    ]);
+    const blob = new Blob([toCsv([header, ...rowsOut])], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `quotes-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(a.href);
+  };
+
   return (
     <>
       <div className="admin-sec-head">
@@ -115,6 +138,7 @@ export default function AdminQuotes() {
             ))}
           </div>
           <input className="ord-search" placeholder="Search company, name, email…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search quotes" />
+          <button className="btn btn-line ord-export" onClick={exportCsv} disabled={!filtered.length}>Export CSV</button>
         </div>
         {filtered.length === 0 ? (
           <div className="emptybox"><FileText /><div className="m">No quotes match</div><div className="s">Try a different status or search term.</div></div>
