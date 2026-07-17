@@ -39,11 +39,17 @@ export default function AdminCustomers() {
   }, [toast]);
   useEffect(() => { load(); }, [load]);
 
-  // Confirm the high-impact, hard-to-undo actions before firing.
+  // Confirm the high-impact or outbound-email actions before firing.
   const CONFIRM: Record<string, (c: Customer) => string> = {
     "grant-admin": (c) => `Grant full admin console access to ${c.email}?`,
     "revoke-admin": (c) => `Revoke admin access from ${c.email}?`,
     "reject-dealer": (c) => `Reject the trade-account request from ${c.email}?`,
+    "send-reset": (c) => `Email a password-reset link to ${c.email}?`,
+    "resend-confirmation": (c) => `Resend the confirmation email to ${c.email}?`,
+  };
+  const SUCCESS: Record<string, string> = {
+    "send-reset": "Password-reset email sent.",
+    "resend-confirmation": "Confirmation email resent.",
   };
 
   const act = async (c: Customer, action: string) => {
@@ -56,8 +62,9 @@ export default function AdminCustomers() {
     const json = await res.json().catch(() => ({}));
     setBusy(null);
     if (!res.ok) return toast(json.error || "Action failed", "error");
-    toast("Updated.");
-    load();
+    toast(SUCCESS[action] || "Updated.");
+    // Email actions don't change the list; skip the refetch.
+    if (!SUCCESS[action]) load();
   };
 
   const toggle = async (c: Customer) => {
@@ -165,6 +172,10 @@ export default function AdminCustomers() {
                       <button className="btn btn-line btn-xs" disabled={busy === c.id + "revoke-admin"} onClick={() => act(c, "revoke-admin")}>Revoke admin</button>
                     ) : (
                       <button className="btn btn-line btn-xs" disabled={busy === c.id + "grant-admin"} onClick={() => act(c, "grant-admin")}>Make admin</button>
+                    )}
+                    <button className="btn btn-line btn-xs" disabled={busy === c.id + "send-reset"} onClick={() => act(c, "send-reset")}>Reset password</button>
+                    {!c.confirmed && (
+                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "resend-confirmation"} onClick={() => act(c, "resend-confirmation")}>Resend confirmation</button>
                     )}
                   </div>
                 </div>

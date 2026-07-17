@@ -95,6 +95,22 @@ export async function POST(req: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     auditAction = "admin.revoke";
     detail = "Revoked admin access";
+  } else if (action === "send-reset") {
+    // Send a password-RESET email — the user sets their own new password. Staff
+    // never see or set it. Mirrors the self-service /reset-password redirect.
+    if (!tgt.user?.email) return NextResponse.json({ error: "This account has no email address." }, { status: 400 });
+    const origin = new URL(req.url).origin;
+    const { error } = await svc.auth.resetPasswordForEmail(tgt.user.email, { redirectTo: `${origin}/reset-password` });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    auditAction = "user.reset_sent";
+    detail = "Sent a password-reset email";
+  } else if (action === "resend-confirmation") {
+    if (!tgt.user?.email) return NextResponse.json({ error: "This account has no email address." }, { status: 400 });
+    if (tgt.user.email_confirmed_at) return NextResponse.json({ error: "This email is already confirmed." }, { status: 400 });
+    const { error } = await svc.auth.resend({ type: "signup", email: tgt.user.email });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    auditAction = "user.confirmation_resent";
+    detail = "Resent the confirmation email";
   } else {
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   }
