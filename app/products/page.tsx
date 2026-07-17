@@ -13,22 +13,26 @@ export const metadata = {
 };
 export const dynamic = "force-dynamic";
 
-export default async function ProductsPage() {
+export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const { q } = await searchParams;
+  const term = (q ?? "").trim().slice(0, 80);
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
   return (
     <>
       <JsonLd
         data={[
-          breadcrumbLd([{ name: "Home", url: "/" }, { name: "All equipment" }]),
+          breadcrumbLd([{ name: "Home", url: "/" }, { name: term ? "Search" : "All equipment" }]),
           itemListLd(products, "All equipment"),
         ]}
       />
       <div className="wrap">
-        <Breadcrumbs items={[{ label: "All equipment" }]} />
+        <Breadcrumbs items={term ? [{ label: "Search results" }] : [{ label: "All equipment" }]} />
         <PageHeader
-          eyebrow="The full line"
-          title="All equipment"
-          intro="Every Panda® range, steamer, roaster, cooler and smallware — filter by department, price and availability."
+          eyebrow={term ? "Search" : "The full line"}
+          title={term ? `Results for “${term}”` : "All equipment"}
+          intro={term
+            ? "Matching by model number, name, brand, department and specs. Refine with the filters, or clear the search to browse everything."
+            : "Every Panda® range, steamer, roaster, cooler and smallware — filter by department, brand, price and availability."}
           meta={<StatMeta n={products.length} label="products" />}
         />
       </div>

@@ -38,6 +38,7 @@ export default function Catalog({
   const statsMap = useReviewStatsMap();
   const {
     activeCat, setActiveCat,
+    activeBrand, setActiveBrand,
     priceBracket, setPriceBracket,
     inStock, setInStock,
     query, setQuery, sortBy, setSortBy, clearFilters,
@@ -61,16 +62,29 @@ export default function Catalog({
   const countFor = (catId: string) =>
     countBase.filter((p) => catId === "all" || p.cat === catId).length;
 
+  // Category-name lookup (so search matches a department name too) and the brand
+  // facet list — distinct brands present in scope, only shown off brand landings.
+  const catName = useMemo(() => new Map(categories.map((c) => [c.id, c.name.toLowerCase()])), [categories]);
+  const brands = useMemo(() => {
+    if (lockedBrand) return [] as string[];
+    return [...new Set(countBase.map((p) => p.brand).filter((b): b is string => Boolean(b)))].sort();
+  }, [countBase, lockedBrand]);
+
   const list = useMemo(() => {
-    const q = query.toLowerCase();
+    const q = query.toLowerCase().trim();
     let l = scoped.filter(
       (p) =>
         (lockedCat || activeCat === "all" || p.cat === activeCat) &&
+        (lockedBrand || activeBrand === "all" || p.brand === activeBrand) &&
         (priceBracket === "all" || PRICES.find((x) => x.id === priceBracket)!.t(p)) &&
         (!inStock || p.stock === "in") &&
-        (p.name.toLowerCase().includes(q) ||
+        (!q ||
+          p.name.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
-          (p.brand ?? "").toLowerCase().includes(q))
+          (p.brand ?? "").toLowerCase().includes(q) ||
+          (catName.get(p.cat) ?? "").includes(q) ||
+          (p.description ?? "").toLowerCase().includes(q) ||
+          Object.values(p.specs ?? {}).some((v) => String(v).toLowerCase().includes(q)))
     );
     if (sortBy === "low") l = [...l].sort((a, b) => a.price - b.price);
     else if (sortBy === "high") l = [...l].sort((a, b) => b.price - a.price);
@@ -84,7 +98,7 @@ export default function Catalog({
       l = [...l].sort((a, b) => score(b) - score(a));
     }
     return l;
-  }, [scoped, lockedCat, activeCat, priceBracket, inStock, query, sortBy, statsMap]);
+  }, [scoped, lockedCat, activeCat, lockedBrand, activeBrand, priceBracket, inStock, query, sortBy, statsMap, catName]);
 
   return (
     <section id={anchor} style={anchor ? { paddingTop: 0 } : undefined}>
@@ -108,6 +122,20 @@ export default function Catalog({
                   <button className={`opt${activeCat === c.id ? " on" : ""}`} key={c.id} onClick={() => setActiveCat(c.id)}>
                     <span className="lft"><span className="box"><Check /></span>{c.name}</span>
                     <span className="cnt">{countFor(c.id)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {brands.length > 1 && (
+              <div className="facet">
+                <h4>Brand</h4>
+                <button className={`opt${activeBrand === "all" ? " on" : ""}`} onClick={() => setActiveBrand("all")}>
+                  <span className="lft"><span className="box"><Check /></span>All brands</span>
+                </button>
+                {brands.map((b) => (
+                  <button className={`opt${activeBrand === b ? " on" : ""}`} key={b} onClick={() => setActiveBrand(b)}>
+                    <span className="lft"><span className="box"><Check /></span>{b}</span>
+                    <span className="cnt">{countBase.filter((p) => p.brand === b).length}</span>
                   </button>
                 ))}
               </div>
@@ -148,8 +176,8 @@ export default function Catalog({
               {list.length === 0 ? (
                 <div className="emptybox" style={{ gridColumn: "1/-1" }}>
                   <Filter />
-                  <div className="m">No products match these filters</div>
-                  <div className="s">Try widening your price range or turning off “in stock only”.</div>
+                  <div className="m">{query.trim() ? `No results for “${query.trim()}”` : "No products match these filters"}</div>
+                  <div className="s">{query.trim() ? "Check the spelling, or try a model number, brand or department." : "Try widening your price range or turning off “in stock only”."}</div>
                   <button className="btn btn-line" onClick={clearFilters}>Clear all filters</button>
                 </div>
               ) : (

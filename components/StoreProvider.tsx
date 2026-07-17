@@ -39,6 +39,8 @@ type Store = {
   setQuery: (q: string) => void;
   activeCat: string;
   setActiveCat: (c: string) => void;
+  activeBrand: string;
+  setActiveBrand: (b: string) => void;
   priceBracket: string;
   setPriceBracket: (p: string) => void;
   inStock: boolean;
@@ -66,6 +68,7 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
   const [toastKind, setToastKind] = useState<"success" | "error">("success");
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("all");
+  const [activeBrand, setActiveBrand] = useState("all");
   const [priceBracket, setPriceBracket] = useState("all");
   const [inStock, setInStock] = useState(false);
   const [sortBy, setSortBy] = useState("featured");
@@ -135,6 +138,7 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
 
   const clearFilters = useCallback(() => {
     setActiveCat("all");
+    setActiveBrand("all");
     setPriceBracket("all");
     setInStock(false);
     setQuery("");
@@ -170,6 +174,8 @@ export default function StoreProvider({ children }: { children: ReactNode }) {
     setQuery,
     activeCat,
     setActiveCat,
+    activeBrand,
+    setActiveBrand,
     priceBracket,
     setPriceBracket,
     inStock,
