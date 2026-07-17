@@ -46,11 +46,15 @@ export default function AdminCustomers() {
     "reject-dealer": (c) => `Reject the trade-account request from ${c.email}?`,
     "send-reset": (c) => `Email a password-reset link to ${c.email}?`,
     "resend-confirmation": (c) => `Resend the confirmation email to ${c.email}?`,
+    "confirm-email": (c) => `Manually mark ${c.email} as confirmed (skips the email)?`,
   };
-  const SUCCESS: Record<string, string> = {
+  const SUCCESS_MSG: Record<string, string> = {
     "send-reset": "Password-reset email sent.",
     "resend-confirmation": "Confirmation email resent.",
+    "confirm-email": "Email marked confirmed.",
   };
+  // Actions that send an email but don't change the list — skip the refetch.
+  const NO_REFETCH = new Set(["send-reset", "resend-confirmation"]);
 
   const act = async (c: Customer, action: string) => {
     const confirmMsg = CONFIRM[action]?.(c);
@@ -62,9 +66,8 @@ export default function AdminCustomers() {
     const json = await res.json().catch(() => ({}));
     setBusy(null);
     if (!res.ok) return toast(json.error || "Action failed", "error");
-    toast(SUCCESS[action] || "Updated.");
-    // Email actions don't change the list; skip the refetch.
-    if (!SUCCESS[action]) load();
+    toast(SUCCESS_MSG[action] || "Updated.");
+    if (!NO_REFETCH.has(action)) load();
   };
 
   const toggle = async (c: Customer) => {
@@ -175,7 +178,10 @@ export default function AdminCustomers() {
                     )}
                     <button className="btn btn-line btn-xs" disabled={busy === c.id + "send-reset"} onClick={() => act(c, "send-reset")}>Reset password</button>
                     {!c.confirmed && (
-                      <button className="btn btn-line btn-xs" disabled={busy === c.id + "resend-confirmation"} onClick={() => act(c, "resend-confirmation")}>Resend confirmation</button>
+                      <>
+                        <button className="btn btn-line btn-xs" disabled={busy === c.id + "resend-confirmation"} onClick={() => act(c, "resend-confirmation")}>Resend confirmation</button>
+                        <button className="btn btn-line btn-xs" disabled={busy === c.id + "confirm-email"} onClick={() => act(c, "confirm-email")}>Confirm email</button>
+                      </>
                     )}
                   </div>
                 </div>

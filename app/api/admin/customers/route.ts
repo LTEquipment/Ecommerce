@@ -111,6 +111,13 @@ export async function POST(req: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     auditAction = "user.confirmation_resent";
     detail = "Resent the confirmation email";
+  } else if (action === "confirm-email") {
+    // Manually confirm — for when email delivery fails and resend won't land.
+    if (tgt.user?.email_confirmed_at) return NextResponse.json({ error: "This email is already confirmed." }, { status: 400 });
+    const { error } = await svc.auth.admin.updateUserById(userId, { email_confirm: true });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    auditAction = "user.email_confirmed";
+    detail = "Manually confirmed the email";
   } else {
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   }
