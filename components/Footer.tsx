@@ -134,7 +134,7 @@ export default async function Footer() {
             <Link href="/accessibility">Accessibility</Link>
             <Link href="/supply-chain">Supply Chain Transparency</Link>
             {investorRelationsEnabled && <Link href="/investors">Investor Relations</Link>}
-            <a href="/sitemap.xml">Sitemap</a>
+            <Link href="/sitemap">Sitemap</Link>
             <CookiePrefsButton />
           </div>
           <div className="fb-base">
