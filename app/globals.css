@@ -64,6 +64,21 @@ section{padding:var(--s7) 0}
 .link-arrow{font-weight:600;font-size:var(--t-sm);display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
 .link-arrow:hover{color:var(--red)} .link-arrow svg{width:14px;height:14px}
 
+/* ---------- html site map ---------- */
+.smap{padding-bottom:var(--s8)}
+.smap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:var(--s6) var(--s5);align-items:start;margin-top:var(--s2)}
+.smap-col h2{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin:0 0 var(--s3);padding-bottom:var(--s1);border-bottom:1px solid var(--line)}
+.smap-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.smap-col li{margin:0}
+.smap-col a{display:block;padding:5px 0;font-size:14px;color:var(--muted);line-height:1.35}
+.smap-col a:hover{color:var(--red)}
+.smap-wide{grid-column:span 2}
+.smap-wide ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--s5)}
+.smap-foot{margin-top:var(--s7);font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:var(--s3)}
+.smap-foot a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+.smap-foot a:hover{color:var(--red)}
+@media (max-width:640px){.smap-wide{grid-column:span 1}.smap-wide ul{grid-template-columns:1fr}}
+
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14.5px;
   padding:13px 22px;border-radius:var(--r);transition:transform .1s,background .18s,border-color .18s,color .18s;white-space:nowrap}
