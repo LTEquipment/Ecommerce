@@ -2803,3 +2803,23 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
 @media(max-width:767px){
   .qv-close{width:44px;height:44px}
 }
+
+/* ---- Compare tray on phones ---- */
+@media(max-width:767px){
+  /* At 129px the tray plus the tab bar ate 23% of the screen, because the
+     label and four 44px thumbs fill the width and push the buttons onto a
+     second row. Drop the thumbnails here and keep one compact row: their
+     remove buttons were 19px anyway — under the 24px in WCAG 2.5.8, so not
+     realistically tappable — and items can be removed on /compare itself. */
+  .cmp-tray-items{display:none}
+  /* The base rule sets `padding:14px 0`, which zeroes .wrap's horizontal
+     padding — so the CTA ran flush to the screen edge and read as clipped. */
+  .cmp-tray-in{flex-wrap:nowrap;gap:var(--s3);padding:10px var(--s4)}
+  /* "Clear all" was an 18px-tall text button. */
+  .cmp-tray-actions .cmp-clear,.cmp-tray-actions button:not(.btn){
+    min-height:44px;display:inline-flex;align-items:center}
+  .cmp-tray-lead{gap:10px;flex:0 1 auto}
+  .cmp-tray-kicker{display:none}
+  .cmp-tray-count{font-size:13px}
+  .cmp-tray-in .btn{flex:0 0 auto;min-height:44px}
+}
