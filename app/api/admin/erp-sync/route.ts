@@ -26,15 +26,22 @@ export async function GET() {
  * Defaults to a dry run: this writes to every product the storefront sells, so
  * the safe default is to show what would change and make the real run explicit.
  *   { dryRun: false }            apply
+ *   { createMissing: true }      also list feed products the shop doesn't sell
  *   { syncCopy: true }           also overwrite name/brand/description
  */
 export async function POST(req: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const body = (await req.json().catch(() => ({}))) as { dryRun?: boolean; syncCopy?: boolean };
+  const body = (await req.json().catch(() => ({}))) as {
+    dryRun?: boolean; syncCopy?: boolean; createMissing?: boolean;
+  };
   const dryRun = body.dryRun !== false;
 
-  const report = await syncCatalogFromErp({ dryRun, syncCopy: body.syncCopy === true });
+  const report = await syncCatalogFromErp({
+    dryRun,
+    syncCopy: body.syncCopy === true,
+    createMissing: body.createMissing === true,
+  });
   if (!report.ok) return NextResponse.json({ ...report, dryRun }, { status: 502 });
   return NextResponse.json({ ...report, dryRun });
 }
