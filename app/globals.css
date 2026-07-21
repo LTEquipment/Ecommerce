@@ -2763,5 +2763,17 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
    sat on top of it and hid its bottom 57px — the row holding the Compare
    action. Same collision the PDP sticky bar had; stack it above the bar. */
 @media(max-width:767px){
-  .cmp-tray{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom));z-index:71}
+  .cmp-tray{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom))}
+}
+
+/* Stacking on phones. Persistent bottom chrome (tab bar, compare tray, PDP
+   buy bar) must sit BELOW overlays and their scrims — otherwise it paints on
+   top of the cart drawer and hides its Checkout button. Raising the tray to
+   beat the tab bar is what caused that, so the whole band moves under the
+   scrim (60) instead: chrome 52-54 < scrim 60 < drawer 70 < nav 80 < sheet 90.
+   The trays are already offset above the tab bar, so their order is
+   immaterial; the tab bar just stays top of the chrome band. */
+@media(max-width:767px){
+  .tabbar{z-index:54}
+  .cmp-tray,.pdp-sticky{z-index:52}
 }

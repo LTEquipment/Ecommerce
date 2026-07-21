@@ -49,7 +49,12 @@ export default function MobileTabBar() {
         <span>Search</span>
       </button>
 
-      <button type="button" className="tab" onClick={openCart} aria-label={`Cart, ${count} items`}>
+      <button
+        type="button"
+        className="tab"
+        onClick={openCart}
+        aria-label={`Cart, ${count} ${count === 1 ? "item" : "items"}`}
+      >
         <span className="tab-badge-wrap">
           <Cart aria-hidden="true" />
           {count > 0 && <span className="tab-badge">{count > 99 ? "99+" : count}</span>}
