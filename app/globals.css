@@ -2777,3 +2777,23 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   .tabbar{z-index:54}
   .cmp-tray,.pdp-sticky{z-index:52}
 }
+
+/* ---- Compare table on phones ---- */
+@media(max-width:767px){
+  /* The table is pinned to min-width:600px with a 148px label column, so at
+     375px only one product column is on screen — the whole point of the page
+     is lost, and nothing signals the rest is off to the right. Size it so the
+     common two-product case fits without scrolling; three or more still
+     overflow into the existing .cmp-scroll container, which is correct. */
+  .cmp-table{min-width:0;width:100%}
+  /* Only with <=2 products, where fixed layout makes the declared widths
+     actually govern instead of content deciding. */
+  .cmp-table.cmp-fits{table-layout:fixed}
+  .cmp-table th:first-child,.cmp-table td:first-child{width:84px;min-width:84px;font-size:12px}
+  .cmp-table th:not(:first-child),.cmp-table td:not(:first-child){min-width:132px}
+  /* Auto table layout sizes columns to their min-content, and the product
+     names were wider than the declared min-width, pushing the table past the
+     viewport anyway. Let long names wrap so the declared widths govern. */
+  .cmp-table td,.cmp-table th{overflow-wrap:anywhere}
+  .cmp-table td,.cmp-table th{padding-left:10px;padding-right:10px}
+}

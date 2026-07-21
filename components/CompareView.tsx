@@ -65,7 +65,11 @@ export default function CompareView() {
       </div>
 
       <div className="cmp-scroll">
-        <table className="cmp-table">
+        {/* Two products can be made to fit a phone screen, but only with a
+            fixed table layout — auto layout sizes columns to their content and
+            overflows regardless of declared widths. Three or more genuinely
+            cannot fit, so those keep auto layout and scroll in .cmp-scroll. */}
+        <table className={`cmp-table${items.length <= 2 ? " cmp-fits" : ""}`}>
           <thead>
             <tr>
               <th className="cmp-corner" />
