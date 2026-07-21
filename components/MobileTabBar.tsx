@@ -16,6 +16,10 @@ export default function MobileTabBar() {
   const { count, openCart, openNav } = useStore();
   const { user } = useAuth();
 
+  // Checkout is a funnel: offering Home/Shop/Search mid-payment invites
+  // abandonment, and the flow has its own step nav.
+  if (path.startsWith("/checkout")) return null;
+
   const on = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 
   return (

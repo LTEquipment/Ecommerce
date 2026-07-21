@@ -2630,3 +2630,56 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
     margin-bottom:0;padding-bottom:env(safe-area-inset-bottom)}
   .facets::after{content:"";display:block;height:env(safe-area-inset-bottom)}
 }
+
+/* ---- Product detail on phones ---- */
+@media(max-width:767px){
+  /* The PDP sticky bar predates the tab bar and also sits at bottom:0, so the
+     tab bar was covering it. Stack it directly above, and reserve room for
+     both so the page can still be scrolled clear of them. */
+  .pdp-sticky{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    z-index:71;padding-bottom:12px}
+  body:has(.pdp-sticky){padding-bottom:calc(var(--tabbar-h) + 72px + env(safe-area-inset-bottom))}
+
+  /* "Hover to zoom" is meaningless on touch. The existing (hover:none) rule
+     covers real phones; this also catches narrow windows on hover-capable
+     devices, where the hint is equally useless. */
+  .zoom-hint{display:none}
+
+  /* Thumbnails swipe horizontally instead of wrapping into rows that push
+     the price further down the page. */
+  .gallery .thumbs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;gap:8px;padding-bottom:4px;
+    scrollbar-width:none}
+  .gallery .thumbs::-webkit-scrollbar{display:none}
+  .gallery .thumbs button{flex:0 0 60px;width:60px;height:60px;scroll-snap-align:start}
+
+  /* Title sized for a phone, not a 34px desktop headline. */
+  .pinfo h1{font-size:21px;line-height:1.2;margin:6px 0 8px}
+}
+
+/* ---- Cart on phones ---- */
+@media(max-width:767px){
+  /* The desktop row is thumb | details | price, which leaves ~160px for the
+     title and wraps it to four lines. Stack price and remove onto their own
+     row so the title gets the full width. */
+  .cart-line{display:grid;grid-template-columns:72px 1fr;gap:12px 14px;padding:14px}
+  .cart-line .thumb{width:72px;height:72px}
+  .cart-line .cl-main{grid-column:2}
+  .cart-line h3{font-size:14px;line-height:1.35;margin:3px 0 8px}
+  .cart-line .cl-right{grid-column:2;flex-direction:row;align-items:center;
+    justify-content:space-between;text-align:left;width:100%}
+  .cart-line .rm{min-height:44px;display:inline-flex;align-items:center}
+  .cart-line .qty button{min-width:44px;min-height:44px}
+}
+
+/* ---- Checkout on phones ---- */
+@media(max-width:767px){
+  /* Primary action gets the width; Back stays secondary and compact.
+     The tab bar is suppressed on /checkout, so nothing collides here. */
+  .form-actions{display:flex;gap:var(--s3);align-items:center}
+  .form-actions .btn-primary{flex:1;min-height:50px;font-size:15px}
+  .form-actions .btn-line{flex:0 0 auto;min-height:50px;padding:0 18px}
+  /* No tab bar on checkout, so drop the reserve that assumes one.
+     .steps is used only by CheckoutFlow, so this can't leak to other pages. */
+  body:has(.steps){padding-bottom:var(--s5)}
+}
