@@ -2715,8 +2715,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   /* The tab bar now owns Search, Cart and Account, so repeating them in the
      header is three redundant targets in a 64px bar. Leave the header with
      brand, wishlist (which has no tab) and the menu. */
+  /* The tab bar owns Search, Cart and Account. Wishlist moves into the nav
+     drawer: the top-right corner is the hardest area to reach one-handed, so
+     the header keeps only the brand and the menu. */
   .hdr .icon-btn[aria-label="Search"],
   .hdr .icon-btn[aria-label="Account"],
+  .hdr .icon-btn[aria-label="Wishlist"],
   .hdr .icon-btn[aria-label^="Open cart"]{display:none}
 
   /* Footer link groups collapse. Headings become full-width toggles so four
@@ -2750,3 +2754,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
 @media(max-width:767px){
   .hdr .hdr-actions{margin-left:auto}
 }
+
+/* Drawer link icons had no size rule, so they fell back to the SVG default
+   and rendered ~260px wide — "Sign in" was a 298px-tall row. Pre-existing;
+   .mobile-nav is phone-only, so this needs no breakpoint. */
+.mobile-nav .mn-body a svg,
+.mobile-nav .mn-body button svg{width:18px;height:18px;flex:0 0 auto}

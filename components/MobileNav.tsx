@@ -7,7 +7,7 @@ import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import { COMPANY, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
-import { Search, Close, User, Package, LogOut, Shield } from "./icons";
+import { Search, Close, User, Package, LogOut, Shield, Heart } from "./icons";
 
 export default function MobileNav() {
   const { navOpen, closeNav, query, setQuery } = useStore();
@@ -60,6 +60,10 @@ export default function MobileNav() {
           ))}
 
           <div className="mn-sec">Account</div>
+          {/* Wishlist lives here rather than in the header: the top-right
+              corner is the hardest spot to reach one-handed, and saved items
+              are a low-frequency action. Works signed out too. */}
+          <Link href="/wishlist" onClick={closeNav}><Heart /> Wishlist</Link>
           {user ? (
             <>
               <Link href="/account" onClick={closeNav}><User /> {displayName}</Link>
