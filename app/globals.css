@@ -2760,3 +2760,41 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
    .mobile-nav is phone-only, so this needs no breakpoint. */
 .mobile-nav .mn-body a svg,
 .mobile-nav .mn-body button svg{width:18px;height:18px;flex:0 0 auto}
+
+/* ---- Footer running order on phones ---- */
+@media(max-width:767px){
+  /* Desktop reads these as columns side by side, so source order barely
+     matters. Stacked on a phone it becomes a running order, and the current
+     one is upside down: two paragraphs of disclaimer (184px) land first and
+     the nav lands third. Reorder useful-first; markup is untouched, so
+     desktop and the DOM order for crawlers stay as they are. */
+  footer > .wrap{display:flex;flex-direction:column}
+  footer > .wrap > .foot-grid{order:1}
+  footer > .wrap > .foot-bot{order:2}
+  footer > .wrap > .foot-notes{order:3}
+
+  /* Within the grid, navigation beats the brand blurb. */
+  .foot-grid{display:flex;flex-direction:column;gap:var(--s5)}
+  .foot-grid > .foot-nav{order:1}
+  .foot-grid > .foot-brand{order:2}
+
+  /* Now that it sits last, the fine print can read as fine print — and its
+     divider becomes a rule hanging under the final paragraph, so move the
+     border to the top where it now does the separating. */
+  .foot-notes{margin-top:var(--s5);margin-bottom:0;
+    padding-top:var(--s4);padding-bottom:0;
+    border-bottom:0;border-top:1px solid var(--line)}
+  .foot-notes p{font-size:11.5px;line-height:1.55}
+  .foot-notes p:last-child{margin-bottom:0}
+}
+
+/* Legal links wrap on phones, and the separators are absolutely-positioned
+   ::after rules keyed off :not(:last-child) — so every line but the last
+   ends with a divider dangling in empty space. Drop them and let the gap
+   separate the links; also give the rows a usable target height (WCAG 2.5.8
+   asks 24px, these were ~19px). */
+@media(max-width:767px){
+  .fb-legal a::after,.fb-legal button::after{display:none}
+  .fb-legal{gap:2px 18px}
+  .fb-legal a,.fb-legal button{padding:7px 0;display:inline-flex;align-items:center}
+}
