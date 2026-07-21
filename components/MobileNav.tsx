@@ -7,7 +7,7 @@ import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import { COMPANY, telHref } from "@/lib/company";
 import { CATEGORIES } from "@/lib/products";
-import { Search, Close, User, Package, LogOut, Shield, Heart } from "./icons";
+import { Search, Close, User, Package, LogOut, Shield, Heart, Store } from "./icons";
 
 export default function MobileNav() {
   const { navOpen, closeNav, query, setQuery } = useStore();
@@ -51,18 +51,10 @@ export default function MobileNav() {
             />
           </form>
 
-          <div className="mn-sec">Departments</div>
-          <Link href="/products" onClick={closeNav}>All departments</Link>
-          {CATEGORIES.map((c) => (
-            <Link key={c.id} href={`/category/${c.id}`} onClick={closeNav}>
-              {c.name}
-            </Link>
-          ))}
-
           <div className="mn-sec">Account</div>
-          {/* Wishlist lives here rather than in the header: the top-right
-              corner is the hardest spot to reach one-handed, and saved items
-              are a low-frequency action. Works signed out too. */}
+          {/* Account leads the drawer so wishlist and sign-in are visible
+              without scrolling past every department. Browsing already has a
+              Shop tab, so departments do not need the top slot. */}
           <Link href="/wishlist" onClick={closeNav}><Heart /> Wishlist</Link>
           {user ? (
             <>
@@ -79,9 +71,17 @@ export default function MobileNav() {
           ) : (
             <>
               <Link href="/login" onClick={closeNav}><User /> Sign in</Link>
-              <Link href="/login?mode=register&trade=1" onClick={closeNav}>Create trade account</Link>
+              <Link href="/login?mode=register&trade=1" onClick={closeNav}><Store /> Create trade account</Link>
             </>
           )}
+
+          <div className="mn-sec">Departments</div>
+          <Link href="/products" onClick={closeNav}>All departments</Link>
+          {CATEGORIES.map((c) => (
+            <Link key={c.id} href={`/category/${c.id}`} onClick={closeNav}>
+              {c.name}
+            </Link>
+          ))}
 
           <div className="mn-sec">Company</div>
           <Link href="/about" onClick={closeNav}>About L&T</Link>
