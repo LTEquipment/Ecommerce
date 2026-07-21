@@ -25,7 +25,11 @@ export default function MobileNav() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     closeNav();
-    router.push("/products");
+    // Carry the term in the URL. Catalog seeds its query from ?q= and resets
+    // it when the param is absent, so pushing a bare /products discarded
+    // whatever was just typed. Same shape the header search uses.
+    const term = query.trim();
+    router.push(term ? `/products?q=${encodeURIComponent(term)}` : "/products");
   };
 
   return (
