@@ -1681,7 +1681,15 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .auth .brandside ul{list-style:none;margin:0;padding:0;border-top:1px solid rgba(255,255,255,.12)}
 .auth .brandside li{font-size:13.5px;line-height:1.5;color:#B7BCC3;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.09)}
 .auth .brandside li:last-child{border-bottom:0}
-.linklike{color:var(--red);font-weight:600;background:none;border:0;padding:0;cursor:pointer;font:inherit;display:inline-flex;align-items:center;gap:5px}
+/* `font:inherit` is a shorthand and resets size AND weight, so declaring
+   font-weight before it silently wiped it — every .linklike rendered at 400,
+   not the 600 written here. Shorthand first, overrides after. */
+.linklike{font:inherit;color:var(--red);font-weight:600;background:none;border:0;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+/* Sized after .linklike so its `font:inherit` cannot win on source order. */
+.field-lbl-row .field-forgot{font-size:12px;font-weight:600}
+/* 12px text is an 18px-tall target; WCAG 2.5.8 wants 24. Pad the hit area
+   without changing the type, and pull the row back so nothing shifts. */
+.field-lbl-row .field-forgot{min-height:24px;padding:3px 0;margin:-3px 0}
 .linklike:hover{color:var(--red-600)}
 
 /* trade / dealer account checkbox on the register form */
