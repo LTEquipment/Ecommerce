@@ -2495,27 +2495,6 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
    a thumb-reachable tab bar, panels become bottom sheets.
    ============================================================ */
 
-/* Bottom sheet — shared primitive (filters, sort, quick actions). */
-.scrim-sheet{z-index:85}
-.bsheet{position:fixed;inset:auto 0 0 0;z-index:90;background:var(--white);
-  border-radius:14px 14px 0 0;border-top:1px solid var(--line);
-  max-height:min(86vh,720px);display:flex;flex-direction:column;
-  transform:translateY(101%);transition:transform .28s cubic-bezier(.32,.72,0,1);
-  padding-bottom:env(safe-area-inset-bottom)}
-.bsheet.open{transform:translateY(0)}
-.bsheet-head{position:relative;display:flex;align-items:center;justify-content:space-between;
-  gap:var(--s3);padding:var(--s4) var(--s4) var(--s3);border-bottom:1px solid var(--line)}
-.bsheet-head h2{font-family:var(--disp);font-weight:800;font-size:17px;margin:0}
-.bsheet-head button{width:44px;height:44px;display:grid;place-items:center;margin-right:-10px;
-  border-radius:var(--rp);color:var(--ink-2)}
-.bsheet-head button svg{width:20px;height:20px}
-.bsheet-grip{position:absolute;top:7px;left:50%;transform:translateX(-50%);
-  width:36px;height:4px;border-radius:var(--rp);background:var(--line-2)}
-.bsheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:var(--s4);flex:1}
-.bsheet-foot{padding:var(--s3) var(--s4);border-top:1px solid var(--line);
-  display:flex;gap:var(--s3);background:var(--white)}
-.bsheet-foot>*{flex:1}
-
 /* Thumb-reachable primary nav. */
 .tabbar,.tabbar-spacer{display:none}
 
@@ -2778,4 +2757,11 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
    Let the row wrap. */
 @media(max-width:767px){
   .socials{flex-wrap:wrap;row-gap:10px}
+}
+
+/* The compare tray is fixed to bottom:0 at z-index 60, so the tab bar (70)
+   sat on top of it and hid its bottom 57px — the row holding the Compare
+   action. Same collision the PDP sticky bar had; stack it above the bar. */
+@media(max-width:767px){
+  .cmp-tray{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom));z-index:71}
 }
