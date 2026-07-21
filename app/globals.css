@@ -2797,3 +2797,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   .cmp-table td,.cmp-table th{overflow-wrap:anywhere}
   .cmp-table td,.cmp-table th{padding-left:10px;padding-right:10px}
 }
+
+/* Quick-view close sits in the corner of a modal on a phone; 34px is a small
+   target for the only visible way out. */
+@media(max-width:767px){
+  .qv-close{width:44px;height:44px}
+}
