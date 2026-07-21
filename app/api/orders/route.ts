@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { erpConfigured, pushOrderToErp } from "@/lib/erp";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getProducts } from "@/lib/catalog";
@@ -135,6 +136,25 @@ export async function POST(req: Request) {
     // Roll back the header so a failed items-insert doesn't strand an itemless order.
     await admin.from("orders").delete().eq("id", order.id);
     return NextResponse.json({ error: "Could not save items" }, { status: 500 });
+  }
+
+  // Mirror the order into the ERP as a sales_order. Deliberately awaited but
+  // never fatal: the customer's order is already committed, so an ERP outage
+  // must not turn a successful payment into a failed checkout. Idempotent on
+  // the storefront order id, so a retry cannot double-book.
+  if (erpConfigured()) {
+    const erp = await pushOrderToErp({
+      externalId: order.id,
+      amount: total,
+      customer: company || shipping.ship_company || shipping.ship_name || contactEmail,
+      contact: shipping.ship_name ?? null,
+      email: contactEmail,
+      phone: shipping.ship_phone ?? null,
+      poNumber: poNumber ?? null,
+      ship: shipping as Record<string, string | null | undefined>,
+      items: lines.map((l) => ({ sku: l.sku, name: l.name, qty: l.qty, unit_price: Number(l.unit_price) })),
+    });
+    if (!erp.ok) console.error(`[erp] order ${order.id} not mirrored: ${erp.reason}`);
   }
 
   return NextResponse.json({ id: order.id, total });
