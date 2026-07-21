@@ -2546,7 +2546,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
 .bsheet-foot>*{flex:1}
 
 /* Thumb-reachable primary nav. */
-.tabbar{display:none}
+.tabbar,.tabbar-spacer{display:none}
 
 @media(max-width:767px){
   /* Bar height lives in one place so the body reserve can't drift from it. */
@@ -2567,7 +2567,10 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
     line-height:16px;text-align:center}
 
   /* Content must clear the fixed tab bar. */
-  body{padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom))}
+  /* Clearance comes from an in-flow spacer rendered by MobileTabBar, so it
+     exists only where the bar does — no dead strip on /admin or /checkout,
+     and no reliance on :has(). */
+  .tabbar-spacer{display:block;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom))}
 
   /* Page intro becomes a screen title. The <h1> stays for SEO and screen
      readers; the marketing eyebrow/intro/stat/phone are desktop-only. */
@@ -2642,7 +2645,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
      both so the page can still be scrolled clear of them. */
   .pdp-sticky{bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom));
     z-index:71;padding-bottom:12px}
-  body:has(.pdp-sticky){padding-bottom:calc(var(--tabbar-h) + 72px + env(safe-area-inset-bottom))}
+  body:has(.pdp-sticky){padding-bottom:72px}
 
   /* "Hover to zoom" is meaningless on touch. The existing (hover:none) rule
      covers real phones; this also catches narrow windows on hover-capable
@@ -2683,9 +2686,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   .form-actions{display:flex;gap:var(--s3);align-items:center}
   .form-actions .btn-primary{flex:1;min-height:50px;font-size:15px}
   .form-actions .btn-line{flex:0 0 auto;min-height:50px;padding:0 18px}
-  /* No tab bar on checkout, so drop the reserve that assumes one.
-     .steps is used only by CheckoutFlow, so this can't leak to other pages. */
-  body:has(.steps){padding-bottom:var(--s5)}
+  /* Checkout needs no special case: the reserve is keyed off .tabbar, which
+     MobileTabBar does not render there. */
 }
 
 /* ---- Stacked-section spacing on phones ---- */
@@ -2696,4 +2698,14 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   main section + section{padding-top:0}
   /* A footnote does not need 89px of runway on a 375px screen. */
   .smap-foot{margin-top:var(--s5)}
+}
+
+/* ---- Product card actions in the 2-up phone grid ---- */
+@media(max-width:767px){
+  /* At two cards per row the button has ~88px of inner width, but
+     "Add to cart" + icon + gap needs ~105px, so the label wrapped onto a
+     second line and the button grew to 64px tall. Tighten the type and
+     chrome to fit one line without shrinking the tap target. */
+  .card .addbtn{padding:12px 9px;font-size:13px;gap:6px;white-space:nowrap;min-height:44px}
+  .card .addbtn svg{width:15px;height:15px}
 }

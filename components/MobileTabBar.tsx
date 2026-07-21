@@ -23,7 +23,12 @@ export default function MobileTabBar() {
   const on = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 
   return (
-    <nav className="tabbar" aria-label="Primary">
+    <>
+      {/* In-flow spacer so content can scroll clear of the fixed bar. Tied to
+          the bar's own render, so /admin and /checkout — which have no tab
+          bar — get no dead space, with no :has() support needed. */}
+      <div className="tabbar-spacer" aria-hidden="true" />
+      <nav className="tabbar" aria-label="Primary">
       <Link href="/" className={`tab${on("/") ? " on" : ""}`} aria-current={on("/") ? "page" : undefined}>
         <Home aria-hidden="true" />
         <span>Home</span>
@@ -59,6 +64,7 @@ export default function MobileTabBar() {
         <User aria-hidden="true" />
         <span>Account</span>
       </Link>
-    </nav>
+      </nav>
+    </>
   );
 }
