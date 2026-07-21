@@ -6,6 +6,8 @@ import { useStore } from "../StoreProvider";
 import { useAuth } from "../AuthProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { logAudit } from "@/lib/audit";
+import { useBulkSelect } from "@/lib/useBulkSelect";
+import BulkBar from "./BulkBar";
 import { money } from "@/lib/format";
 import { Search, Plus, Pencil, Trash } from "../icons";
 import ProductEditor, { emptyProduct, type ProductRow, type CatOption } from "./ProductEditor";
@@ -112,6 +114,51 @@ export default function AdminCatalog() {
   const pageCount = Math.max(1, Math.ceil((filtered?.length ?? 0) / PAGE_SIZE));
   const pageSafe = Math.min(page, pageCount - 1);
 
+  const pageRows = useMemo(
+    () => (filtered ?? []).slice(pageSafe * PAGE_SIZE, pageSafe * PAGE_SIZE + PAGE_SIZE),
+    [filtered, pageSafe]
+  );
+  const sel = useBulkSelect(pageRows.map((r) => r.slug));
+  const [bulkBusy, setBulkBusy] = useState(false);
+
+  /** Reassign every selected product to one category. */
+  const bulkCategory = async (categoryId: string) => {
+    const slugs = [...sel.ids];
+    if (slugs.length === 0 || !categoryId) return;
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    setBulkBusy(true);
+    const { error } = await sb.from("products").update({ category_id: categoryId }).in("slug", slugs);
+    if (error) toast(error.message, "error");
+    else {
+      setRows((p) => p?.map((x) => (sel.has(x.slug) ? { ...x, category_id: categoryId } : x)) ?? p);
+      logAudit(user, "product.category", `${slugs.length} products`, `→ ${categoryId}`);
+      toast(`${slugs.length} product${slugs.length === 1 ? "" : "s"} moved`);
+      sel.clear();
+    }
+    setBulkBusy(false);
+  };
+
+  /** Destructive, so it names the count and lists nothing implicitly. */
+  const bulkDelete = async () => {
+    const slugs = [...sel.ids];
+    if (slugs.length === 0) return;
+    if (!window.confirm(`Delete ${slugs.length} product${slugs.length === 1 ? "" : "s"}? This cannot be undone.`)) return;
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    setBulkBusy(true);
+    const { error } = await sb.from("products").delete().in("slug", slugs);
+    if (error) toast(error.message, "error");
+    else {
+      setRows((p) => p?.filter((x) => !sel.has(x.slug)) ?? p);
+      logAudit(user, "product.delete", `${slugs.length} products`, slugs.join(", ").slice(0, 180));
+      toast(`${slugs.length} product${slugs.length === 1 ? "" : "s"} deleted`);
+      sel.clear();
+    }
+    setBulkBusy(false);
+  };
+
+
   return (
     <>
       <div className="admin-seg" role="tablist">
@@ -152,11 +199,31 @@ export default function AdminCatalog() {
           ) : (
             <>
             <div className="prod-list">
-              {filtered.slice(pageSafe * PAGE_SIZE, pageSafe * PAGE_SIZE + PAGE_SIZE).map((r) => {
+              {pageRows.length > 0 && (
+                <label className="prod-selectall">
+                  <input
+                    type="checkbox"
+                    checked={sel.allOnPage}
+                    ref={(el) => { if (el) el.indeterminate = sel.someOnPage; }}
+                    onChange={sel.toggleAll}
+                    aria-label="Select all products on this page"
+                  />
+                  Select all on this page
+                </label>
+              )}
+              {pageRows.map((r) => {
                 const low = invEnabled && r.stock_qty > 0 && r.stock_qty <= r.low_stock;
                 const out = invEnabled && r.stock_qty <= 0;
                 return (
-                  <div className="prod-row" key={r.slug}>
+                  <div className={`prod-row${sel.has(r.slug) ? " picked" : ""}`} key={r.slug}>
+                    <label className="prod-pick">
+                      <input
+                        type="checkbox"
+                        checked={sel.has(r.slug)}
+                        onChange={() => sel.toggle(r.slug)}
+                        aria-label={`Select ${r.sku}`}
+                      />
+                    </label>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <div className="prod-thumb">{r.images[0] ? <img src={r.images[0]} alt="" loading="lazy" decoding="async" /> : <span className="prod-noimg" />}</div>
                     <div className="prod-id">
@@ -205,7 +272,21 @@ export default function AdminCatalog() {
                 <span>Page {pageSafe + 1} of {pageCount} · {filtered.length} products</span>
                 <button className="btn btn-line btn-sm" disabled={pageSafe >= pageCount - 1} onClick={() => setPage(pageSafe + 1)}>Next</button>
               </div>
+
             )}
+            <BulkBar count={sel.count} noun="product" onClear={sel.clear} busy={bulkBusy}>
+              <select
+                className="bulk-select"
+                value=""
+                disabled={bulkBusy}
+                onChange={(e) => { const v = e.target.value; e.target.value = ""; bulkCategory(v); }}
+                aria-label="Move selected products to a category"
+              >
+                <option value="">Move to category…</option>
+                {catOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <button type="button" className="btn btn-line btn-sm danger" disabled={bulkBusy} onClick={bulkDelete}>Delete</button>
+            </BulkBar>
             </>
           )}
         </>
