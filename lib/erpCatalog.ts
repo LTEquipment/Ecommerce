@@ -39,16 +39,23 @@ export type CatalogSyncReport = {
   failures: { sku: string; error: string }[];
 };
 
+/**
+ * A product as returned by the ERP's Partner API (GET /products).
+ *
+ * Note what is absent: no model_number is populated on any row, so `id`
+ * (e.g. "EXT-MR9R8DUX-OBBCS") is the only stable key, and `stock` is 0 on the
+ * whole catalog — meaning "not tracked", not "none left".
+ */
 type FeedItem = {
-  sku: string | null;
+  id: string;
   name: string;
-  brand: string | null;
-  description: string | null;
-  price: number;
-  image_url: string | null;
-  lifecycle_status: string | null;
   category: string | null;
-  stock_qty: number | null;
+  series: string | null;
+  brand?: string | null;
+  description?: string | null;
+  price: string | number | null;
+  image_url: string | null;
+  stock?: number | null;
 };
 
 
@@ -90,7 +97,34 @@ export function slugFor(sku: string): string {
 }
 
 export function erpCatalogConfigured(): boolean {
-  return Boolean(process.env.ERP_CATALOG_URL && process.env.ERP_INGEST_TOKEN);
+  return Boolean(process.env.ERP_API_URL && process.env.ERP_API_KEY);
+}
+
+/**
+ * Pages through the Partner API. It caps at 50 rows per page and the catalog is
+ * a few hundred products, so this walks pages rather than assuming one response
+ * holds everything. Bounded so a misbehaving feed cannot loop forever.
+ */
+async function fetchAllProducts(): Promise<FeedItem[]> {
+  const out: FeedItem[] = [];
+  for (let page = 1; page <= 40; page++) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 20000);
+    try {
+      const res = await fetch(`${process.env.ERP_API_URL}/products?limit=50&page=${page}`, {
+        signal: ctl.signal,
+        headers: { "x-api-key": process.env.ERP_API_KEY!, accept: "application/json" },
+      });
+      if (!res.ok) throw new Error(`http ${res.status}`);
+      const body = (await res.json()) as { products?: FeedItem[] };
+      const batch = body.products ?? [];
+      out.push(...batch);
+      if (batch.length < 50) break;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return out;
 }
 
 export async function syncCatalogFromErp(
@@ -108,21 +142,11 @@ export async function syncCatalogFromErp(
   if (!url || !key) return { ...empty, reason: "storefront-db-not-configured" };
 
   // --- pull the feed -------------------------------------------------------
-  const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), 20000);
   let feed: FeedItem[];
   try {
-    const res = await fetch(process.env.ERP_CATALOG_URL!, {
-      signal: ctl.signal,
-      headers: { authorization: `Bearer ${process.env.ERP_INGEST_TOKEN!}` },
-    });
-    const body = (await res.json().catch(() => ({}))) as { items?: FeedItem[]; error?: string };
-    if (!res.ok) return { ...empty, reason: body.error ?? `http ${res.status}` };
-    feed = Array.isArray(body.items) ? body.items : [];
+    feed = await fetchAllProducts();
   } catch (e) {
     return { ...empty, reason: e instanceof Error ? e.message : "network" };
-  } finally {
-    clearTimeout(timer);
   }
 
   const admin = createClient(url, key, { auth: { persistSession: false } });
@@ -136,20 +160,33 @@ export async function syncCatalogFromErp(
 
   const report: CatalogSyncReport = { ...empty, ok: true, fetched: feed.length };
 
+  // Slugs come from names, and names repeat — seven products share the same
+  // "custom made ... wok range" wording. Without a suffix they would overwrite
+  // one another and seven products would land as one.
+  const slugTally = new Map<string, number>();
+  const uniqueSlug = (base: string) => {
+    const n = (slugTally.get(base) ?? 0) + 1;
+    slugTally.set(base, n);
+    return n === 1 ? base : `${base}-${n}`;
+  };
+
   for (const item of feed) {
-    const sku = (item.sku ?? "").trim().toUpperCase();
+    const sku = (item.id ?? "").trim().toUpperCase();
+    const name = (item.name ?? "").trim();
+    const price = Number(item.price ?? 0);
     if (!sku) continue;
+
     const current = bySku.get(sku);
     if (!current) {
       report.notListed++;
       if (!opts.createMissing) continue;
 
-      // A product with no price cannot be sold, and one with no usable slug
-      // cannot be linked to. Skip rather than list something broken.
-      const slug = slugFor(sku);
-      if (item.price <= 0 || !slug) { report.skipped++; continue; }
+      // A name that is only digits is a placeholder row, not a product; a
+      // product with no price cannot be sold. Neither belongs on a public shop.
+      const base = slugFor(name) || slugFor(sku);
+      if (!name || /^\d+$/.test(name) || price <= 0 || !base) { report.skipped++; continue; }
 
-      const { category, art, matched } = mapCategory(item.category ?? item.name);
+      const { category, art, matched } = mapCategory(name || item.category);
       if (!matched && !report.unmappedCategories.includes(item.category ?? "")) {
         report.unmappedCategories.push(item.category ?? "(none)");
       }
@@ -159,13 +196,15 @@ export async function syncCatalogFromErp(
       if (opts.dryRun) { report.created++; continue; }
 
       const { error } = await admin.from("products").insert({
-        slug, sku, name: item.name, brand: item.brand,
+        slug: uniqueSlug(base), sku, name,
+        brand: item.brand ?? null,
         description: item.description ?? "",
-        category_id: category, art, price: item.price,
+        category_id: category, art, price,
         images: item.image_url ? [item.image_url] : [],
-        stock: item.stock_qty === null || item.stock_qty === undefined
-          ? "in"
-          : item.stock_qty > 0 ? "in" : "back",
+        // The ERP reports stock 0 across the entire catalog, which means "not
+        // tracked" rather than "none left" — marking every product Backorder
+        // would be a false claim to customers.
+        stock: "in",
       });
       if (error) report.failures.push({ sku, error: error.message });
       else report.created++;
@@ -178,14 +217,7 @@ export async function syncCatalogFromErp(
 
     // Price: authoritative, and only when the ERP actually has one. A feed row
     // with price 0 usually means "not priced yet", not "free".
-    if (item.price > 0 && Number(current.price) !== item.price) patch.price = item.price;
-
-    // Availability: null stock means the ERP isn't tracking it, which is not the
-    // same as zero — leave the storefront's own value alone in that case.
-    if (item.stock_qty !== null && item.stock_qty !== undefined) {
-      const stock = item.stock_qty > 0 ? "in" : "back";
-      if (current.stock !== stock) patch.stock = stock;
-    }
+    if (price > 0 && Number(current.price) !== price) patch.price = price;
 
     if (opts.syncCopy) {
       if (item.name && item.name !== current.name) patch.name = item.name;
