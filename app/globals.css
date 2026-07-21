@@ -2747,11 +2747,13 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   .fcol-toggle svg{display:none}
 }
 
-/* Header actions sit right on phones. The desktop layout relies on
-   .big-search (flex:1) to fill the middle and push them over; that search
-   field is hidden here, so without this everything collapses to the left
-   and leaves the right half of the bar empty. */
-@media(max-width:767px){
+/* Header actions sit right once the search field is gone. The desktop layout
+   relies on .big-search (flex:1) to fill the middle and push them over, so
+   wherever that field is hidden the actions collapse to the left and leave
+   the rest of the bar empty. Keyed to the same 820px breakpoint that hides
+   it — scoping this to the phone layer left 768-820px broken, with 438px of
+   dead space at iPad portrait width. */
+@media(max-width:820px){
   .hdr .hdr-actions{margin-left:auto}
 }
 
@@ -2797,4 +2799,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   .fb-legal a::after,.fb-legal button::after{display:none}
   .fb-legal{gap:2px 18px}
   .fb-legal a,.fb-legal button{padding:7px 0;display:inline-flex;align-items:center}
+}
+
+/* The social row is flex-nowrap and runs 331px wide, so on a 320px phone the
+   last icon (Xiaohongshu) sits past the viewport edge. html/body use
+   overflow-x:clip, so it isn't scrollable either — it is simply unreachable.
+   Let the row wrap. */
+@media(max-width:767px){
+  .socials{flex-wrap:wrap;row-gap:10px}
 }
