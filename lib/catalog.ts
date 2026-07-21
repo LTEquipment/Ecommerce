@@ -51,16 +51,24 @@ export async function getCategories(): Promise<Category[]> {
   const c = db();
   if (!c) return MOCK_CATEGORIES;
   const { data, error } = await c.from("categories").select("*").order("sort");
-  if (error || !data?.length) return MOCK_CATEGORIES;
-  return data.map(rowToCategory);
+  // Same distinction as products: an error means we couldn't ask, an empty
+  // result means the answer is "none". Only the first deserves a fallback.
+  if (error) return MOCK_CATEGORIES;
+  return (data ?? []).map(rowToCategory);
 }
 
 export async function getProducts(): Promise<Product[]> {
   const c = db();
+  // No backend at all — the sample catalog is the only thing to show.
   if (!c) return MOCK_PRODUCTS;
   const { data, error } = await c.from("products").select("*").order("sort");
-  if (error || !data?.length) return MOCK_PRODUCTS;
-  return data.map(rowToProduct);
+  // A failed query means the shop can't reach its data; showing samples keeps
+  // the site up. An EMPTY table is different: it is a real answer, and the
+  // catalog is genuinely empty. Falling back there meant deleting every product
+  // in the admin silently resurrected 37 demo products on the live shop, with
+  // no way for an operator to tell which they were looking at.
+  if (error) return MOCK_PRODUCTS;
+  return (data ?? []).map(rowToProduct);
 }
 
 export async function getCategory(id: string): Promise<Category | undefined> {
@@ -74,8 +82,12 @@ export async function getProductsByCategory(id: string): Promise<Product[]> {
 export async function getProduct(slug: string): Promise<Product | undefined> {
   const c = db();
   if (c) {
-    const { data } = await c.from("products").select("*").eq("slug", slug).maybeSingle();
+    const { data, error } = await c.from("products").select("*").eq("slug", slug).maybeSingle();
     if (data) return rowToProduct(data);
+    // Found nothing, and the lookup worked — that product does not exist.
+    // Falling through to the samples kept deleted products reachable by URL,
+    // still priced and still addable to a cart.
+    if (!error) return undefined;
   }
   return MOCK_PRODUCTS.find((p) => p.slug === slug);
 }

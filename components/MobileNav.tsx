@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
 import { COMPANY, telHref } from "@/lib/company";
-import { CATEGORIES } from "@/lib/products";
+import { useCategories } from "./CategoriesProvider";
 import { Search, Close, User, Package, LogOut, Shield, Heart, Store } from "./icons";
 
 export default function MobileNav() {
   const { navOpen, closeNav, query, setQuery } = useStore();
   const { user, displayName, signOut } = useAuth();
+  const categories = useCategories();
   const router = useRouter();
 
   useEffect(() => {
@@ -81,7 +82,7 @@ export default function MobileNav() {
 
           <div className="mn-sec">Departments</div>
           <Link href="/products" onClick={closeNav}>All departments</Link>
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <Link key={c.id} href={`/category/${c.id}`} onClick={closeNav}>
               {c.name}
             </Link>

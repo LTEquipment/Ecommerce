@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Fragment, type SVGProps, type ReactElement } from "react";
 import { COMPANY, SOCIALS, telHref } from "@/lib/company";
 import { getSiteSettings } from "@/lib/settings";
-import { CATEGORIES } from "@/lib/products";
+import { getCategories } from "@/lib/catalog";
 import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu, Phone, Chat } from "./icons";
 import CookiePrefsButton from "./CookiePrefsButton";
 import BackToTop from "./BackToTop";
@@ -19,7 +19,10 @@ const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => ReactElement> 
 };
 
 export default async function Footer() {
-  const { investorRelationsEnabled } = await getSiteSettings();
+  const [{ investorRelationsEnabled }, categories] = await Promise.all([
+    getSiteSettings(),
+    getCategories(),
+  ]);
   return (
     <footer>
       <div className="support-bar">
@@ -82,7 +85,7 @@ export default async function Footer() {
 
           <div className={`foot-nav${investorRelationsEnabled ? "" : " cols-4"}`}>
           <FooterColumn title="Departments">
-            {CATEGORIES.slice(0, 5).map((c) => (
+            {categories.slice(0, 5).map((c) => (
               <Link key={c.id} href={`/category/${c.id}`}>{c.name}</Link>
             ))}
             <Link href="/brands">Shop by brand</Link>

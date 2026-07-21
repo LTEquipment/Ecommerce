@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
 import { useStore } from "./StoreProvider";
-import { PRODUCTS, CATEGORIES } from "@/lib/products";
 import { money } from "@/lib/format";
 import { Search } from "./icons";
 
@@ -13,37 +13,59 @@ type Suggestion =
 
 const MAX_PRODUCTS = 6;
 
+// Public catalog read, same anon key the storefront already renders from.
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SB_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const sb = SB_URL && SB_ANON ? createClient(SB_URL, SB_ANON, { auth: { persistSession: false } }) : null;
+
 /** Header search with a live typeahead over the catalog (SKU-first for B2B). */
 export default function SearchAutocomplete() {
   const { query, setQuery } = useStore();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
+  const [items, setItems] = useState<Suggestion[]>([]);
   const rootRef = useRef<HTMLFormElement>(null);
 
   const q = query.trim().toLowerCase();
 
-  const items = useMemo<Suggestion[]>(() => {
-    if (q.length < 2) return [];
-    const products = PRODUCTS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
-        (p.brand ?? "").toLowerCase().includes(q)
-    )
-      .slice(0, MAX_PRODUCTS)
-      .map((p) => ({
-        type: "product" as const,
-        slug: p.slug,
-        name: p.name,
-        sku: p.sku,
-        price: p.price,
-        img: p.images[0],
+  // Queries the catalog itself rather than a bundled copy. Searching a
+  // hard-coded list meant the header offered products that had been deleted and
+  // missed every product added since the build — the results looked real and
+  // were not.
+  useEffect(() => {
+    if (q.length < 2) { setItems([]); return; }
+    if (!sb) { setItems([]); return; }
+
+    let cancelled = false;
+    // Debounced: this fires per keystroke.
+    const t = setTimeout(async () => {
+      const like = `%${q.replace(/[%_,]/g, "")}%`;
+      const [prod, cat] = await Promise.all([
+        sb.from("products")
+          .select("slug,sku,name,price,images")
+          .or(`name.ilike.${like},sku.ilike.${like},brand.ilike.${like}`)
+          .limit(MAX_PRODUCTS),
+        sb.from("categories").select("id,name").ilike("name", like).limit(3),
+      ]);
+      if (cancelled) return;
+      const products: Suggestion[] = (prod.data ?? []).map((p) => ({
+        type: "product",
+        slug: p.slug as string,
+        name: p.name as string,
+        sku: p.sku as string,
+        price: Number(p.price),
+        img: (p.images as string[] | null)?.[0],
       }));
-    const cats = CATEGORIES.filter((c) => c.name.toLowerCase().includes(q))
-      .slice(0, 3)
-      .map((c) => ({ type: "category" as const, id: c.id, name: c.name }));
-    return [...products, ...cats];
+      const cats: Suggestion[] = (cat.data ?? []).map((c) => ({
+        type: "category",
+        id: c.id as string,
+        name: c.name as string,
+      }));
+      setItems([...products, ...cats]);
+    }, 180);
+
+    return () => { cancelled = true; clearTimeout(t); };
   }, [q]);
 
   const showDropdown = open && q.length >= 2;

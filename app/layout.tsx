@@ -6,6 +6,8 @@ import StoreProvider from "@/components/StoreProvider";
 import { ReviewStatsProvider } from "@/components/ReviewStatsProvider";
 import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
 import { getSiteSettings } from "@/lib/settings";
+import { getCategories } from "@/lib/catalog";
+import { CategoriesProvider } from "@/components/CategoriesProvider";
 import TopBar from "@/components/TopBar";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import Header from "@/components/Header";
@@ -78,7 +80,9 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const settings = await getSiteSettings();
+  // Both read on the server so the chrome renders live data instead of a list
+  // baked in at build time.
+  const [settings, categories] = await Promise.all([getSiteSettings(), getCategories()]);
   return (
     <html lang="en" className={`${archivo.variable} ${inter.variable}`}>
       <body>
@@ -93,6 +97,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <AuthProvider>
           <StoreProvider>
             <SiteSettingsProvider value={settings}>
+            <CategoriesProvider value={categories}>
             <ReviewStatsProvider>
               <AnnouncementBanner />
               <SiteChrome>
@@ -112,6 +117,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </SiteChrome>
               <Toast />
             </ReviewStatsProvider>
+            </CategoriesProvider>
             </SiteSettingsProvider>
           </StoreProvider>
         </AuthProvider>

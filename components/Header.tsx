@@ -8,13 +8,13 @@ import WishlistIcon from "./WishlistIcon";
 import SearchAutocomplete from "./SearchAutocomplete";
 import { money } from "@/lib/format";
 import { COMPANY } from "@/lib/company";
-import { CATEGORIES } from "@/lib/products";
+import { useCategories } from "./CategoriesProvider";
 import { ILLUS } from "@/lib/illus";
 import { Search, User, UserRound, Bag, ShieldCheck, Grid, SignOut, Cart, Menu, ChevronDown, FileText } from "./icons";
 
-const NAV = CATEGORIES.slice(0, 6);
-
 export default function Header() {
+  const categories = useCategories();
+  const NAV = categories.slice(0, 6);
   const { openCart, openNav, count, subtotal } = useStore();
   const { user, isAdmin, displayName, signOut } = useAuth();
   const avatarUrl = (user?.user_metadata?.avatar_url as string) || "";
@@ -178,7 +178,7 @@ export default function Header() {
             </button>
             {deptOpen && (
               <div className="dept-menu" role="menu" style={{ left: deptPos.left, top: deptPos.top }}>
-                {CATEGORIES.map((c) => (
+                {categories.map((c) => (
                   <Link key={c.id} href={`/category/${c.id}`} className="dept-mi" role="menuitem" onClick={() => setDeptOpen(false)}>
                     <span className="dmi-ic" dangerouslySetInnerHTML={{ __html: ILLUS[c.art] }} />
                     <span className="dmi-t"><b>{c.name}</b><span>{c.count}</span></span>
