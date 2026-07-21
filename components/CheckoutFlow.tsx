@@ -169,8 +169,8 @@ export default function CheckoutFlow() {
             {step === 0 && (
               <>
                 <h2>Contact</h2>
-                <div className="field"><label>Email</label><input value={f.email} onChange={set("email")} type="email" placeholder="you@yourkitchen.com" /></div>
-                <div className="field"><label>Phone</label><input value={f.phone} onChange={set("phone")} placeholder="(917) 000-0000" /></div>
+                <div className="field"><label>Email</label><input value={f.email} onChange={set("email")} type="email" inputMode="email" autoComplete="email" placeholder="you@yourkitchen.com" /></div>
+                <div className="field"><label>Phone</label><input value={f.phone} onChange={set("phone")} type="tel" inputMode="tel" autoComplete="tel" placeholder="(917) 000-0000" /></div>
                 {!user && (
                   <p style={{ fontSize: 13, color: "var(--muted)" }}>
                     Have an account? <Link href="/login" style={{ color: "var(--red)", fontWeight: 600 }}>Sign in</Link> to save this order.
@@ -194,14 +194,14 @@ export default function CheckoutFlow() {
                     </div>
                   </div>
                 )}
-                <div className="field"><label>Full name</label><input value={f.name} onChange={set("name")} /></div>
-                <div className="field"><label>Company (optional)</label><input value={f.company} onChange={set("company")} /></div>
-                <div className="field"><label>Street address</label><input value={f.address} onChange={set("address")} /></div>
+                <div className="field"><label>Full name</label><input value={f.name} onChange={set("name")} autoComplete="name" /></div>
+                <div className="field"><label>Company (optional)</label><input value={f.company} onChange={set("company")} autoComplete="organization" /></div>
+                <div className="field"><label>Street address</label><input value={f.address} onChange={set("address")} autoComplete="street-address" /></div>
                 <div className="field-row">
-                  <div className="field"><label>City</label><input value={f.city} onChange={set("city")} /></div>
-                  <div className="field"><label>State</label><input value={f.state} onChange={set("state")} /></div>
+                  <div className="field"><label>City</label><input value={f.city} onChange={set("city")} autoComplete="address-level2" /></div>
+                  <div className="field"><label>State</label><input value={f.state} onChange={set("state")} autoComplete="address-level1" /></div>
                 </div>
-                <div className="field"><label>ZIP</label><input value={f.zip} onChange={set("zip")} /></div>
+                <div className="field"><label>ZIP</label><input value={f.zip} onChange={set("zip")} inputMode="numeric" autoComplete="postal-code" /></div>
                 {user && f.address.trim() && (
                   <label className="co-save-addr">
                     <input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} />
@@ -227,11 +227,11 @@ export default function CheckoutFlow() {
                 </div>
                 {method === "card" ? (
                   <>
-                    <div className="field"><label>Name on card</label><input value={f.cardName} onChange={set("cardName")} /></div>
-                    <div className="field"><label>Card number</label><input value={f.card} onChange={set("card")} placeholder="4242 4242 4242 4242" inputMode="numeric" /></div>
+                    <div className="field"><label>Name on card</label><input value={f.cardName} onChange={set("cardName")} autoComplete="cc-name" /></div>
+                    <div className="field"><label>Card number</label><input value={f.card} onChange={set("card")} placeholder="4242 4242 4242 4242" inputMode="numeric" autoComplete="cc-number" /></div>
                     <div className="field-row">
-                      <div className="field"><label>Expiry</label><input value={f.exp} onChange={set("exp")} placeholder="MM/YY" /></div>
-                      <div className="field"><label>CVC</label><input value={f.cvc} onChange={set("cvc")} placeholder="123" inputMode="numeric" /></div>
+                      <div className="field"><label>Expiry</label><input value={f.exp} onChange={set("exp")} placeholder="MM/YY" inputMode="numeric" autoComplete="cc-exp" /></div>
+                      <div className="field"><label>CVC</label><input value={f.cvc} onChange={set("cvc")} placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></div>
                     </div>
                     <p style={{ fontSize: 12.5, color: "var(--muted)", display: "flex", gap: 8, alignItems: "center" }}>
                       <Shield style={{ width: 16, height: 16 }} /> Demo checkout — no card is charged. Live Stripe processing activates once keys are configured.

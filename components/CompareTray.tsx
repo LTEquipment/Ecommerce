@@ -24,7 +24,10 @@ export default function CompareTray() {
     };
   }, []);
 
-  if (items.length === 0 || path === "/compare") return null;
+  // Also hidden through checkout: the tray is a shopping aid, it competes with
+  // the payment step, and its bottom offset assumes a tab bar that checkout
+  // suppresses — so it floated up over the card fields.
+  if (items.length === 0 || path === "/compare" || path?.startsWith("/checkout")) return null;
   const ready = items.length >= 2;
   const emptySlots = Math.max(0, COMPARE_MAX - items.length);
   const need = 2 - items.length;
