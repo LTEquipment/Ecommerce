@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useStore } from "./StoreProvider";
+import { useDialog } from "@/lib/useDialog";
 import WishlistButton from "./WishlistButton";
 import { money } from "@/lib/format";
 import { Close, Plus, Search } from "./icons";
@@ -15,31 +16,10 @@ export default function QuickView({ p }: { p: Product }) {
   const [open, setOpen] = useState(false);
   const inStock = p.stock === "in";
   const specs = Object.entries(p.specs ?? {}).slice(0, 6);
-  const panel = useRef<HTMLDivElement>(null);
-  const restoreTo = useRef<HTMLElement | null>(null);
-
-  // The panel already declares role="dialog" aria-modal="true", but nothing
-  // backed that up: Escape did not close it, focus never entered it, and the
-  // page behind kept scrolling. Every other overlay here (cookie banner, PDP
-  // lightbox, facets sheet) does all three.
-  useEffect(() => {
-    if (!open) return;
-    restoreTo.current = document.activeElement as HTMLElement | null;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-    (panel.current?.querySelector<HTMLElement>(
-      'button,a[href],input,[tabindex]:not([tabindex="-1"])'
-    ) ?? panel.current)?.focus();
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-      restoreTo.current?.focus?.();
-    };
-  }, [open]);
+  // The panel declares role="dialog" aria-modal="true"; useDialog is what
+  // actually delivers it — focus in, Tab trapped, Escape to close, focus
+  // restored, page scroll locked. Same hook CartDrawer and QuoteRequest use.
+  const panel = useDialog<HTMLDivElement>(open, () => setOpen(false));
 
   return (
     <>

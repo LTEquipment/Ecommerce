@@ -12,6 +12,10 @@ const FOCUSABLE =
  * ref to the dialog element. `onClose` is read through a ref so the trap effect
  * only re-runs when `open` changes (never mid-interaction, which would steal
  * focus while the user types).
+ *
+ * Also locks page scroll while open. Without it the content behind a modal
+ * scrolls under the user's finger on a phone, and the dialog can be scrolled
+ * out of view entirely.
  */
 export function useDialog<T extends HTMLElement>(open: boolean, onClose: () => void) {
   const ref = useRef<T>(null);
@@ -22,6 +26,8 @@ export function useDialog<T extends HTMLElement>(open: boolean, onClose: () => v
     if (!open) return;
     const node = ref.current;
     const previouslyFocused = document.activeElement as HTMLElement | null;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     const focusables = () =>
       node ? Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.offsetParent !== null) : [];
@@ -52,6 +58,7 @@ export function useDialog<T extends HTMLElement>(open: boolean, onClose: () => v
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
       previouslyFocused?.focus?.();
     };
   }, [open]);
