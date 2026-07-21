@@ -2709,3 +2709,36 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   .card .addbtn{padding:12px 9px;font-size:13px;gap:6px;white-space:nowrap;min-height:44px}
   .card .addbtn svg{width:15px;height:15px}
 }
+
+/* ---- Header and footer on phones ---- */
+@media(max-width:767px){
+  /* The tab bar now owns Search, Cart and Account, so repeating them in the
+     header is three redundant targets in a 64px bar. Leave the header with
+     brand, wishlist (which has no tab) and the menu. */
+  .hdr .icon-btn[aria-label="Search"],
+  .hdr .icon-btn[aria-label="Account"],
+  .hdr .icon-btn[aria-label^="Open cart"]{display:none}
+
+  /* Footer link groups collapse. Headings become full-width toggles so four
+     stacked groups don't add 473px of links to the scroll. */
+  .fcol h5{margin:0;border-top:1px solid rgba(255,255,255,.12)}
+  .foot-nav{grid-template-columns:1fr;gap:0}
+  .fcol-toggle{display:flex;align-items:center;justify-content:space-between;
+    width:100%;min-height:52px;padding:0;background:none;border:0;
+    font:inherit;font-size:11px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:inherit;text-align:left}
+  .fcol-toggle svg{width:16px;height:16px;flex:0 0 auto;opacity:.6;
+    transition:transform var(--ease)}
+  .fcol.open .fcol-toggle svg{transform:rotate(180deg)}
+  .fcol-links{display:none;padding-bottom:var(--s3)}
+  .fcol.open .fcol-links{display:block}
+  /* Room to breathe once open — 30px rows are below the touch minimum. */
+  .fcol-links a{padding:12px 0;font-size:14px;min-height:44px}
+}
+
+/* Desktop keeps the static column: the toggle is inert and links always show. */
+@media(min-width:768px){
+  .fcol-toggle{background:none;border:0;padding:0;font:inherit;color:inherit;
+    pointer-events:none;text-align:left}
+  .fcol-toggle svg{display:none}
+}

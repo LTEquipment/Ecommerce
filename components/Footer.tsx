@@ -7,6 +7,7 @@ import { XSocial, Facebook, TikTok, Pinterest, Youtube, Xiaohongshu, Phone, Chat
 import CookiePrefsButton from "./CookiePrefsButton";
 import BackToTop from "./BackToTop";
 import FooterBreadcrumb from "./FooterBreadcrumb";
+import FooterColumn from "./FooterColumn";
 
 const SOCIAL_ICON: Record<string, (p: SVGProps<SVGSVGElement>) => ReactElement> = {
   TikTok,
@@ -80,41 +81,36 @@ export default async function Footer() {
           </div>
 
           <div className={`foot-nav${investorRelationsEnabled ? "" : " cols-4"}`}>
-          <div className="fcol">
-            <h5>Departments</h5>
+          <FooterColumn title="Departments">
             {CATEGORIES.slice(0, 5).map((c) => (
               <Link key={c.id} href={`/category/${c.id}`}>{c.name}</Link>
             ))}
             <Link href="/brands">Shop by brand</Link>
-          </div>
-          <div className="fcol">
-            <h5>Ordering</h5>
+          </FooterColumn>
+          <FooterColumn title="Ordering">
             <Link href="/login?mode=register&trade=1">Trade accounts</Link>
             <Link href="/financing">Financing &amp; pricing</Link>
             <Link href="/shipping">Shipping &amp; freight</Link>
             <Link href="/returns">Returns</Link>
             <Link href="/vendors">Become a vendor</Link>
-          </div>
-          <div className="fcol">
-            <h5>Support</h5>
+          </FooterColumn>
+          <FooterColumn title="Support">
             <Link href="/support">Help center</Link>
             <Link href="/faq">FAQ</Link>
             <Link href="/guides">Equipment guides</Link>
             <Link href="/warranty">Warranty &amp; parts</Link>
             <Link href="/track">Track an order</Link>
             <Link href="/contact">Spec support</Link>
-          </div>
+          </FooterColumn>
           {investorRelationsEnabled && (
-          <div className="fcol">
-            <h5>Investors</h5>
+          <FooterColumn title="Investors">
             <Link href="/investors">Investor relations</Link>
             <Link href="/investors#highlights">Company highlights</Link>
             <Link href="/investors#governance">Corporate governance</Link>
             <Link href="/investors#contact">Contact IR</Link>
-          </div>
+          </FooterColumn>
           )}
-          <div className="fcol">
-            <h5>Company</h5>
+          <FooterColumn title="Company">
             <Link href="/about">About us</Link>
             <Link href="/leadership">Leadership</Link>
             <Link href="/press">Press</Link>
@@ -122,7 +118,7 @@ export default async function Footer() {
             <Link href="/careers">Careers</Link>
             <Link href="/locations">Showrooms</Link>
             <Link href="/contact">Contact</Link>
-          </div>
+          </FooterColumn>
           </div>
         </div>
 
