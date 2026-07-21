@@ -62,6 +62,21 @@ export default function Catalog({
   } = useStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // On phones the facets panel is a bottom sheet, so it needs sheet behaviour:
+  // Esc closes it and the page behind it stops scrolling while it is open.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMobileOpen(false); };
+    const prev = document.body.style.overflow;
+    const phone = window.matchMedia("(max-width:767px)").matches;
+    if (phone) document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
   // Make search URL-addressable: /products?q=… (shared links + the schema.org
   // SearchAction) seed the store query. StoreProvider is mounted once at the root,
   // so its filter state would otherwise LEAK across client-side navigation (a
@@ -140,6 +155,12 @@ export default function Catalog({
           </button>
         </div>
         <div className="shop">
+          {/* Phone-only backdrop for the facets sheet; inert on desktop. */}
+          <div
+            className={`facet-scrim${mobileOpen ? " open" : ""}`}
+            onClick={() => setMobileOpen(false)}
+            aria-hidden="true"
+          />
           <aside id="catalog-facets" className={`facets${mobileOpen ? " open" : ""}`} aria-label="Filters">
             {!lockedCat && (
               <div className="facet">
@@ -188,6 +209,11 @@ export default function Catalog({
               </button>
             </div>
             <button className="facet-clear" onClick={clearFilters}>Clear all filters</button>
+            {/* Phone-only: sheets need an explicit dismiss, and the live count
+                tells you what the current facets actually got you. */}
+            <button className="facet-done btn btn-primary" onClick={() => setMobileOpen(false)}>
+              Show {list.length} {list.length === 1 ? "product" : "products"}
+            </button>
           </aside>
           <div>
             <div className="toolbar">

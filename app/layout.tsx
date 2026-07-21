@@ -10,6 +10,7 @@ import TopBar from "@/components/TopBar";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
+import MobileTabBar from "@/components/MobileTabBar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import CompareTray from "@/components/CompareTray";
@@ -107,6 +108,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <CartDrawer />
                 <CompareTray />
                 <CookieConsent />
+                <MobileTabBar />
               </SiteChrome>
               <Toast />
             </ReviewStatsProvider>
