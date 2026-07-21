@@ -5,6 +5,8 @@ import { useStore } from "../StoreProvider";
 import { useAuth } from "../AuthProvider";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { logAudit } from "@/lib/audit";
+import { useBulkSelect } from "@/lib/useBulkSelect";
+import BulkBar from "./BulkBar";
 import { money } from "@/lib/format";
 import { toCsv } from "@/lib/csv";
 import { CARRIERS, trackingUrl } from "@/lib/tracking";
@@ -155,6 +157,39 @@ export default function AdminOrders() {
   const pageSafe = Math.min(page, pageCount - 1);
   const paged = filtered.slice(pageSafe * PAGE_SIZE, pageSafe * PAGE_SIZE + PAGE_SIZE);
 
+  const sel = useBulkSelect(paged.map((o) => o.id));
+  const [bulkBusy, setBulkBusy] = useState(false);
+
+  /** Apply one status to every selected order. Sequential on purpose: the audit
+   *  log should carry one entry per order, and a partial failure must stop
+   *  rather than silently leave the rest unchanged. */
+  const bulkStatus = async (status: string) => {
+    const ids = [...sel.ids];
+    if (ids.length === 0) return;
+    const verb = status === "cancelled" ? "Cancel" : `Mark ${status}`;
+    if (!window.confirm(`${verb} ${ids.length} order${ids.length === 1 ? "" : "s"}?`)) return;
+    const sb = getBrowserSupabase();
+    if (!sb) return;
+    setBulkBusy(true);
+    let done = 0;
+    for (const id of ids) {
+      const { error } = await sb.from("orders").update({ status }).eq("id", id);
+      if (error) {
+        toast(`Stopped after ${done}: ${error.message}`, "error");
+        break;
+      }
+      done++;
+      logAudit(user, "order.status", `#${id.slice(0, 8)}`, `→ ${status} (bulk)`);
+    }
+    if (done > 0) {
+      const applied = new Set(ids.slice(0, done));
+      setOrders((prev) => prev?.map((o) => (applied.has(o.id) ? { ...o, status } : o)) ?? prev);
+      toast(`${done} order${done === 1 ? "" : "s"} → ${status}`);
+    }
+    setBulkBusy(false);
+    sel.clear();
+  };
+
   const exportCsv = () => {
     const head = ["Order", "Date", "Status", "Customer", "Email", "Ship to", "SKU", "Item", "Qty", "Unit price", "Order total"];
     const rows: string[][] = [head];
@@ -200,6 +235,16 @@ export default function AdminOrders() {
           <div className="emptybox"><Package /><div className="m">No orders match</div><div className="s">Try a different status or search term.</div></div>
         ) : (
         <>
+        <label className="ord-selectall">
+          <input
+            type="checkbox"
+            checked={sel.allOnPage}
+            ref={(el) => { if (el) el.indeterminate = sel.someOnPage; }}
+            onChange={sel.toggleAll}
+            aria-label="Select all orders on this page"
+          />
+          Select all on this page
+        </label>
         <div className="admin-cards">
           {paged.map((o) => {
             const items = o.order_items ?? [];
@@ -207,7 +252,15 @@ export default function AdminOrders() {
             const c = who(o);
             const subtotal = Number(o.subtotal) || items.reduce((s, it) => s + Number(it.unit_price) * it.qty, 0);
             return (
-              <div className={`ord-card${isOpen ? " open" : ""}`} key={o.id}>
+              <div className={`ord-card${isOpen ? " open" : ""}${sel.has(o.id) ? " picked" : ""}`} key={o.id}>
+                <label className="ord-pick" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={sel.has(o.id)}
+                    onChange={() => sel.toggle(o.id)}
+                    aria-label={`Select order #${o.id.slice(0, 8)}`}
+                  />
+                </label>
                 <button className="ord-summary" onClick={() => setOpen(isOpen ? null : o.id)} aria-expanded={isOpen}>
                   <ChevronDown className="ord-caret" />
                   <div className="ac-main">
@@ -308,6 +361,13 @@ export default function AdminOrders() {
             <button className="btn btn-line btn-sm" disabled={pageSafe >= pageCount - 1} onClick={() => setPage(pageSafe + 1)}>Next</button>
           </div>
         )}
+        <BulkBar count={sel.count} noun="order" onClear={sel.clear} busy={bulkBusy}>
+          <button type="button" className="btn btn-line btn-sm" disabled={bulkBusy} onClick={() => bulkStatus("processing")}>Processing</button>
+          <button type="button" className="btn btn-line btn-sm" disabled={bulkBusy} onClick={() => bulkStatus("shipped")}>Shipped</button>
+          <button type="button" className="btn btn-line btn-sm" disabled={bulkBusy} onClick={() => bulkStatus("delivered")}>Delivered</button>
+          <button type="button" className="btn btn-line btn-sm danger" disabled={bulkBusy} onClick={() => bulkStatus("cancelled")}>Cancel</button>
+        </BulkBar>
+
         </>
         )}
         </>
