@@ -25,6 +25,7 @@ export type ErpOrder = {
   phone?: string | null;
   amount: number;
   poNumber?: string | null;
+  paymentMethod?: string | null;
   ship?: Record<string, string | null | undefined>;
   items: ErpLine[];
 };
@@ -66,6 +67,7 @@ export async function pushOrderToErp(
         amount: order.amount,
         currency_code: "USD",
         po_number: order.poNumber ?? null,
+        payment_method: order.paymentMethod ?? null,
         ship: order.ship ?? {},
         items: order.items.map((l) => ({
           sku: l.sku ?? null,

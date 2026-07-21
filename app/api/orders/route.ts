@@ -151,6 +151,7 @@ export async function POST(req: Request) {
       email: contactEmail,
       phone: shipping.ship_phone ?? null,
       poNumber: poNumber ?? null,
+      paymentMethod: method ?? null,
       ship: shipping as Record<string, string | null | undefined>,
       items: lines.map((l) => ({ sku: l.sku, name: l.name, qty: l.qty, unit_price: Number(l.unit_price) })),
     });
