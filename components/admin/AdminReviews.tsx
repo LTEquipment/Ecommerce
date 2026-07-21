@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Stars from "../Stars";
 import { useStore } from "../StoreProvider";
 import { Star } from "../icons";
+import MigrationNotice from "./MigrationNotice";
 
 type AdminReview = {
   id: string;
@@ -19,6 +20,7 @@ type AdminReview = {
 
 export default function AdminReviews() {
   const { toast } = useStore();
+  const [off, setOff] = useState(false);
   const [rows, setRows] = useState<AdminReview[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -29,7 +31,7 @@ export default function AdminReviews() {
   const load = useCallback(() => {
     fetch("/api/admin/reviews", { cache: "no-store" })
       .then((r) => r.json())
-      .then((d) => setRows(d.reviews ?? []))
+      .then((d) => { setOff(Boolean(d.notEnabled)); setRows(d.reviews ?? []); })
       .catch(() => setRows([]));
   }, []);
 
@@ -109,11 +111,15 @@ export default function AdminReviews() {
       {rows === null ? (
         <div className="skel skel-row" />
       ) : rows.length === 0 ? (
+        off ? (
+          <MigrationNotice feature="Product reviews" file="product-reviews.sql" consequence="customers can’t leave reviews and none are stored" />
+        ) : (
         <div className="emptybox">
           <Star />
           <div className="m">No reviews yet</div>
           <div className="s">Verified-purchaser reviews appear here as customers submit them.</div>
         </div>
+        )
       ) : (
         <>
         <div className="ord-toolbar">

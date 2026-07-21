@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { isMissingRelation } from "@/lib/migrationGate";
+import MigrationNotice from "./MigrationNotice";
 import { toCsv } from "@/lib/csv";
 import { FileText } from "../icons";
 
@@ -59,6 +61,8 @@ export default function AdminAudit() {
   const [q, setQ] = useState("");
   const [limit, setLimit] = useState(200);
 
+  const [off, setOff] = useState(false);
+
   const load = useCallback(() => {
     const sb = getBrowserSupabase();
     if (!sb) return;
@@ -66,7 +70,15 @@ export default function AdminAudit() {
       .select("id,actor_email,action,target,detail,created_at")
       .order("created_at", { ascending: false })
       .limit(limit)
-      .then(({ data }) => setRows((data as Entry[]) ?? []), () => setRows([]));
+      .then(
+        ({ data, error }) => {
+          // A missing table is not "no activity" — surface it rather than
+          // rendering an empty list that implies nothing has happened.
+          setOff(isMissingRelation(error));
+          setRows((data as Entry[]) ?? []);
+        },
+        () => setRows([])
+      );
   }, [limit]);
 
   useEffect(() => {
@@ -116,6 +128,7 @@ export default function AdminAudit() {
 
   if (rows === null) return <div className="skel skel-row" />;
   if (rows.length === 0) {
+    if (off) return <MigrationNotice feature="The audit log" file="audit-log.sql" consequence="admin actions aren’t being recorded" />;
     return <div className="emptybox"><FileText /><div className="m">No activity yet</div><div className="s">Admin actions — product edits, order &amp; ticket status changes, dealer approvals, admin grants — are recorded here.</div></div>;
   }
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { isMissingRelation } from "@/lib/migrationGate";
 
 export const runtime = "nodejs";
 
@@ -30,12 +31,14 @@ export async function GET() {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const svc = serviceClient();
-  const { data } = await svc
+  const { data, error } = await svc
     .from("product_reviews")
     .select("id,product_slug,rating,title,body,author_name,verified,status,created_at")
     .order("created_at", { ascending: false })
     .limit(500);
-  return NextResponse.json({ reviews: data ?? [] });
+  // Distinguish "no reviews" from "product-reviews.sql was never run", so the
+  // admin can say which it is instead of showing an empty list either way.
+  return NextResponse.json({ reviews: data ?? [], notEnabled: isMissingRelation(error) });
 }
 
 /** POST /api/admin/reviews  { id, action: 'hide' | 'publish' | 'delete' } */
