@@ -1041,7 +1041,11 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 /* Single-card auth pages (password reset) reuse the auth card styles without the
    two-column brandside grid. */
 .auth.auth-solo{max-width:440px;grid-template-columns:1fr}
-.field label.field-lbl-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+/* field-lbl-row is a <div> wrapping the <label>, not the label itself — the
+   old `label.field-lbl-row` selector never matched, so "Forgot password?"
+   dropped between the label and its input. */
+.field .field-lbl-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.field .field-lbl-row label{margin-bottom:0}
 .field-forgot{font-size:12px;font-weight:600}
 
 .account{display:grid;grid-template-columns:250px 1fr;background:var(--white);border:1px solid var(--line);border-radius:0;margin-top:var(--s5)}
@@ -2682,4 +2686,14 @@ a:focus-visible,button:focus-visible,summary:focus-visible,[role="button"]:focus
   /* No tab bar on checkout, so drop the reserve that assumes one.
      .steps is used only by CheckoutFlow, so this can't leak to other pages. */
   body:has(.steps){padding-bottom:var(--s5)}
+}
+
+/* ---- Stacked-section spacing on phones ---- */
+@media(max-width:767px){
+  /* Sections sit side by side on desktop, so their vertical padding never
+     meets. Stacked on a phone it compounds — 34px bottom against 34px top
+     becomes a 68px hole. Let the previous section's padding do the work. */
+  main section + section{padding-top:0}
+  /* A footnote does not need 89px of runway on a 375px screen. */
+  .smap-foot{margin-top:var(--s5)}
 }
