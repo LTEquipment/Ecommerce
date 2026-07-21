@@ -1045,7 +1045,11 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
    old `label.field-lbl-row` selector never matched, so "Forgot password?"
    dropped between the label and its input. */
 .field .field-lbl-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+/* The label's own 6px bottom margin is zeroed so it can sit in the flex row,
+   so the row has to carry that spacing instead — otherwise this field sits
+   flush against its input while every other field has 6px. */
 .field .field-lbl-row label{margin-bottom:0}
+.field .field-lbl-row{margin-bottom:6px}
 .field-forgot{font-size:12px;font-weight:600}
 
 .account{display:grid;grid-template-columns:250px 1fr;background:var(--white);border:1px solid var(--line);border-radius:0;margin-top:var(--s5)}
