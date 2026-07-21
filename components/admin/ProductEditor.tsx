@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { logAudit } from "@/lib/audit";
 import { useStore } from "../StoreProvider";
+import { useDialog } from "@/lib/useDialog";
 import { useAuth } from "../AuthProvider";
 import { money } from "@/lib/format";
 import { safeHref } from "@/lib/safeHref";
@@ -81,19 +82,12 @@ export default function ProductEditor({
     onClose();
   }, [dirty, onClose]);
 
-  // Lock body scroll while the modal is open.
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
-  }, []);
-
-  // Close on Escape (with the unsaved-changes guard).
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") requestClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [requestClose]);
+  // Dialog behaviour via the shared hook: focus in, Tab trapped, Escape to
+  // close (through requestClose, so the unsaved-changes guard still runs),
+  // focus restored, body scroll locked. This component only mounts while open.
+  // It previously hand-rolled the lock and Escape but never managed focus, so
+  // Tab walked straight out of a modal declaring aria-modal="true".
+  const dialogRef = useDialog<HTMLDivElement>(true, requestClose);
 
   const addSpec = () => setSpecs((s) => [...s, ["", ""]]);
   const editSpec = (i: number, which: 0 | 1, val: string) =>
@@ -209,7 +203,7 @@ export default function ProductEditor({
 
   return (
     <div className="pe-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) requestClose(); }}>
-      <div className="pe-modal" role="dialog" aria-modal="true" aria-label={isNew ? "Add product" : "Edit product"}>
+      <div className="pe-modal" ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={isNew ? "Add product" : "Edit product"}>
         <header className="pe-head">
           <h2>{isNew ? "Add product" : "Edit product"}</h2>
           <button className="pe-x" onClick={requestClose} aria-label="Close"><Close /></button>
