@@ -33,6 +33,8 @@ export type CatalogSyncReport = {
   /** SKUs withheld because nothing in the row can name the product — reported
    *  by SKU so the gap is fixable upstream instead of vanishing into a count. */
   unnamed: string[];
+  /** SKUs withheld because the price is the ERP's placeholder, not a price. */
+  unpriced: string[];
   /** ERP categories no rule matched — these landed in accessories. */
   unmappedCategories: string[];
   /** Which storefront department each ERP category resolved to, with counts, so
@@ -135,6 +137,20 @@ export function availability(item: { stock?: number | null; stock_tracked?: bool
 }
 
 /** URL id. The storefront's existing slugs are just the model number lowercased. */
+/**
+ * Below this, the ERP's price is a placeholder rather than a price.
+ *
+ * Measured, not assumed: 21 of 262 products sit at exactly $1.00 and nothing
+ * whatsoever falls between $1.00 and $1.01. The median is $10,538 and 233
+ * products are over $1,000. A sentinel, not a cheap product.
+ *
+ * This has to be a price check rather than the earlier name check. Five of the
+ * 21 carry perfectly ordinary names — CRH-P-1 through CRH-P-4 are wok ranges —
+ * so nothing about them looks wrong on a listing page. They were purchasable
+ * for a dollar.
+ */
+export const PLACEHOLDER_PRICE = 1;
+
 export function slugFor(sku: string): string {
   return sku.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
@@ -175,7 +191,7 @@ export async function syncCatalogFromErp(
 ): Promise<CatalogSyncReport> {
   const empty: CatalogSyncReport = {
     ok: false, fetched: 0, matched: 0, updated: 0, unchanged: 0,
-    created: 0, skipped: 0, unnamed: [], unmappedCategories: [], categoryBreakdown: {}, notListed: 0,
+    created: 0, skipped: 0, unnamed: [], unpriced: [], unmappedCategories: [], categoryBreakdown: {}, notListed: 0,
     missingFromErp: [], failures: [],
   };
   if (!erpCatalogConfigured()) return { ...empty, reason: "not-configured" };
@@ -246,6 +262,11 @@ export async function syncCatalogFromErp(
       // themselves the moment someone fills in a name and a price upstream.
       if (/^\d+$/.test(name)) { report.unnamed.push(sku); report.skipped++; continue; }
 
+      // A product nobody has priced must not be purchasable. Withheld from the
+      // storefront only — the ERP row is untouched, and it lists itself the
+      // moment a real price exists there.
+      if (price <= PLACEHOLDER_PRICE) { report.unpriced.push(sku); report.skipped++; continue; }
+
       const { category, art, matched } = mapCategory(item.product_type, item.series);
       if (!matched) {
         const label = item.product_type || "(no product_type)";
@@ -276,9 +297,11 @@ export async function syncCatalogFromErp(
 
     const patch: Record<string, unknown> = {};
 
-    // Price: authoritative, and only when the ERP actually has one. A feed row
-    // with price 0 usually means "not priced yet", not "free".
-    if (price > 0 && Number(current.price) !== price) patch.price = price;
+    // Price: authoritative, and only when the ERP actually has one. 0 means
+    // "not priced yet" rather than "free", and the placeholder means the same —
+    // so neither may overwrite a real price on a product already being sold.
+    if (price > PLACEHOLDER_PRICE && Number(current.price) !== price) patch.price = price;
+    else if (price <= PLACEHOLDER_PRICE && !report.unpriced.includes(sku)) report.unpriced.push(sku);
 
     const stock = availability(item);
     if (current.stock !== stock) patch.stock = stock;

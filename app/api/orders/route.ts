@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { erpConfigured, pushOrderToErp } from "@/lib/erp";
+import { erpConfigured, flattenShipTo, pushOrderToErp } from "@/lib/erp";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getProducts } from "@/lib/catalog";
@@ -143,19 +143,41 @@ export async function POST(req: Request) {
   // must not turn a successful payment into a failed checkout. Idempotent on
   // the storefront order id, so a retry cannot double-book.
   if (erpConfigured()) {
+    // `customer` is required and an empty string is rejected. Every element of
+    // the old chain could be absent at once — a signed-in order with no company
+    // and no ship-to sent null — so it ends in the order id, which always
+    // exists. A reference beats a rejected order.
+    const erpCustomer =
+      company || shipping.ship_company || shipping.ship_name || contactEmail || `Web order ${order.id}`;
+
+    // The ERP has no po_number column and asked us not to invent a mapping
+    // silently. B2B customers need their PO on the paperwork the ERP produces,
+    // so it rides in notes in a fixed, declared format until a column exists.
+    const erpNotes = [poNumber ? `Customer PO: ${poNumber}` : null, method ? `Paid by: ${method}` : null]
+      .filter(Boolean)
+      .join(" · ") || null;
+
     const erp = await pushOrderToErp({
       externalId: order.id,
       amount: total,
-      customer: company || shipping.ship_company || shipping.ship_name || contactEmail,
+      customer: erpCustomer,
       contact: shipping.ship_name ?? null,
-      email: contactEmail,
       phone: shipping.ship_phone ?? null,
-      poNumber: poNumber ?? null,
-      paymentMethod: method ?? null,
-      ship: shipping as Record<string, string | null | undefined>,
+      shippingAddress: flattenShipTo(shipping as Record<string, string | null | undefined>),
+      notes: erpNotes,
       items: lines.map((l) => ({ sku: l.sku, name: l.name, qty: l.qty, unit_price: Number(l.unit_price) })),
     });
-    if (!erp.ok) console.error(`[erp] order ${order.id} not mirrored: ${erp.reason}`);
+    if (!erp.ok) {
+      // Never silent: the customer has paid regardless of what the ERP said.
+      // problems[] is logged verbatim rather than collapsed to "order failed",
+      // because it names every fault at once and is the only way to tell a bad
+      // payload from an outage. A 400 is deterministic and is never retried.
+      console.error(
+        `[erp] order ${order.id} NOT mirrored (${erp.reason})` +
+          (erp.problems?.length ? `\n[erp] problems: ${erp.problems.join(" | ")}` : "") +
+          (erp.retryable ? "\n[erp] retryable — needs replay" : "\n[erp] not retryable — needs a fix, not a retry")
+      );
+    }
   }
 
   return NextResponse.json({ id: order.id, total });

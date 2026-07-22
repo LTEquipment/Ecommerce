@@ -15,22 +15,37 @@
  * public web app must not be able to read those if it is ever compromised.
  */
 
-export type ErpLine = { sku?: string | null; name: string; qty: number; unit_price: number };
+export type ErpLine = { sku: string; name: string; qty: number; unit_price: number };
 
 export type ErpOrder = {
   /** Storefront order id — becomes external_id, and the idempotency key. */
   externalId: string;
-  placedAt?: string;
-  customer?: string | null;
+  date?: string;
+  /** Required, and rejected if empty. The caller must guarantee a value. */
+  customer: string;
   contact?: string | null;
-  email?: string | null;
   phone?: string | null;
+  /** One line of text — the ERP stores the ship-to as a single column. */
+  shippingAddress?: string | null;
   amount: number;
-  poNumber?: string | null;
-  paymentMethod?: string | null;
-  ship?: Record<string, string | null | undefined>;
+  notes?: string | null;
   items: ErpLine[];
 };
+
+/** Flattens the storefront's ship-to into the single line the ERP stores. */
+export function flattenShipTo(s: Record<string, string | null | undefined>): string | null {
+  const line = [
+    s.ship_name,
+    s.ship_company,
+    s.ship_address,
+    [s.ship_city, s.ship_state].filter(Boolean).join(", "),
+    s.ship_zip,
+  ]
+    .map((v) => (v ?? "").trim())
+    .filter(Boolean)
+    .join(" · ");
+  return line || null;
+}
 
 /**
  * Three things must be true, not two.
@@ -59,8 +74,11 @@ export function erpConfigured(): boolean {
  */
 export async function pushOrderToErp(
   order: ErpOrder
-): Promise<{ ok: true; salesOrderId: string; duplicate: boolean } | { ok: false; reason: string }> {
-  if (!erpConfigured()) return { ok: false, reason: "not-configured" };
+): Promise<
+  | { ok: true; salesOrderId: string; duplicate: boolean }
+  | { ok: false; reason: string; problems?: string[]; retryable: boolean }
+> {
+  if (!erpConfigured()) return { ok: false, reason: "not-configured", retryable: false };
 
   const controller = new AbortController();
   // Bounded so a hanging ERP can't hold a serverless invocation open.
@@ -73,29 +91,29 @@ export async function pushOrderToErp(
       headers: {
         "content-type": "application/json",
         "x-api-key": process.env.ERP_API_KEY!,
+        // Honoured on genuine retries (timeout, 5xx, network drop). Repeating
+        // external_id is guarded ERP-side too; both are used rather than
+        // guessing whether an earlier attempt got through.
+        "Idempotency-Key": order.externalId,
       },
-      // Only `lines[]` is confirmed: it is the one field the API validates, and
-      // GET /schema names `external_id` as the idempotency key. Every other
-      // field here is sent on the shape the ERP's own sales_orders table uses,
-      // but the API accepts unknown keys silently rather than rejecting them,
-      // so none of it is proven to be stored. Read one pushed order back before
-      // trusting this — a field that is quietly dropped looks identical to a
-      // field that worked.
+      // Exactly the fields the ERP documents. Unknown keys are now rejected
+      // rather than dropped, so anything speculative here would fail the order
+      // outright. Deliberately absent, and open with the ERP team:
+      //   email          — no documented field; the storefront keeps it
+      //   payment_method — no documented field
+      //   currency_code  — not documented; USD is the ERP default
+      //   external_source, id, stage — the ERP assigns these
       body: JSON.stringify({
         external_id: order.externalId,
-        external_source: "storefront",
-        placed_at: order.placedAt ?? new Date().toISOString(),
-        customer: order.customer ?? null,
+        customer: order.customer,
         contact: order.contact ?? null,
-        email: order.email ?? null,
         phone: order.phone ?? null,
+        shipping_address: order.shippingAddress ?? null,
         amount: order.amount,
-        currency_code: "USD",
-        po_number: order.poNumber ?? null,
-        payment_method: order.paymentMethod ?? null,
-        ship: order.ship ?? {},
+        notes: order.notes ?? null,
+        date: order.date,
         lines: order.items.map((l) => ({
-          sku: l.sku ?? null,
+          sku: l.sku,
           name: l.name,
           qty: l.qty,
           unit_price: l.unit_price,
@@ -107,16 +125,29 @@ export async function pushOrderToErp(
       ok?: boolean;
       id?: string;
       error?: string;
+      problems?: string[];
     };
+
     if (!res.ok || !body.id) {
-      return { ok: false, reason: body.error ?? `http ${res.status}` };
+      // A 400 is deterministic — the same payload will fail identically, so
+      // retrying only burns rate limit. 5xx and network faults are the only
+      // things worth sending again.
+      const retryable = res.status >= 500 || res.status === 429;
+      return {
+        ok: false,
+        reason: body.error ?? `http ${res.status}`,
+        problems: body.problems,
+        retryable,
+      };
     }
-    // The API reports no duplicate flag, so a retry of the same external_id
-    // cannot be distinguished from a first push here. Idempotency has to be
-    // enforced ERP-side on (external_source, external_id).
+    // Repeating an external_id returns the existing order rather than creating
+    // a second one, but the response does not distinguish the two cases.
     return { ok: true, salesOrderId: body.id, duplicate: false };
   } catch (e) {
-    return { ok: false, reason: e instanceof Error ? e.message : "network" };
+    // A timeout or dropped connection says nothing about whether the ERP
+    // processed the order, so this is replayable — the Idempotency-Key and
+    // external_id are what stop a replay becoming a duplicate.
+    return { ok: false, reason: e instanceof Error ? e.message : "network", retryable: true };
   } finally {
     clearTimeout(timer);
   }
