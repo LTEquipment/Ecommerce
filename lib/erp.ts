@@ -207,12 +207,10 @@ export async function erpOrderPushReady(): Promise<{
       "evidence its column exists — the spec has run ahead of the deploy before. Needs a person " +
       "confirming supabase db push",
   });
-  checks.push({
-    name: "durable replay queue",
-    ok: false,
-    detail: "not built — a push lost to an outage is not replayed",
-  });
-
+  // The replay queue is a storefront concern, so its state is reported by the
+  // caller (which can see the database) rather than hardcoded here. It was
+  // hardcoded false and stayed false after the queue shipped and its migration
+  // ran — a check that cannot change is not a check.
   return { ready: checks.every((c) => c.ok), checks };
 }
 

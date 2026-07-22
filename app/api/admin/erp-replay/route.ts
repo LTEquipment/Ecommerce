@@ -56,10 +56,21 @@ export async function GET() {
   }
 
   const waiting = data ?? [];
+  const preflight = await erpOrderPushReady();
+  // Reaching here means the select on erp_status succeeded, so the queue's
+  // columns exist. Reported from that fact rather than asserted, so it cannot
+  // go stale the way a hardcoded check did.
+  preflight.checks.push({
+    name: "durable replay queue",
+    ok: true,
+    detail: "built, and supabase/erp-order-queue.sql is applied",
+  });
+  preflight.ready = preflight.checks.every((c) => c.ok);
+
   return NextResponse.json({
     migrationApplied: true,
     pushEnabled: erpConfigured(),
-    preflight: await erpOrderPushReady(),
+    preflight,
     replayable: waiting.filter((o) => o.erp_status === "pending").length,
     // Deterministic rejections. Retrying these unchanged is pointless — they
     // are listed so a person can read problems[] and fix the cause.
