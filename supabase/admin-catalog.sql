@@ -12,10 +12,19 @@
 alter table products add column if not exists stock_qty int  not null default 0;
 alter table products add column if not exists low_stock int  not null default 5;
 
--- One-time seed so inventory isn't all zero on first load. Only touches rows
--- still at the default 0 — edited quantities are never overwritten on re-run.
-update products set stock_qty = 24 where stock = 'in'  and stock_qty = 0;
-update products set stock_qty = 0  where stock = 'back';
+-- NO SEED. This file used to set stock_qty = 24 on every in-stock product so
+-- the admin inventory screen would not open full of zeros. That was written
+-- when the catalog was 37 demo products.
+--
+-- The catalog now comes from the ERP, and running that seed today would assert
+-- 24 units on hand for 208 real products that nobody has counted — the ERP
+-- reports stock_tracked: false for 213 of them, meaning "not counted", not
+-- "none". An invented quantity is indistinguishable from a real one once it is
+-- in the column, and it would drive low-stock alerts and "in stock" badges.
+--
+-- Same failure as the ERP's $1.00 price and its "0.0" weights: a placeholder
+-- that reads as a fact. Inventory starts at 0 and becomes real when someone
+-- counts, or when the ERP starts tracking and the sync carries it.
 
 -- ---------- Product image storage ----------
 -- Public bucket the admin uploads product photos to (writes go through the
