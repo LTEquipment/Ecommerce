@@ -2,10 +2,10 @@
 -- L&T storefront — run this whole file in the Supabase SQL editor.
 --
 --   PROJECT: mrfcfjsmossulfrbwoml   (the storefront)
---   NOT:     lhqijcgxhygepjnbccxu   (the ERP — it has its own `orders`
---            table with different columns, and payments.sql below would
---            rewrite real order data there. Check the project name in the
---            Supabase header before you paste.)
+--   NOT:     lhqijcgxhygepjnbccxu   (the ERP — it has its own `orders` and
+--            `products` tables with different columns, so these statements
+--            would succeed there and graft storefront columns onto real ERP
+--            data. Check the project name in the Supabase header first.)
 --
 -- GENERATED — do not edit. This is quote-convert-idempotency.sql, audit-log.sql, admin-catalog.sql, product-docs.sql, product-reviews.sql, saved-lists.sql, account-deletion.sql concatenated in dependency order
 -- by scripts/build-runbook-sql.py. Edit those files and regenerate; anything
