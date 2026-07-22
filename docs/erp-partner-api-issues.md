@@ -1,162 +1,107 @@
-# ERP Partner API — issues blocking the storefront integration
+# ERP Partner API — storefront integration
 
-Findings from integrating `LTEquipment/Ecommerce` (public storefront) against the
-ERP Partner API on 2026-07-21. Everything below was measured against the live
-API, not inferred from code.
-
-**Base URL:** `https://lhqijcgxhygepjnbccxu.supabase.co/functions/v1/partner-api`
-**Auth:** `X-API-Key`
-**Key used:** reports `"partner": "TEST"` with all 8 permissions granted.
-
-Reproduce any of it with:
-
-```bash
-curl -H "x-api-key: $KEY" "$BASE/products?limit=50&page=1"
-```
-
-The API itself works well — auth, pagination, rate limits and the docs are all
-fine. **Every problem below is product data, not the API contract**, except §6.
+Original brief: 2026-07-21. **Superseded by the ERP team's reply the same day.**
+This file now records what was wrong, what was right, and where things stand.
 
 ---
 
-## 1. No product carries a `model_number` (blocking)
+## The brief's headline finding was wrong
 
-**0 of 262** products have a non-null `model_number`.
+It claimed **0 of 262 products carry a `model_number`** and called it the
+biggest blocker. That was false.
 
-This is the biggest blocker. The documented dedupe/update key is
-`match_by: "model_number"`, and the storefront needs a stable, human-meaningful
-SKU because it renders "MODEL 52527" on every product card and uses it in URLs.
+| Field | Actually populated | Brief reported |
+| --- | --- | --- |
+| `model_number` | 244 / 262 | 0 |
+| `item_number` | 262 / 262 | not mentioned |
+| `product_type` | 241 / 262 | not mentioned |
+| `series` | 262 / 262 | not mentioned |
 
-Right now the only stable identifier is `id` (e.g. `EXT-MR9R8DUX-OBBCS`), which
-means:
+Re-measured against the deployed API — every figure in the ERP team's reply is
+confirmed exactly.
 
-- customers would see `MODEL EXT-MR9R8DUX-OBBCS` on the shop
-- re-syncing can only match on an opaque id, so if a product is recreated in the
-  ERP it becomes a *new* product on the storefront and the old one is orphaned
+**How it happened.** The count was taken through `GET /products`, which did not
+return `model_number`. The brief's own §6 listed the thirteen fields that
+endpoint returned, and `model_number` was not among them. So §1 and §6
+contradicted each other and the conclusion went out anyway.
 
-**Ask:** populate `model_number` (or `item_number`) for all sellable products.
-These should be the real manufacturer model numbers — the storefront's previous
-catalog used values like `52527`, `58079`, `DCHPA48`, `DCF5-LPG`, `ST-120-3`.
+A field missing from a response is not a field missing from the database. One
+call to `GET /schema`, or reading the table directly, would have caught it.
+**When a field reads empty for every single row, suspect the instrument before
+the data** — 100% of anything is a measurement artefact until proven otherwise.
 
-## 2. 42 products are placeholder rows
+## The brief proposed destroying real inventory
 
-42 of 262 have names that are only digits: `"1"`, `"10"`, `"11"`, `"12"` …
-They carry real prices (e.g. `16368.00`) but no other identifying data.
+It recommended deleting the 42 products whose names are digits (`"1"`, `"11"`,
+`"23"`), calling them placeholder rows. They are not.
 
-The storefront currently skips them, but they are presumably wrong in the ERP
-too — they would appear in quotes and sales orders as a product called "11".
+| | |
+| --- | --- |
+| Carry an `item_number` | 42 / 42 |
+| Carry a real price | 42 / 42 |
+| Carry a `model_number` | 26 / 42 |
+| Carry an image | 28 / 42 |
 
-**Ask:** delete them, or give them real names. If they are intentional
-placeholders, add a flag so consumers can filter them deterministically rather
-than guessing from the shape of the name.
+Their `item_number`s run consecutively (55557, 55558, 55559 …) — the signature
+of a spreadsheet import that lost its header row, not of placeholders. The names
+are row numbers.
 
-## 3. `stock` is `0` on every product — "not tracked" is indistinguishable from "sold out"
+They are now listed on the storefront under their model number. Nothing was
+deleted; the recommendation was never acted on.
 
-**0 of 262** products report `stock > 0`.
+**The reasoning was too thin for the consequence.** "The name looks like a
+number" was treated as sufficient evidence to propose deleting priced, imaged,
+sellable products, without checking a single other field on the row.
 
-A storefront has to decide between "In stock" and "Backorder" per product. If we
-trust this field literally, **the entire catalog shows as Backorder**, which is
-false and would cost sales. We currently ignore the field entirely and mark
-everything sellable — also not correct, just less harmful.
+## What the brief got right
 
-**Ask:** either
+- **§3 `stock` always 0** — real. Now fixed API-side: `stock: null` with
+  `stock_tracked: false` where nothing is counted, so `0` means "none left"
+  again.
+- **§6 sparse `GET /products`** — real, and the root cause of §1, §4 and most of
+  §5. Now returns 27 fields including `description`, `brand`, `model_number`,
+  `item_number`, `product_type`, `series`, spec-sheet and manual links.
+- **§4 `category` is unusable** — partly real. It holds only `Gas Equipment`,
+  `Sinks` and empty. But `product_type` (ten values) was always the right
+  mapping key and simply was not exposed.
+- **§7 project ref mismatch** — confirmed stale. `supabase/.temp` points at
+  `noivbdiggvzilabjzxkj`; the live project is `lhqijcgxhygepjnbccxu`. Relink
+  before any deploy from that checkout.
 
-- populate real quantities from `company_stock`, and return `null` (not `0`) for
-  products that genuinely aren't stock-tracked; or
-- add an explicit `stock_tracked: boolean` / `availability` field.
+## Storefront changes made in response (`3c557ee`)
 
-The distinction matters: `0` should mean "none left", `null` should mean "we
-don't track this".
+| Was | Now |
+| --- | --- |
+| SKU from `id` (`EXT-MR9R8DUX-OBBCS`) | `item_number`, falling back to `model_number`, then `id`. Never the name. |
+| Slugs from product names, truncated to 60 chars | Slugs from the SKU |
+| Department from keyword-matching the name | Exact lookup on `product_type` |
+| 42 numeric-name products skipped | Listed, titled by model number |
+| `stock` ignored entirely | Follows the `stock_tracked` contract |
 
-## 4. `category` has only two values for the whole catalog
+Simulated against all 262 live products: **262 listed, 0 skipped, 0 slug
+collisions.** The previous version would have listed 220 and dropped 42
+sellable products.
 
-Every product is `"Gas Equipment"`, `"Sinks"`, or an empty string.
-`GET /categories` returns the two named ones.
+The seven-way slug collision the brief reported was also ours: names truncated
+to 60 characters made several genuinely different "Custom Made Back Drainage
+Ductile Iron Wok Range …" products collide *after* truncation. Keying on SKU
+removes it.
 
-That cannot drive a storefront. The shop has ten departments — Wok Ranges,
-Steamers, Roasters & Ovens, Refrigeration, Ventilation & Hoods, Multipurpose
-Cookers, Electric & Automation, Small Appliances, Kitchenware, Accessories — and
-"Gas Equipment" spans at least four of them.
+## Still open
 
-We currently derive the department by keyword-matching the **product name**,
-which works (82 steamers, 80 wok ranges, 16 roasters, 22 kitchenware) but is
-fragile: it silently misfiles anything worded unusually, and 19 products match
-nothing and fall back to Accessories.
+1. **Is the key production?** `/health` reports `"partner": "TEST"`. Unanswered,
+   and it needs a person. **No real customer orders should go through
+   `POST /orders` until someone confirms it.**
 
-**Ask:** a real product taxonomy — either meaningful `category` values, or the
-existing `category_schema_slug` / `series` populated and exposed so consumers
-can map deterministically instead of guessing from prose.
+2. **21 products have no `product_type`.** Their `series` is `"Standard"` or
+   `"Gas Equipment"`, neither of which identifies a department, so they are
+   filed under Accessories and counted in the sync report. ERP-side gap.
 
-## 5. Duplicate product names (minor)
+3. **`lifecycle_status` is `"active"` for all 262**, including the 42 renamed
+   rows and the 14 the ERP team said are archived. So the storefront cannot use
+   it to filter, contrary to the reply's suggestion — either the API filters
+   archived rows out before returning them, or `archived_at` is not reflected in
+   `lifecycle_status`. Worth a look.
 
-10 names are used by exactly 2 products each. Nothing repeats more than twice.
-
-This is only a problem because of §1: with no `model_number`, the storefront has
-to build URLs from names, so a duplicate name needs a `-2` suffix. Harmless once
-model numbers exist.
-
-*Correction:* an earlier draft of this brief claimed one name repeated 7 times.
-That was wrong — the 7-way collision was produced by the storefront truncating
-slugs to 60 characters, which made several long, genuinely different "Custom
-Made Back Drainage Ductile Iron Wok Range …" names collide *after* truncation.
-That is a storefront bug, not an ERP data problem, and is fixed on our side.
-
-## 6. `GET /products` returns very few fields
-
-The write side documents "70+ fields accepted (specs, dimensions, images,
-docs)". `GET /products` returns **13 keys**:
-
-```
-id, name, category, series, source_type, price, stock,
-image_url, weight, width, depth, height, updated_at
-```
-
-Absent from the response, though documented as writable:
-`description`, `brand`, `model_number`, `specsheet_url`, `manual_url`, `btu`,
-`voltage`, `certification`, `country_of_origin`.
-
-A product page needs description, brand, specs and spec-sheet links. Without
-them the storefront can only show a name, a price and one photo.
-
-**Ask:** return the documented fields on `GET /products` — ideally honouring the
-`?fields=a,b,c` sparse-fieldset parameter the docs mention, so consumers can ask
-for what they need without inflating the default payload.
-
-## 7. Two questions to confirm
-
-1. **Is this key production?** `/health` reports `"partner": "TEST"`. Before the
-   storefront writes real customer orders through `POST /orders`, confirm this
-   key and project are production and not a sandbox.
-
-2. **Project ref mismatch.** In the ERP repo:
-   - `.env` and `supabase/config.toml` → `lhqijcgxhygepjnbccxu`
-   - `supabase/.temp/linked-project.json` → **`noivbdiggvzilabjzxkj`** (also named "ERP")
-
-   The CLI's last-linked project is not the one the app talks to. Anything
-   deployed with `supabase functions deploy` / `db push` from that checkout may
-   land in the wrong project. Worth reconciling before the next deploy.
-
----
-
-## Priority
-
-| # | Issue | Blocking? |
-|---|-------|-----------|
-| 1 | No `model_number` | **Yes** — no stable SKU, ugly public URLs and card labels |
-| 3 | `stock` always 0 | **Yes** — whole catalog reads as Backorder, or availability is fiction |
-| 4 | Two categories only | **Yes** — department mapping is guesswork |
-| 6 | Sparse `GET /products` | High — product pages have no description or specs |
-| 2 | 42 placeholder rows | Medium — skipped, but wrong in the ERP too |
-| 5 | Duplicate names | Low — 2x each, resolves itself once §1 is fixed |
-| 7 | TEST key / project ref | Confirm before writing real orders |
-
-Fixing §1, §3 and §4 makes the catalog sync correct rather than best-effort. §6
-makes the product pages worth visiting.
-
-## What the storefront already does
-
-Working, and needs nothing from the ERP:
-
-- `POST /orders` — storefront orders are mapped to sales orders, idempotent on
-  `external_id`, never blocking checkout if the ERP is unreachable.
-- `GET /products` pagination, auth, rate limits — all fine.
+4. **`description` is populated on only 49 / 262.** Not a blocker, but product
+   pages for the other 213 will have no copy.
