@@ -29,6 +29,9 @@ export type CatalogSyncReport = {
   created: number;
   /** Feed rows skipped because they cannot be listed (no price, no model no.). */
   skipped: number;
+  /** SKUs withheld because nothing in the row can name the product — reported
+   *  by SKU so the gap is fixable upstream instead of vanishing into a count. */
+  unnamed: string[];
   /** ERP categories no rule matched — these landed in accessories. */
   unmappedCategories: string[];
   /** Which storefront department each ERP category resolved to, with counts, so
@@ -171,7 +174,7 @@ export async function syncCatalogFromErp(
 ): Promise<CatalogSyncReport> {
   const empty: CatalogSyncReport = {
     ok: false, fetched: 0, matched: 0, updated: 0, unchanged: 0,
-    created: 0, skipped: 0, unmappedCategories: [], categoryBreakdown: {}, notListed: 0,
+    created: 0, skipped: 0, unnamed: [], unmappedCategories: [], categoryBreakdown: {}, notListed: 0,
     missingFromErp: [], failures: [],
   };
   if (!erpCatalogConfigured()) return { ...empty, reason: "not-configured" };
@@ -217,12 +220,12 @@ export async function syncCatalogFromErp(
     if (!sku) continue;
 
     // 42 products lost their names in a spreadsheet import and are called "1",
-    // "11", "23". They are real, priced and sellable, so they are listed under
-    // their model number instead of being dropped.
+    // "11", "23". 26 of them carry a model number and are listed under it. The
+    // other 16 do not, so there is nothing to title them with — item_number is
+    // itself a bare number (55557, 55558 …), so falling back to it just swaps
+    // one meaningless digit string for another. Those are rejected below.
     const rawName = (item.name ?? "").trim();
-    const name = /^\d+$/.test(rawName)
-      ? (item.model_number || item.item_number || rawName)
-      : rawName;
+    const name = /^\d+$/.test(rawName) ? (item.model_number || rawName).trim() : rawName;
 
     const current = bySku.get(sku);
     if (!current) {
@@ -232,6 +235,15 @@ export async function syncCatalogFromErp(
       // Only a missing price or an unusable key disqualifies a product now.
       const base = slugFor(sku);
       if (!name || price <= 0 || !base) { report.skipped++; continue; }
+
+      // A name still made of bare digits means the row had no model number to
+      // fall back to. All 16 such rows are also priced at $1.00 and carry no
+      // product_type — the signature of an unfinished ERP record, not of a
+      // product. A public shop must not list an item it cannot name at a price
+      // nobody set, so these are rejected rather than published. They are only
+      // withheld from the storefront; the ERP row is untouched, and they list
+      // themselves the moment someone fills in a name and a price upstream.
+      if (/^\d+$/.test(name)) { report.unnamed.push(sku); report.skipped++; continue; }
 
       const { category, art, matched } = mapCategory(item.product_type, item.series);
       if (!matched) {
