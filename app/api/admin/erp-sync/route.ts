@@ -28,12 +28,16 @@ export async function GET() {
  *   { dryRun: false }            apply
  *   { createMissing: true }      also list feed products the shop doesn't sell
  *   { syncCopy: true }           also overwrite name/brand/description
+ *   { delistMissing: true }      remove products the ERP no longer sells.
+ *                                Refuses above DELIST_CEILING of the catalog,
+ *                                because a truncated feed looks identical to a
+ *                                mass discontinuation.
  */
 export async function POST(req: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = (await req.json().catch(() => ({}))) as {
-    dryRun?: boolean; syncCopy?: boolean; createMissing?: boolean;
+    dryRun?: boolean; syncCopy?: boolean; createMissing?: boolean; delistMissing?: boolean;
   };
   const dryRun = body.dryRun !== false;
 
@@ -41,6 +45,7 @@ export async function POST(req: Request) {
     dryRun,
     syncCopy: body.syncCopy === true,
     createMissing: body.createMissing === true,
+    delistMissing: body.delistMissing === true,
   });
   if (!report.ok) return NextResponse.json({ ...report, dryRun }, { status: 502 });
   return NextResponse.json({ ...report, dryRun });

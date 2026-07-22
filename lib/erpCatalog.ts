@@ -43,6 +43,10 @@ export type CatalogSyncReport = {
   categoryBreakdown: Record<string, number>;
   /** Sold on the storefront but absent from the feed — worth a look. */
   missingFromErp: string[];
+  /** Removed because the ERP no longer sells them (only with delistMissing). */
+  delisted: string[];
+  /** Set when delisting was asked for but refused — see DELIST_CEILING. */
+  delistRefused?: string;
   failures: { sku: string; error: string }[];
 };
 
@@ -138,6 +142,18 @@ export function availability(item: { stock?: number | null; stock_tracked?: bool
 }
 
 /** URL id. The storefront's existing slugs are just the model number lowercased. */
+/**
+ * The most of the catalog delisting may remove in one run, as a fraction.
+ *
+ * "Absent from the feed" is indistinguishable from "the feed was short". A
+ * page that returns 200 with fewer rows than it should looks exactly like the
+ * end of the catalog, and the consequence of believing it is deleting products
+ * the business still sells. A real round of upstream deletions is a slice; a
+ * broken fetch is a landslide. Above this, the sync refuses and reports rather
+ * than acting on a number it cannot distinguish from a bug.
+ */
+export const DELIST_CEILING = 0.25;
+
 export function slugFor(sku: string): string {
   return sku.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
@@ -174,12 +190,12 @@ async function fetchAllProducts(): Promise<FeedItem[]> {
 }
 
 export async function syncCatalogFromErp(
-  opts: { syncCopy?: boolean; dryRun?: boolean; createMissing?: boolean } = {}
+  opts: { syncCopy?: boolean; dryRun?: boolean; createMissing?: boolean; delistMissing?: boolean } = {}
 ): Promise<CatalogSyncReport> {
   const empty: CatalogSyncReport = {
     ok: false, fetched: 0, matched: 0, updated: 0, unchanged: 0,
     created: 0, skipped: 0, unnamed: [], unpriced: [], unmappedCategories: [], categoryBreakdown: {}, notListed: 0,
-    missingFromErp: [], failures: [],
+    missingFromErp: [], delisted: [], failures: [],
   };
   if (!erpCatalogConfigured()) return { ...empty, reason: "not-configured" };
 
@@ -307,12 +323,37 @@ export async function syncCatalogFromErp(
     else report.updated++;
   }
 
-  // Listed on the shop but absent from the ERP feed — could be archived upstream,
-  // or a SKU mismatch. Surfaced rather than silently ignored.
-  report.missingFromErp = (listed ?? [])
-    .map((p) => String(p.sku).trim().toUpperCase())
-    .filter((s) => !seen.has(s))
-    .slice(0, 50);
+  // Listed on the shop but absent from the ERP feed. The ERP is the master, so
+  // this means the business has stopped selling them — they were deleted or
+  // archived upstream. Left alone they stay on sale forever: 47 such products
+  // were live at $19,778 with nothing upstream to fulfil them, and an order for
+  // one would be rejected by the ERP as an unknown SKU after the customer paid.
+  const bySkuListed = new Map(
+    (listed ?? []).map((p) => [String(p.sku).trim().toUpperCase(), p])
+  );
+  const missing = [...bySkuListed.keys()].filter((s) => !seen.has(s));
+  report.missingFromErp = missing.slice(0, 50);
+
+  if (opts.delistMissing && missing.length) {
+    const share = missing.length / Math.max(1, bySkuListed.size);
+    if (share > DELIST_CEILING) {
+      // Far more likely a short feed than a mass discontinuation.
+      report.delistRefused =
+        `would remove ${missing.length} of ${bySkuListed.size} products ` +
+        `(${Math.round(share * 100)}%), above the ${Math.round(DELIST_CEILING * 100)}% ceiling — ` +
+        `treating this as a truncated feed, not a real deletion`;
+    } else if (opts.dryRun) {
+      report.delisted = missing;
+    } else {
+      for (const sku of missing) {
+        const row = bySkuListed.get(sku);
+        if (!row) continue;
+        const { error } = await admin.from("products").delete().eq("slug", row.slug);
+        if (error) report.failures.push({ sku, error: error.message });
+        else report.delisted.push(sku);
+      }
+    }
+  }
 
   return report;
 }
