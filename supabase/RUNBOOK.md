@@ -176,11 +176,27 @@ feature is simply dark.
 | `product-reviews.sql` | Reviews; PDP shows "No reviews yet" |
 | `product-docs.sql` | Spec-sheet downloads |
 | `saved-lists.sql` | Account project lists |
-| `quote-convert-idempotency.sql` | A double-click on "Create order from quote" can duplicate the order |
+| `quote-convert-idempotency.sql` | A second "Create order from quote" returns a misleading 409 instead of the order that already exists — see below |
 | `account-deletion.sql` | Self-service deletion falls back to an email-us message |
 
-`quote-convert-idempotency.sql` is the one to do next after Part 1 — it is a
-correctness bug rather than a missing feature, even if a narrow one.
+### On `quote-convert-idempotency.sql`
+
+This was previously described here — and twice in conversation — as a
+correctness bug where a double click duplicates the order. **That is wrong, and
+was wrong when written.** The convert route already claims the quote with an
+atomic conditional `UPDATE ... WHERE status NOT IN ('converting','won')`, so
+only one request can ever proceed. Tested: converting the same quote twice in a
+row produced one order, not two.
+
+What the migration actually fixes is the second click's *answer*. Without
+`converted_order_id` the route cannot look up the order it already made, so it
+returns `409 "This quote is already being converted."` — which is both wrong
+(it finished) and useless (no way to reach the order). With the column, the
+second click returns that order and the admin lands on it.
+
+Worth running, but it is a usability fix, not a data-integrity one. The
+description here came from an older note that predated the atomic claim, and was
+repeated without re-reading the route.
 
 ---
 
