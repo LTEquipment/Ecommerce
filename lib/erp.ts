@@ -30,6 +30,24 @@ export type ErpOrder = {
   shippingAddress?: string | null;
   amount: number;
   currencyCode?: string;
+  /**
+   * Not sent yet, at the ERP team's request — their migration adding
+   * `sales_orders.subtotal / freight / tax_amount` is still queued, and until
+   * it runs these would be rejected as unknown fields.
+   *
+   * They are advertised in `openapi.json` already. That is not evidence the
+   * columns exist: the spec ran ahead of the deploy once before and it cost a
+   * round. A person confirming `supabase db push` is the only signal that counts.
+   *
+   * Sending them matters. Without them an order arrives as `amount` alone, and
+   * the sales tax the customer actually paid cannot be recovered — the ERP then
+   * invoices using its own tax calculation, and any discrepancy surfaces on a
+   * tax return rather than in a log. The ERP now rejects a push where
+   * `subtotal + freight + tax_amount` does not equal `amount`.
+   */
+  subtotal?: number;
+  freight?: number;
+  taxAmount?: number;
   poNumber?: string | null;
   paymentMethod?: string | null;
   /** Genuine customer instructions only — never a smuggled field. */
@@ -182,9 +200,12 @@ export async function erpOrderPushReady(): Promise<{
   }
 
   checks.push({
-    name: "sales_orders.email / po_number exist",
+    name: "ERP migrations ran (email, po_number, subtotal/freight/tax_amount)",
     ok: false,
-    detail: "cannot be verified without writing an order — needs confirmation that supabase db push ran",
+    detail:
+      "cannot be verified without writing an order. openapi.json advertising a field is not " +
+      "evidence its column exists — the spec has run ahead of the deploy before. Needs a person " +
+      "confirming supabase db push",
   });
   checks.push({
     name: "durable replay queue",
