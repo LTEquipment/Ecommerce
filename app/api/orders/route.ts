@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { erpConfigured, flattenShipTo, pushOrderToErp } from "@/lib/erp";
+import { erpConfigured, flattenShipTo, pushOrderToErp, recordErpPush } from "@/lib/erp";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getProducts } from "@/lib/catalog";
@@ -150,23 +150,24 @@ export async function POST(req: Request) {
     const erpCustomer =
       company || shipping.ship_company || shipping.ship_name || contactEmail || `Web order ${order.id}`;
 
-    // The ERP has no po_number column and asked us not to invent a mapping
-    // silently. B2B customers need their PO on the paperwork the ERP produces,
-    // so it rides in notes in a fixed, declared format until a column exists.
-    const erpNotes = [poNumber ? `Customer PO: ${poNumber}` : null, method ? `Paid by: ${method}` : null]
-      .filter(Boolean)
-      .join(" · ") || null;
-
     const erp = await pushOrderToErp({
       externalId: order.id,
       amount: total,
       customer: erpCustomer,
       contact: shipping.ship_name ?? null,
+      email: contactEmail,
       phone: shipping.ship_phone ?? null,
       shippingAddress: flattenShipTo(shipping as Record<string, string | null | undefined>),
-      notes: erpNotes,
+      // Real columns, so these travel as themselves. They briefly rode inside
+      // notes because the ERP's allow-list rejected columns its own schema had.
+      poNumber: poNumber ?? null,
+      paymentMethod: method ?? null,
+      currencyCode: "USD",
       items: lines.map((l) => ({ sku: l.sku, name: l.name, qty: l.qty, unit_price: Number(l.unit_price) })),
     });
+    // The order row is the queue: an inconclusive push is left 'pending' for
+    // the replay sweep, a deterministic rejection is left 'failed' for a human.
+    await recordErpPush(admin, order.id, erp, 1, erpCustomer);
     if (!erp.ok) {
       // Never silent: the customer has paid regardless of what the ERP said.
       // problems[] is logged verbatim rather than collapsed to "order failed",
