@@ -30,6 +30,8 @@ export type ProductRow = {
   stock: string;
   stock_qty: number;
   low_stock: number;
+  /** Does anyone count this? Carried from the ERP; gates the low-stock alert. */
+  stock_tracked: boolean;
   sort: number;
 };
 
@@ -42,7 +44,7 @@ export function emptyProduct(sort = 0): ProductRow {
   return {
     slug: "", sku: "", name: "", category_id: null, art: "range", brand: "", description: "",
     price: 0, was_price: null, images: [], specs: {}, documents: [], rating: 4.7, reviews: 0,
-    badge: "", stock: "in", stock_qty: 0, low_stock: 5, sort,
+    badge: "", stock: "in", stock_qty: 0, low_stock: 5, stock_tracked: false, sort,
   };
 }
 

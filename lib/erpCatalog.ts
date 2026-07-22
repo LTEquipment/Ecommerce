@@ -256,9 +256,19 @@ export async function syncCatalogFromErp(
   }
 
   const admin = createClient(url, key, { auth: { persistSession: false } });
-  const { data: listed, error: readErr } = await admin
+
+  // `stock_tracked` arrives with supabase/admin-catalog.sql, which may not have
+  // been run. Probed once rather than assumed: writing a column that does not
+  // exist fails the whole insert, and the sync has to keep working either way.
+  const BASE_COLS = "slug,sku,name,brand,description,price,stock,specs";
+  let hasStockTracked = true;
+  let { data: listed, error: readErr } = await admin
     .from("products")
-    .select("slug,sku,name,brand,description,price,stock,specs");
+    .select(`${BASE_COLS},stock_tracked`);
+  if (readErr) {
+    hasStockTracked = false;
+    ({ data: listed, error: readErr } = await admin.from("products").select(BASE_COLS));
+  }
   if (readErr) return { ...empty, reason: `storefront read: ${readErr.message}`, fetched: feed.length };
 
   const bySku = new Map((listed ?? []).map((p) => [String(p.sku).trim().toUpperCase(), p]));
@@ -335,6 +345,7 @@ export async function syncCatalogFromErp(
         images: renderableImages(item.image_url ? [item.image_url] : []),
         specs: specsFrom(item),
         stock: availability(item),
+        ...(hasStockTracked ? { stock_tracked: item.stock_tracked === true } : {}),
       });
       if (error) report.failures.push({ sku, error: error.message });
       else report.created++;
@@ -353,6 +364,14 @@ export async function syncCatalogFromErp(
 
     const stock = availability(item);
     if (current.stock !== stock) patch.stock = stock;
+
+    // Whether the ERP counts this product at all. Kept in step so the admin's
+    // low-stock alert applies to the products someone is really counting rather
+    // than to everything that happens to sit at zero.
+    if (hasStockTracked) {
+      const tracked = item.stock_tracked === true;
+      if ((current as { stock_tracked?: boolean }).stock_tracked !== tracked) patch.stock_tracked = tracked;
+    }
 
     // Specs are facts the ERP owns, not marketing wording, so they sync without
     // syncCopy. Merged over whatever is already there rather than replacing it:

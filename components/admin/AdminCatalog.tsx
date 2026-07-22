@@ -21,7 +21,8 @@ function rowToProduct(r: any): ProductRow {
     price: Number(r.price), was_price: r.was_price != null ? Number(r.was_price) : null,
     images: r.images ?? [], specs: r.specs ?? {}, documents: Array.isArray(r.documents) ? r.documents : [], rating: Number(r.rating ?? 4.7), reviews: r.reviews ?? 0,
     badge: r.badge ?? "", stock: r.stock ?? "in",
-    stock_qty: r.stock_qty ?? 0, low_stock: r.low_stock ?? 5, sort: r.sort ?? 0,
+    stock_qty: r.stock_qty ?? 0, low_stock: r.low_stock ?? 5,
+    stock_tracked: r.stock_tracked === true, sort: r.sort ?? 0,
   };
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -77,7 +78,13 @@ export default function AdminCatalog() {
 
   // Inline restock: set on-hand quantity and derive the stock flag from it, so an
   // admin can reorder without opening the full editor.
-  const isLow = useCallback((r: ProductRow) => invEnabled && r.stock_qty <= (r.low_stock || 0), [invEnabled]);
+  // Only products the ERP actually counts can be low. Without that condition
+  // every product sits at 0 and all 215 flag as low stock, which is noise
+  // nobody reads — and an alert everyone ignores is worse than no alert.
+  const isLow = useCallback(
+    (r: ProductRow) => invEnabled && r.stock_tracked && r.stock_qty <= (r.low_stock || 0),
+    [invEnabled]
+  );
   const saveStock = async (r: ProductRow, raw: string) => {
     setStockEdit(null);
     const n = Math.max(0, Math.floor(Number(raw)));

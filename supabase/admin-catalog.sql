@@ -12,6 +12,17 @@
 alter table products add column if not exists stock_qty int  not null default 0;
 alter table products add column if not exists low_stock int  not null default 5;
 
+-- Does anyone actually count this product? Carried from the ERP, which
+-- distinguishes "not tracked" from "none left" — a distinction that is lost the
+-- moment both are stored as the number 0.
+--
+-- Without it, every product sits at stock_qty 0 and the admin flags all 215 as
+-- low stock, which is noise nobody reads. With it, the alert applies to the
+-- handful the ERP is really counting (2 today) and stays meaningful.
+--
+-- Defaults false: a product nobody has told us about is not being counted.
+alter table products add column if not exists stock_tracked boolean not null default false;
+
 -- NO SEED. This file used to set stock_qty = 24 on every in-stock product so
 -- the admin inventory screen would not open full of zeros. That was written
 -- when the catalog was 37 demo products.
