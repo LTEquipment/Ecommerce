@@ -56,8 +56,8 @@ export default function ResetPasswordPage() {
             <p className="sub">Choose a new password for your account.</p>
             {msg && <div className={`msg ${msg.kind}`}>{msg.text}</div>}
             <form onSubmit={submit}>
-              <div className="field"><label>New password</label><input type="password" required minLength={6} value={pw} onChange={(e) => setPw(e.target.value)} placeholder="••••••••" /></div>
-              <div className="field"><label>Confirm password</label><input type="password" required minLength={6} value={pw2} onChange={(e) => setPw2(e.target.value)} placeholder="••••••••" /></div>
+              <div className="field"><label htmlFor="rp-new-password">New password</label><input id="rp-new-password" type="password" required minLength={6} value={pw} onChange={(e) => setPw(e.target.value)} placeholder="••••••••" /></div>
+              <div className="field"><label htmlFor="rp-confirm-password">Confirm password</label><input id="rp-confirm-password" type="password" required minLength={6} value={pw2} onChange={(e) => setPw2(e.target.value)} placeholder="••••••••" /></div>
               <button className="btn btn-primary btn-lg" disabled={busy} type="submit">{busy ? "Saving…" : "Update password"}</button>
             </form>
           </>

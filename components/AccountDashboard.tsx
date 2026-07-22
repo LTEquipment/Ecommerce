@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "./AuthProvider";
@@ -83,6 +83,10 @@ function ProfileRow({
   const [val, setVal] = useState("");
   const [busy, setBusy] = useState(false);
   const isPw = type === "password";
+  // This row renders once per profile field, so the id has to be generated
+  // rather than written — a hardcoded one would repeat down the page and
+  // every label would point at the first input.
+  const fieldId = useId();
 
   const start = () => { setVal(isPw ? "" : value); setEditing(true); };
   const save = async () => {
@@ -95,9 +99,10 @@ function ProfileRow({
   return (
     <div className="prow">
       <div className="prow-l">
-        <label>{label}</label>
+        <label htmlFor={fieldId}>{label}</label>
         {editing ? (
           <input
+            id={fieldId}
             className="prow-input"
             type={isPw ? "password" : type}
             value={val}
@@ -414,7 +419,7 @@ export default function AccountDashboard() {
                   <ProfileRow label="Company / kitchen" value={company} placeholder="Add your company" onSave={(v) => updateMeta({ company: v })} />
                   <ProfileRow label="Contact name" value={fullName} placeholder="Add a contact name" onSave={(v) => updateMeta({ full_name: v })} />
                   <div className="prow">
-                    <div className="prow-l"><label>Account type</label><b>{isDealer ? "Dealer" : dealerPending ? "Trade — under review" : "Customer"}</b></div>
+                    <div className="prow-l"><span className="prow-cap">Account type</span><b>{isDealer ? "Dealer" : dealerPending ? "Trade — under review" : "Customer"}</b></div>
                   </div>
                 </section>
 
@@ -545,14 +550,14 @@ export default function AccountDashboard() {
               <p className="note" style={{ marginTop: 0 }}>Register purchased equipment to keep its warranty coverage and service history on file.</p>
               <form onSubmit={submitRegistration}>
                 <div className="field-row">
-                  <div className="field"><label>Model / product</label><input value={regForm.model} onChange={(e) => setRegForm({ ...regForm, model: e.target.value })} placeholder="Panda Turbo Wok Range" required /></div>
-                  <div className="field"><label>SKU (optional)</label><input value={regForm.sku} onChange={(e) => setRegForm({ ...regForm, sku: e.target.value })} placeholder="52527" /></div>
+                  <div className="field"><label htmlFor="acct-model-product">Model / product</label><input id="acct-model-product" value={regForm.model} onChange={(e) => setRegForm({ ...regForm, model: e.target.value })} placeholder="Panda Turbo Wok Range" required /></div>
+                  <div className="field"><label htmlFor="acct-sku-optional">SKU (optional)</label><input id="acct-sku-optional" value={regForm.sku} onChange={(e) => setRegForm({ ...regForm, sku: e.target.value })} placeholder="52527" /></div>
                 </div>
                 <div className="field-row">
-                  <div className="field"><label>Serial number</label><input value={regForm.serial} onChange={(e) => setRegForm({ ...regForm, serial: e.target.value })} placeholder="On the data plate" /></div>
-                  <div className="field"><label>Purchase date</label><input type="date" value={regForm.date} onChange={(e) => setRegForm({ ...regForm, date: e.target.value })} /></div>
+                  <div className="field"><label htmlFor="acct-serial-number">Serial number</label><input id="acct-serial-number" value={regForm.serial} onChange={(e) => setRegForm({ ...regForm, serial: e.target.value })} placeholder="On the data plate" /></div>
+                  <div className="field"><label htmlFor="acct-purchase-date">Purchase date</label><input id="acct-purchase-date" type="date" value={regForm.date} onChange={(e) => setRegForm({ ...regForm, date: e.target.value })} /></div>
                 </div>
-                <div className="field"><label>Purchased from (optional)</label><input value={regForm.from} onChange={(e) => setRegForm({ ...regForm, from: e.target.value })} placeholder="L&amp;T, a dealer, etc." /></div>
+                <div className="field"><label htmlFor="acct-purchased-from-optional">Purchased from (optional)</label><input id="acct-purchased-from-optional" value={regForm.from} onChange={(e) => setRegForm({ ...regForm, from: e.target.value })} placeholder="L&amp;T, a dealer, etc." /></div>
                 <button className="btn btn-primary" disabled={busy} type="submit">{busy ? "Registering…" : "Register equipment"}</button>
               </form>
 
@@ -580,10 +585,10 @@ export default function AccountDashboard() {
               <div className="panel-head" style={{ marginTop: "var(--s6)" }}><h2>File a warranty claim</h2></div>
               <form onSubmit={submitClaim}>
                 <div className="field-row">
-                  <div className="field"><label>Model</label><input value={model} onChange={(e) => setModel(e.target.value)} placeholder="Panda 4-Burner Range" required /></div>
-                  <div className="field"><label>Serial / SKU</label><input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="PR-4B-2024" /></div>
+                  <div className="field"><label htmlFor="acct-model">Model</label><input id="acct-model" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Panda 4-Burner Range" required /></div>
+                  <div className="field"><label htmlFor="acct-serial-sku">Serial / SKU</label><input id="acct-serial-sku" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="PR-4B-2024" /></div>
                 </div>
-                <div className="field"><label>What went wrong?</label><textarea value={issue} onChange={(e) => setIssue(e.target.value)} rows={3} placeholder="Describe the fault, when it started, and any error codes." required /></div>
+                <div className="field"><label htmlFor="acct-what-went-wrong">What went wrong?</label><textarea id="acct-what-went-wrong" value={issue} onChange={(e) => setIssue(e.target.value)} rows={3} placeholder="Describe the fault, when it started, and any error codes." required /></div>
                 <button className="btn btn-primary" disabled={busy} type="submit">{busy ? "Filing…" : "Submit claim"}</button>
               </form>
 
@@ -607,8 +612,8 @@ export default function AccountDashboard() {
 
               <div className="panel-head" style={{ marginTop: "var(--s6)" }}><h2>Open a service ticket</h2></div>
               <form onSubmit={submitTicket}>
-                <div className="field"><label>Subject</label><input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Installation help for walk-in cooler" required /></div>
-                <div className="field"><label>Details</label><textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Tell us what you need and your location." required /></div>
+                <div className="field"><label htmlFor="acct-subject">Subject</label><input id="acct-subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Installation help for walk-in cooler" required /></div>
+                <div className="field"><label htmlFor="acct-details">Details</label><textarea id="acct-details" value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Tell us what you need and your location." required /></div>
                 <button className="btn btn-primary" disabled={busy} type="submit">{busy ? "Opening…" : "Open ticket"}</button>
               </form>
 

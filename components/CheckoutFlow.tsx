@@ -169,8 +169,8 @@ export default function CheckoutFlow() {
             {step === 0 && (
               <>
                 <h2>Contact</h2>
-                <div className="field"><label>Email</label><input value={f.email} onChange={set("email")} type="email" inputMode="email" autoComplete="email" placeholder="you@yourkitchen.com" /></div>
-                <div className="field"><label>Phone</label><input value={f.phone} onChange={set("phone")} type="tel" inputMode="tel" autoComplete="tel" placeholder="(917) 000-0000" /></div>
+                <div className="field"><label htmlFor="co-email">Email</label><input id="co-email" value={f.email} onChange={set("email")} type="email" inputMode="email" autoComplete="email" placeholder="you@yourkitchen.com" /></div>
+                <div className="field"><label htmlFor="co-phone">Phone</label><input id="co-phone" value={f.phone} onChange={set("phone")} type="tel" inputMode="tel" autoComplete="tel" placeholder="(917) 000-0000" /></div>
                 {!user && (
                   <p style={{ fontSize: 13, color: "var(--muted)" }}>
                     Have an account? <Link href="/login" style={{ color: "var(--red)", fontWeight: 600 }}>Sign in</Link> to save this order.
@@ -194,14 +194,14 @@ export default function CheckoutFlow() {
                     </div>
                   </div>
                 )}
-                <div className="field"><label>Full name</label><input value={f.name} onChange={set("name")} autoComplete="name" /></div>
-                <div className="field"><label>Company (optional)</label><input value={f.company} onChange={set("company")} autoComplete="organization" /></div>
-                <div className="field"><label>Street address</label><input value={f.address} onChange={set("address")} autoComplete="street-address" /></div>
+                <div className="field"><label htmlFor="co-name">Full name</label><input id="co-name" value={f.name} onChange={set("name")} autoComplete="name" /></div>
+                <div className="field"><label htmlFor="co-company">Company (optional)</label><input id="co-company" value={f.company} onChange={set("company")} autoComplete="organization" /></div>
+                <div className="field"><label htmlFor="co-address">Street address</label><input id="co-address" value={f.address} onChange={set("address")} autoComplete="street-address" /></div>
                 <div className="field-row">
-                  <div className="field"><label>City</label><input value={f.city} onChange={set("city")} autoComplete="address-level2" /></div>
-                  <div className="field"><label>State</label><input value={f.state} onChange={set("state")} autoComplete="address-level1" /></div>
+                  <div className="field"><label htmlFor="co-city">City</label><input id="co-city" value={f.city} onChange={set("city")} autoComplete="address-level2" /></div>
+                  <div className="field"><label htmlFor="co-state">State</label><input id="co-state" value={f.state} onChange={set("state")} autoComplete="address-level1" /></div>
                 </div>
-                <div className="field"><label>ZIP</label><input value={f.zip} onChange={set("zip")} inputMode="numeric" autoComplete="postal-code" /></div>
+                <div className="field"><label htmlFor="co-zip">ZIP</label><input id="co-zip" value={f.zip} onChange={set("zip")} inputMode="numeric" autoComplete="postal-code" /></div>
                 {user && f.address.trim() && (
                   <label className="co-save-addr">
                     <input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} />
@@ -227,11 +227,11 @@ export default function CheckoutFlow() {
                 </div>
                 {method === "card" ? (
                   <>
-                    <div className="field"><label>Name on card</label><input value={f.cardName} onChange={set("cardName")} autoComplete="cc-name" /></div>
-                    <div className="field"><label>Card number</label><input value={f.card} onChange={set("card")} placeholder="4242 4242 4242 4242" inputMode="numeric" autoComplete="cc-number" /></div>
+                    <div className="field"><label htmlFor="co-cardName">Name on card</label><input id="co-cardName" value={f.cardName} onChange={set("cardName")} autoComplete="cc-name" /></div>
+                    <div className="field"><label htmlFor="co-card">Card number</label><input id="co-card" value={f.card} onChange={set("card")} placeholder="4242 4242 4242 4242" inputMode="numeric" autoComplete="cc-number" /></div>
                     <div className="field-row">
-                      <div className="field"><label>Expiry</label><input value={f.exp} onChange={set("exp")} placeholder="MM/YY" inputMode="numeric" autoComplete="cc-exp" /></div>
-                      <div className="field"><label>CVC</label><input value={f.cvc} onChange={set("cvc")} placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></div>
+                      <div className="field"><label htmlFor="co-exp">Expiry</label><input id="co-exp" value={f.exp} onChange={set("exp")} placeholder="MM/YY" inputMode="numeric" autoComplete="cc-exp" /></div>
+                      <div className="field"><label htmlFor="co-cvc">CVC</label><input id="co-cvc" value={f.cvc} onChange={set("cvc")} placeholder="123" inputMode="numeric" autoComplete="cc-csc" /></div>
                     </div>
                     <p style={{ fontSize: 12.5, color: "var(--muted)", display: "flex", gap: 8, alignItems: "center" }}>
                       <Shield style={{ width: 16, height: 16 }} /> Demo checkout — no card is charged. Live Stripe processing activates once keys are configured.
@@ -270,7 +270,7 @@ export default function CheckoutFlow() {
                 </div>
 
                 <div className="co-b2b">
-                  <div className="field"><label>PO number <span className="co-opt">optional</span></label><input value={f.po} onChange={set("po")} placeholder="Your purchase order #" /></div>
+                  <div className="field"><label htmlFor="co-po">PO number <span className="co-opt">optional</span></label><input id="co-po" value={f.po} onChange={set("po")} placeholder="Your purchase order #" /></div>
                   <label className="trade-check co-exempt">
                     <input type="checkbox" checked={taxExempt} onChange={(e) => setTaxExempt(e.target.checked)} />
                     <span>
@@ -279,7 +279,7 @@ export default function CheckoutFlow() {
                     </span>
                   </label>
                   {taxExempt && (
-                    <div className="field"><label>Resale / exemption certificate #</label><input value={f.resaleCert} onChange={set("resaleCert")} placeholder="Certificate number" /></div>
+                    <div className="field"><label htmlFor="co-resaleCert">Resale / exemption certificate #</label><input id="co-resaleCert" value={f.resaleCert} onChange={set("resaleCert")} placeholder="Certificate number" /></div>
                   )}
                 </div>
               </>

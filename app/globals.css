@@ -1961,7 +1961,10 @@ label.notif-row{cursor:pointer}
 .acct-badge.dealer{color:var(--red);font-weight:600}
 .prow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:17px 0;border-bottom:1px solid var(--line)}
 .prow-l{min-width:0;flex:1}
-.prow-l label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+/* .prow-cap is the read-only variant: the "Account type" row shows a value, not
+   a control, and a <label> pointing at nothing is invalid markup that screen
+   readers can announce as an orphaned form field. Same styling, honest element. */
+.prow-l label,.prow-l .prow-cap{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
 .prow-l b{font-size:16px;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
 .prow-l b.muted{color:var(--muted-2);font-weight:500}
 .prow-input{width:100%;border:1.5px solid var(--line-2);border-radius:var(--r);padding:9px 12px;font-size:15px;background:var(--white)}
