@@ -3,14 +3,16 @@
 
 /**
  * Pushes a placed order into the ERP (a separate Supabase project) as a
- * sales_order, via its ingest-storefront-order edge function.
+ * sales_order, via its Partner API `POST /orders`.
  *
- * The storefront holds only ERP_INGEST_TOKEN — never the ERP's service-role key.
- * A public web app should not be able to reach payroll, banking or suppliers if
- * it is ever compromised, so its entire ERP access is "may submit one order".
+ * This used to target a bespoke `ingest-storefront-order` edge function, which
+ * was never deployed — so `ERP_INGEST_URL`/`ERP_INGEST_TOKEN` were never set and
+ * no order has ever actually reached the ERP. The Partner API supersedes it.
  *
- * Disabled unless both env vars are set, so nothing reaches the ERP until it is
- * deliberately switched on.
+ * The storefront holds only a scoped partner key — never the ERP's service-role
+ * key. That key's permissions are products, categories, pricing, inventory and
+ * orders; it cannot reach the CRM, invoices, payroll or the general ledger. A
+ * public web app must not be able to read those if it is ever compromised.
  */
 
 export type ErpLine = { sku?: string | null; name: string; qty: number; unit_price: number };
@@ -30,8 +32,23 @@ export type ErpOrder = {
   items: ErpLine[];
 };
 
+/**
+ * Three things must be true, not two.
+ *
+ * ERP_API_URL and ERP_API_KEY are also what the catalog sync uses, and that is
+ * a read. Order push is a write into the ERP's sales pipeline, so it needs its
+ * own switch: without ERP_ORDER_PUSH=on, having sync credentials on the box
+ * would silently start posting real customer orders the moment this shipped.
+ *
+ * It matters right now because the key we hold reports `"partner": "TEST"` and
+ * stamps everything it creates with `external_source: "TEST"`. Real orders
+ * pushed today land in a test tenant. Leave this off until someone confirms the
+ * key is production.
+ */
 export function erpConfigured(): boolean {
-  return Boolean(process.env.ERP_INGEST_URL && process.env.ERP_INGEST_TOKEN);
+  return Boolean(
+    process.env.ERP_API_URL && process.env.ERP_API_KEY && process.env.ERP_ORDER_PUSH === "on"
+  );
 }
 
 /**
@@ -50,15 +67,23 @@ export async function pushOrderToErp(
   const timer = setTimeout(() => controller.abort(), 8000);
 
   try {
-    const res = await fetch(process.env.ERP_INGEST_URL!, {
+    const res = await fetch(`${process.env.ERP_API_URL}/orders`, {
       method: "POST",
       signal: controller.signal,
       headers: {
         "content-type": "application/json",
-        authorization: `Bearer ${process.env.ERP_INGEST_TOKEN!}`,
+        "x-api-key": process.env.ERP_API_KEY!,
       },
+      // Only `lines[]` is confirmed: it is the one field the API validates, and
+      // GET /schema names `external_id` as the idempotency key. Every other
+      // field here is sent on the shape the ERP's own sales_orders table uses,
+      // but the API accepts unknown keys silently rather than rejecting them,
+      // so none of it is proven to be stored. Read one pushed order back before
+      // trusting this — a field that is quietly dropped looks identical to a
+      // field that worked.
       body: JSON.stringify({
         external_id: order.externalId,
+        external_source: "storefront",
         placed_at: order.placedAt ?? new Date().toISOString(),
         customer: order.customer ?? null,
         contact: order.contact ?? null,
@@ -69,7 +94,7 @@ export async function pushOrderToErp(
         po_number: order.poNumber ?? null,
         payment_method: order.paymentMethod ?? null,
         ship: order.ship ?? {},
-        items: order.items.map((l) => ({
+        lines: order.items.map((l) => ({
           sku: l.sku ?? null,
           name: l.name,
           qty: l.qty,
@@ -79,14 +104,17 @@ export async function pushOrderToErp(
     });
 
     const body = (await res.json().catch(() => ({}))) as {
-      salesOrderId?: string;
-      duplicate?: boolean;
+      ok?: boolean;
+      id?: string;
       error?: string;
     };
-    if (!res.ok || !body.salesOrderId) {
+    if (!res.ok || !body.id) {
       return { ok: false, reason: body.error ?? `http ${res.status}` };
     }
-    return { ok: true, salesOrderId: body.salesOrderId, duplicate: Boolean(body.duplicate) };
+    // The API reports no duplicate flag, so a retry of the same external_id
+    // cannot be distinguished from a first push here. Idempotency has to be
+    // enforced ERP-side on (external_source, external_id).
+    return { ok: true, salesOrderId: body.id, duplicate: false };
   } catch (e) {
     return { ok: false, reason: e instanceof Error ? e.message : "network" };
   } finally {
