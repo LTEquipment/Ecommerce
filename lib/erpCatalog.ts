@@ -40,22 +40,30 @@ export type CatalogSyncReport = {
 };
 
 /**
- * A product as returned by the ERP's Partner API (GET /products).
+ * A product as returned by the ERP's Partner API (GET /products), which now
+ * returns 27 fields rather than the original 13.
  *
- * Note what is absent: no model_number is populated on any row, so `id`
- * (e.g. "EXT-MR9R8DUX-OBBCS") is the only stable key, and `stock` is 0 on the
- * whole catalog — meaning "not tracked", not "none left".
+ * `item_number` is the SKU: it is populated on every row, where `model_number`
+ * has 18 gaps. `stock_tracked` disambiguates the stock figure — see below.
  */
 type FeedItem = {
   id: string;
+  item_number: string | null;
+  model_number: string | null;
   name: string;
-  category: string | null;
+  product_type: string | null;
   series: string | null;
+  category: string | null;
   brand?: string | null;
   description?: string | null;
   price: string | number | null;
   image_url: string | null;
+  specsheet_url?: string | null;
+  manual_url?: string | null;
+  lifecycle_status?: string | null;
+  /** null when stock_tracked is false — "nobody counts this", not "none left". */
   stock?: number | null;
+  stock_tracked?: boolean | null;
 };
 
 
@@ -68,27 +76,58 @@ type FeedItem = {
  * in accessories and is reported rather than guessed at, because a wrong
  * category silently buries a product in the wrong department of a live shop.
  */
-const CATEGORY_RULES: { test: RegExp; category: string; art: string }[] = [
-  { test: /wok|chinese range|stir.?fry/i,        category: "wok-range",             art: "wok" },
-  { test: /steam|noodle/i,                        category: "steamer",               art: "rice" },
-  { test: /roast|oven|bake|convection/i,          category: "roaster",               art: "oven" },
-  { test: /fridge|refrig|freezer|chiller|cooler/i,category: "refrigeration",         art: "fridge" },
-  { test: /hood|vent|exhaust|make.?up air/i,      category: "hood",                  art: "rack" },
-  { test: /fryer|griddle|hot ?plate|burner|range/i, category: "optispace",           art: "range" },
-  { test: /rice|induction|electric|automat/i,     category: "electric",              art: "rice" },
-  { test: /mixer|blender|slicer|small ?appliance/i, category: "electric-kitchen-tool", art: "lamp" },
-  { test: /pan|pot|wares|utensil|kitchenware/i,   category: "kitchenware",           art: "table" },
-  { test: /shelf|shelving|rack|table|sink|prep/i, category: "accessories",           art: "rack" },
-];
+/**
+ * `product_type` → storefront department. An exact lookup, not keyword matching
+ * on the product name: the ERP exposes a real taxonomy of ten values, so the
+ * department is decided by data rather than by how a product happens to be
+ * worded. The previous matcher misfiled anything phrased unusually and dumped
+ * 19 products into Accessories because no keyword hit.
+ *
+ * Every value the ERP currently returns is covered. An unrecognised one is
+ * reported rather than quietly bucketed, so a new product type shows up as
+ * something to map instead of appearing in the wrong department.
+ */
+const TYPE_TO_DEPARTMENT: Record<string, { category: string; art: string }> = {
+  "wok range":                        { category: "wok-range",   art: "wok" },
+  "interchangeable steam range":      { category: "steamer",     art: "rice" },
+  "hot roll plate finish polish":     { category: "optispace",   art: "range" },
+  "multipurpose pork roaster oven":   { category: "roaster",     art: "oven" },
+  "natural gas heavy duty pig roaster": { category: "roaster",   art: "oven" },
+  "compartment sink":                 { category: "accessories", art: "table" },
+  "compartment corner sink":          { category: "accessories", art: "table" },
+  "compartment bar sink right":       { category: "accessories", art: "table" },
+  "bar sink":                         { category: "accessories", art: "table" },
+  "crh-p":                            { category: "wok-range",   art: "wok" },
+};
 
-export function mapCategory(raw: string | null | undefined): { category: string; art: string; matched: boolean } {
-  const text = (raw ?? "").trim();
-  if (text) {
-    for (const rule of CATEGORY_RULES) {
-      if (rule.test.test(text)) return { category: rule.category, art: rule.art, matched: true };
-    }
-  }
+export function mapCategory(
+  productType: string | null | undefined,
+  series?: string | null
+): { category: string; art: string; matched: boolean } {
+  const hit = TYPE_TO_DEPARTMENT[(productType ?? "").trim().toLowerCase()];
+  if (hit) return { ...hit, matched: true };
+
+  // 21 rows carry no product_type at all. Their series is "Standard" or
+  // "Gas Equipment", neither of which identifies a department, so they are
+  // filed under Accessories and counted — an ERP-side gap, not a mapping one.
+  void series;
   return { category: "accessories", art: "rack", matched: false };
+}
+
+/**
+ * Availability, per the API's stock contract:
+ *
+ *   stock_tracked false / stock null → nobody counts this. Sellable; say nothing.
+ *   stock_tracked true,  stock 0     → genuinely none left. Backorder.
+ *   stock > 0                        → that many on hand.
+ *
+ * Today every row returns stock_tracked false, so this behaves exactly as the
+ * shop does now. The point is that it will be correct on the day counting
+ * starts, without another change.
+ */
+export function availability(item: { stock?: number | null; stock_tracked?: boolean | null }): "in" | "back" {
+  if (item.stock_tracked !== true) return "in";
+  return (item.stock ?? 0) > 0 ? "in" : "back";
 }
 
 /** URL id. The storefront's existing slugs are just the model number lowercased. */
@@ -160,9 +199,9 @@ export async function syncCatalogFromErp(
 
   const report: CatalogSyncReport = { ...empty, ok: true, fetched: feed.length };
 
-  // Slugs come from names, and names repeat — seven products share the same
-  // "custom made ... wok range" wording. Without a suffix they would overwrite
-  // one another and seven products would land as one.
+  // Slugs are built from the SKU, which is unique, rather than from names,
+  // which repeat and which truncation used to collide. The tally is kept only
+  // as a guard against an unexpected duplicate.
   const slugTally = new Map<string, number>();
   const uniqueSlug = (base: string) => {
     const n = (slugTally.get(base) ?? 0) + 1;
@@ -171,26 +210,35 @@ export async function syncCatalogFromErp(
   };
 
   for (const item of feed) {
-    const sku = (item.id ?? "").trim().toUpperCase();
-    const name = (item.name ?? "").trim();
+    // item_number is populated on all 262 rows; model_number has 18 gaps and id
+    // is opaque. Never fall back to the name — names repeat and 42 are digits.
+    const sku = (item.item_number || item.model_number || item.id || "").trim().toUpperCase();
     const price = Number(item.price ?? 0);
     if (!sku) continue;
+
+    // 42 products lost their names in a spreadsheet import and are called "1",
+    // "11", "23". They are real, priced and sellable, so they are listed under
+    // their model number instead of being dropped.
+    const rawName = (item.name ?? "").trim();
+    const name = /^\d+$/.test(rawName)
+      ? (item.model_number || item.item_number || rawName)
+      : rawName;
 
     const current = bySku.get(sku);
     if (!current) {
       report.notListed++;
       if (!opts.createMissing) continue;
 
-      // A name that is only digits is a placeholder row, not a product; a
-      // product with no price cannot be sold. Neither belongs on a public shop.
-      const base = slugFor(name) || slugFor(sku);
-      if (!name || /^\d+$/.test(name) || price <= 0 || !base) { report.skipped++; continue; }
+      // Only a missing price or an unusable key disqualifies a product now.
+      const base = slugFor(sku);
+      if (!name || price <= 0 || !base) { report.skipped++; continue; }
 
-      const { category, art, matched } = mapCategory(name || item.category);
-      if (!matched && !report.unmappedCategories.includes(item.category ?? "")) {
-        report.unmappedCategories.push(item.category ?? "(none)");
+      const { category, art, matched } = mapCategory(item.product_type, item.series);
+      if (!matched) {
+        const label = item.product_type || "(no product_type)";
+        if (!report.unmappedCategories.includes(label)) report.unmappedCategories.push(label);
       }
-      const key = `${item.category ?? "(none)"} -> ${category}`;
+      const key = `${item.product_type ?? "(no product_type)"} -> ${category}`;
       report.categoryBreakdown[key] = (report.categoryBreakdown[key] ?? 0) + 1;
 
       if (opts.dryRun) { report.created++; continue; }
@@ -201,10 +249,7 @@ export async function syncCatalogFromErp(
         description: item.description ?? "",
         category_id: category, art, price,
         images: item.image_url ? [item.image_url] : [],
-        // The ERP reports stock 0 across the entire catalog, which means "not
-        // tracked" rather than "none left" — marking every product Backorder
-        // would be a false claim to customers.
-        stock: "in",
+        stock: availability(item),
       });
       if (error) report.failures.push({ sku, error: error.message });
       else report.created++;
@@ -219,8 +264,11 @@ export async function syncCatalogFromErp(
     // with price 0 usually means "not priced yet", not "free".
     if (price > 0 && Number(current.price) !== price) patch.price = price;
 
+    const stock = availability(item);
+    if (current.stock !== stock) patch.stock = stock;
+
     if (opts.syncCopy) {
-      if (item.name && item.name !== current.name) patch.name = item.name;
+      if (name && name !== current.name) patch.name = name;
       if (item.brand && item.brand !== current.brand) patch.brand = item.brand;
       if (item.description && item.description !== current.description) patch.description = item.description;
     }
