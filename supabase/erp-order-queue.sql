@@ -17,6 +17,12 @@
 --   'pending' the attempt was inconclusive — timeout, 5xx, network drop. Safe
 --             to replay: external_id and Idempotency-Key make a repeat a no-op
 --             on the ERP side rather than a duplicate order.
+--
+-- RUN b2b-checkout.sql AND guest-orders.sql FIRST. Neither is applied as of
+-- 2026-07-22, so `orders.po_number` and `orders.guest_email` do not exist yet.
+-- The replay sweep reads both to rebuild an order's payload; without them it
+-- fails on the select, and a replayed order would in any case be missing the
+-- customer PO and the guest contact address that the first attempt carried.
 -- ============================================================
 
 -- The resolved customer name exactly as it was sent. The checkout builds it
