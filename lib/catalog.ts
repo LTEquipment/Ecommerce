@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { ArtKey, Category, Product } from "./types";
 import { CATEGORIES as MOCK_CATEGORIES, PRODUCTS as MOCK_PRODUCTS } from "./products";
+import { renderableImages } from "./imageHosts";
 
 /**
  * DATA LAYER
@@ -31,7 +32,9 @@ function rowToProduct(r: any): Product {
     art: (r.art ?? "range") as ArtKey,
     price: Number(r.price),
     was: r.was_price != null ? Number(r.was_price) : undefined,
-    images: r.images ?? [],
+    // Filtered here, at the one point every product enters the app, so no
+    // component can be handed a src that next/image will throw on.
+    images: renderableImages(r.images),
     specs: r.specs ?? {},
     documents: Array.isArray(r.documents) ? r.documents : [],
     description: r.description ?? undefined,

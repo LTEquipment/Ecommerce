@@ -2,6 +2,7 @@
 // own products table. Reads env vars without a NEXT_PUBLIC_ prefix.
 
 import { createClient } from "@supabase/supabase-js";
+import { renderableImages } from "./imageHosts";
 
 /**
  * Syncs price and stock from the ERP onto products the storefront already sells.
@@ -260,7 +261,10 @@ export async function syncCatalogFromErp(
         brand: item.brand ?? null,
         description: item.description ?? "",
         category_id: category, art, price,
-        images: item.image_url ? [item.image_url] : [],
+        // 21 ERP rows point at a competitor's CDN. Those are dropped here as
+        // well as at read time: they are not ours to serve, they vanish the day
+        // that site reorganises, and they are what took the storefront down.
+        images: renderableImages(item.image_url ? [item.image_url] : []),
         stock: availability(item),
       });
       if (error) report.failures.push({ sku, error: error.message });

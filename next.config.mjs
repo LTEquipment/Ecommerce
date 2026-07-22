@@ -45,6 +45,10 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
     // Product images/avatars may be served from Supabase Storage or the brand S3
     // bucket (same origins the CSP img-src allows) in addition to local /public.
+    // Mirrored in lib/imageHosts.ts, which drops catalog URLs on any other host
+    // before they reach next/image. Change both together. next/image throws on
+    // an unlisted host rather than degrading, and the catalog now comes from the
+    // ERP, so one stray URL there would otherwise 500 the page it appears on.
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co" },
       { protocol: "https", hostname: "ltusa.s3.us-east-1.amazonaws.com" },
