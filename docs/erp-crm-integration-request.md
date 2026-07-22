@@ -115,6 +115,33 @@ second guard, rate-limiting this endpoint harder than the rest is reasonable.
 
 ---
 
+---
+
+## 4. Added 2026-07-22: two catalog data problems
+
+**`specsheet_url` is unusable.** 173 of 215 products carry one, and every value
+points at `http://erp.ltusa.net/web/content/<id>` — an internal Odoo attachment
+path over plain http. The host times out on http and returns 404 on https, so
+these are not publicly fetchable. We are **not** syncing them; doing so would
+publish 173 broken downloads. If the spec sheets should reach customers they
+need to be served from somewhere public — a bucket, or a signed URL — and the
+field should hold that address.
+
+**`weight` reads as populated but is not.** All 215 rows carry `"0.0"`, which
+counts as a non-empty string, so a naive coverage check reports weight as
+complete on the entire catalog when exactly one product has been weighed. Same
+for `width`, `depth`, `height`. We skip numeric zeros rather than printing a
+zero-pound wok range on a spec table.
+
+Also unpopulated, mapped and waiting: `btu`, `voltage`, `certification`. They
+will appear on product pages the moment they are filled in — nothing further is
+needed on our side.
+
+**A unit question.** If dimensions are ever populated, say whether they are
+inches or millimetres. We currently render them unitless, because a number under
+the wrong unit is worse than a number with none on equipment people size gas
+lines and hoods around.
+
 ## Open from previous rounds
 
 1. `TEST` key — unchanged, needs a person.
