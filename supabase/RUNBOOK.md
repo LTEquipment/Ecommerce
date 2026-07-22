@@ -36,16 +36,10 @@ subtotal / freight / tax_amount`.
 
 ---
 
-Every file below is idempotent (`add column if not exists`, `create ... if not
-exists`), so re-running one is safe and a half-finished run can simply be redone.
-
-Run `RUN-ALL-orders.sql` (Part 1). If it errors, the message names the failing
-statement — re-running the whole file afterwards is safe.
-paste a concatenation of all four — if one fails you want to know which.
-
-Everything is idempotent, so a partial run is fixed by running it again.
-whole contents; that way there is one source of truth and no transcription
-error.
+Run `RUN-ALL-orders.sql` — see Part 1. Every statement in it is idempotent
+(`add column if not exists`, `create ... if not exists`), so a partial run is
+fixed by running the whole file again. If it errors, the message names the
+statement that failed.
 
 ---
 
@@ -101,8 +95,8 @@ does not exist and errors.
 **Two things to expect, both intended:**
 
 - It back-fills existing orders — `shipped`/`delivered` become `paid`,
-  `cancelled` becomes `failed`, everything else stays `pending`. With one order
-  in the table (a test order, see Part 3) this does effectively nothing.
+  `cancelled` becomes `failed`, everything else stays `pending`. The `orders`
+  table is currently empty, so this does nothing at all.
 - It references `public.is_admin()`. That function exists — three
   already-applied migrations use it — so this will not fail.
 
@@ -157,16 +151,16 @@ columns, one of the four did not take.
 
 ---
 
-## Part 3 — while you are in there
+## Part 3 — test order ✅ done
 
-**Delete the test order.** It is not a real sale and will otherwise be counted
-in any revenue figure:
+The test order `eeb66a96-…` ($1,338.07) has been deleted; `orders` is empty.
+Kept here for the record of what was removed and why — it was created while
+fixing the checkout 500 and was never a real sale.
 
 ```sql
+-- already run
 delete from orders where id = 'eeb66a96-0a39-41b2-b240-22c828ceb7ad';
 ```
-
-`order_items` has `on delete cascade`, so its line item goes with it.
 
 ---
 
