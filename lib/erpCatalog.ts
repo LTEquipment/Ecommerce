@@ -75,7 +75,51 @@ type FeedItem = {
   /** null when stock_tracked is false — "nobody counts this", not "none left". */
   stock?: number | null;
   stock_tracked?: boolean | null;
+  // Spec fields. Most are unpopulated today; they are mapped anyway so they
+  // appear on product pages the moment someone fills them in upstream.
+  btu?: string | number | null;
+  voltage?: string | null;
+  certification?: string | null;
+  country_of_origin?: string | null;
+  weight?: string | number | null;
+  width?: string | number | null;
+  depth?: string | number | null;
+  height?: string | number | null;
 };
+
+/**
+ * Product specs from the ERP row.
+ *
+ * Zero is not a measurement. The ERP stores unmeasured weights and dimensions
+ * as `"0.0"`, which is a populated-looking string — counting fields as present
+ * because they are non-empty reported weight as complete on all 215 products
+ * when not one has been weighed. A zero-pound wok range is not a fact and must
+ * not be printed on a spec table as though it were.
+ *
+ * Dimensions carry no unit here deliberately. The ERP does not say whether it
+ * means inches or millimetres, and a number labelled with the wrong unit is
+ * worse on a spec sheet than a number with none — this is equipment people size
+ * rooms and gas lines around.
+ */
+export function specsFrom(item: FeedItem): Record<string, string> {
+  const out: Record<string, string> = {};
+  const add = (label: string, raw: unknown) => {
+    const v = String(raw ?? "").trim();
+    if (!v) return;
+    if (/^-?[\d.]+$/.test(v) && Number(v) === 0) return;
+    out[label] = v;
+  };
+  add("Model", item.model_number);
+  add("BTU", item.btu);
+  add("Voltage", item.voltage);
+  add("Certification", item.certification);
+  add("Country of origin", item.country_of_origin);
+  add("Weight", item.weight);
+  add("Width", item.width);
+  add("Depth", item.depth);
+  add("Height", item.height);
+  return out;
+}
 
 
 /**
@@ -214,7 +258,7 @@ export async function syncCatalogFromErp(
   const admin = createClient(url, key, { auth: { persistSession: false } });
   const { data: listed, error: readErr } = await admin
     .from("products")
-    .select("slug,sku,name,brand,description,price,stock");
+    .select("slug,sku,name,brand,description,price,stock,specs");
   if (readErr) return { ...empty, reason: `storefront read: ${readErr.message}`, fetched: feed.length };
 
   const bySku = new Map((listed ?? []).map((p) => [String(p.sku).trim().toUpperCase(), p]));
@@ -289,6 +333,7 @@ export async function syncCatalogFromErp(
         // well as at read time: they are not ours to serve, they vanish the day
         // that site reorganises, and they are what took the storefront down.
         images: renderableImages(item.image_url ? [item.image_url] : []),
+        specs: specsFrom(item),
         stock: availability(item),
       });
       if (error) report.failures.push({ sku, error: error.message });
@@ -308,6 +353,17 @@ export async function syncCatalogFromErp(
 
     const stock = availability(item);
     if (current.stock !== stock) patch.stock = stock;
+
+    // Specs are facts the ERP owns, not marketing wording, so they sync without
+    // syncCopy. Merged over whatever is already there rather than replacing it:
+    // a spec typed in the admin should survive a sync that has nothing to say
+    // about that field. The ERP wins where both have a value.
+    const erpSpecs = specsFrom(item);
+    if (Object.keys(erpSpecs).length) {
+      const existing = (current.specs ?? {}) as Record<string, string>;
+      const merged = { ...existing, ...erpSpecs };
+      if (JSON.stringify(merged) !== JSON.stringify(existing)) patch.specs = merged;
+    }
 
     if (opts.syncCopy) {
       if (name && name !== current.name) patch.name = name;
