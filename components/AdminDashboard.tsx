@@ -7,6 +7,7 @@ import { useAuth } from "./AuthProvider";
 import { LogOut, TrendingUp, Package, Cart, User, Shield, Mail, FileText, Settings, Star, Chat } from "./icons";
 import AdminAnalytics from "./admin/AdminAnalytics";
 import AdminCatalog from "./admin/AdminCatalog";
+import ErpSync from "./admin/ErpSync";
 import AdminOrders from "./admin/AdminOrders";
 import AdminCustomers from "./admin/AdminCustomers";
 import AdminService from "./admin/AdminService";
@@ -108,7 +109,9 @@ export default function AdminDashboard() {
         </header>
         <div className="admin-content">
           {tab === "overview" && <AdminAnalytics go={setTab} />}
-          {tab === "catalog" && <AdminCatalog />}
+          {/* Sync sits above the catalog: the ERP decides what is in this list,
+              so pulling from it is the first thing to reach for, not a setting. */}
+          {tab === "catalog" && <><ErpSync /><AdminCatalog /></>}
           {tab === "orders" && <AdminOrders />}
           {tab === "customers" && <><AdminDeletionRequests /><AdminCustomers /></>}
           {tab === "service" && <AdminService />}
