@@ -3,6 +3,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { renderableImages } from "./imageHosts";
+import { PLACEHOLDER_PRICE } from "./catalogRules";
 
 /**
  * Syncs price and stock from the ERP onto products the storefront already sells.
@@ -137,20 +138,6 @@ export function availability(item: { stock?: number | null; stock_tracked?: bool
 }
 
 /** URL id. The storefront's existing slugs are just the model number lowercased. */
-/**
- * Below this, the ERP's price is a placeholder rather than a price.
- *
- * Measured, not assumed: 21 of 262 products sit at exactly $1.00 and nothing
- * whatsoever falls between $1.00 and $1.01. The median is $10,538 and 233
- * products are over $1,000. A sentinel, not a cheap product.
- *
- * This has to be a price check rather than the earlier name check. Five of the
- * 21 carry perfectly ordinary names — CRH-P-1 through CRH-P-4 are wok ranges —
- * so nothing about them looks wrong on a listing page. They were purchasable
- * for a dollar.
- */
-export const PLACEHOLDER_PRICE = 1;
-
 export function slugFor(sku: string): string {
   return sku.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }

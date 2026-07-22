@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { ArtKey, Category, Product } from "./types";
 import { CATEGORIES as MOCK_CATEGORIES, PRODUCTS as MOCK_PRODUCTS } from "./products";
 import { renderableImages } from "./imageHosts";
+import { PLACEHOLDER_PRICE } from "./catalogRules";
 
 /**
  * DATA LAYER
@@ -20,6 +21,24 @@ function db(): SupabaseClient | null {
   if (!catalogFromDb) return null;
   if (!sb) sb = createClient(url!, anon!, { auth: { persistSession: false } });
   return sb;
+}
+
+/**
+ * A product nobody has priced must not be purchasable.
+ *
+ * The ERP uses $1.00 to mean "not priced yet" — 21 products carry it, nothing
+ * falls between $1.00 and $1.01, and the median price is $10,538. The sync
+ * refuses to import them, but rows written before that guard existed are still
+ * in the table, and clearing them is a separate manual job.
+ *
+ * So the read layer refuses them too. Same reasoning as the image-host filter:
+ * a catalog fed by an external system will keep producing rows this shop should
+ * not display, and the fix belongs where the shop reads, not only where it
+ * writes. Five of the 21 look entirely normal on a listing — CRH-P-1 to
+ * CRH-P-4 are wok ranges — so nothing but the price identifies them.
+ */
+function isSellable(p: Product): boolean {
+  return p.price > PLACEHOLDER_PRICE;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -71,7 +90,7 @@ export async function getProducts(): Promise<Product[]> {
   // in the admin silently resurrected 37 demo products on the live shop, with
   // no way for an operator to tell which they were looking at.
   if (error) return MOCK_PRODUCTS;
-  return (data ?? []).map(rowToProduct);
+  return (data ?? []).map(rowToProduct).filter(isSellable);
 }
 
 export async function getCategory(id: string): Promise<Category | undefined> {
@@ -86,7 +105,13 @@ export async function getProduct(slug: string): Promise<Product | undefined> {
   const c = db();
   if (c) {
     const { data, error } = await c.from("products").select("*").eq("slug", slug).maybeSingle();
-    if (data) return rowToProduct(data);
+    if (data) {
+      const p = rowToProduct(data);
+      // An unpriced product 404s rather than rendering. Returning it here would
+      // leave it reachable by URL and addable to a cart even though every
+      // listing hides it — exactly how deleted products used to stay live.
+      return isSellable(p) ? p : undefined;
+    }
     // Found nothing, and the lookup worked — that product does not exist.
     // Falling through to the samples kept deleted products reachable by URL,
     // still priced and still addable to a cart.

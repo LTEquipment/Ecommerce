@@ -122,13 +122,43 @@ export async function POST(req: Request) {
     ...shipping, ...guestFields,
   };
   const insertRow = () => admin.from("orders").insert(row).select("id").single();
-  const strip = (keys: string[]) => { keys.forEach((k) => delete row[k]); return insertRow(); };
+
+  // Drop exactly the column the database names, then retry.
+  //
+  // This used to be four ordered `if`s, each stripping a whole group when the
+  // error looked like theirs. It broke: only the first rule was specific, the
+  // other three matched the bare word "column", so whichever missing column
+  // PostgREST happened to report first decided which rules fired. With
+  // b2b-checkout, guest-orders and payments all unapplied, the generic rules
+  // consumed the retries on the wrong groups and po_number was never stripped —
+  // every checkout 500'd. Order of reported errors is not ours to control, so
+  // it must not decide whether a sale completes.
+  //
+  // Only columns whose migration is genuinely optional may be dropped. A
+  // missing core column is a broken database, not a degraded feature, and
+  // must fail loudly rather than quietly saving a corrupted order.
+  const DROPPABLE = new Set([
+    "po_number", "tax_exempt", "resale_cert",
+    "ship_name", "ship_company", "ship_phone", "ship_address", "ship_city", "ship_state", "ship_zip",
+    "guest_email", "guest_name", "guest_phone",
+    "payment_method", "payment_status", "amount_paid", "paid_at",
+  ]);
+  const dropped: string[] = [];
   let { data: order, error } = await insertRow();
-  if (error && /po_number|tax_exempt|resale_cert/.test(error.message)) ({ data: order, error } = await strip(["po_number", "tax_exempt", "resale_cert"]));
-  if (error && /ship_|column/.test(error.message)) ({ data: order, error } = await strip(["ship_name", "ship_company", "ship_phone", "ship_address", "ship_city", "ship_state", "ship_zip"]));
-  if (error && /guest_|column/.test(error.message)) ({ data: order, error } = await strip(["guest_email", "guest_name", "guest_phone"]));
-  if (error && /payment_|amount_paid|paid_at|column/.test(error.message)) ({ data: order, error } = await strip(["payment_method", "payment_status", "amount_paid", "paid_at"]));
-  if (error || !order) return NextResponse.json({ error: "Could not create order" }, { status: 500 });
+  while (error && dropped.length < DROPPABLE.size) {
+    const col = /'([a-z_]+)' column/.exec(error.message)?.[1];
+    if (!col || !(col in row) || !DROPPABLE.has(col)) break;
+    delete row[col];
+    dropped.push(col);
+    ({ data: order, error } = await insertRow());
+  }
+  if (error || !order) {
+    console.error("[orders] insert failed:", error?.message, dropped.length ? `(after dropping ${dropped.join(", ")})` : "");
+    return NextResponse.json({ error: "Could not create order" }, { status: 500 });
+  }
+  // A sale completed while columns were missing — the order is saved but the
+  // PO, guest contact or payment state it carried was not. Worth knowing.
+  if (dropped.length) console.warn(`[orders] ${order.id} saved without: ${dropped.join(", ")} — run the migrations`);
 
   const { error: liErr } = await admin.from("order_items")
     .insert(lines.map((l) => ({ ...l, order_id: order!.id })));
