@@ -7,7 +7,7 @@
 --            would succeed there and graft storefront columns onto real ERP
 --            data. Check the project name in the Supabase header first.)
 --
--- GENERATED — do not edit. This is quote-convert-idempotency.sql, audit-log.sql, admin-catalog.sql, product-docs.sql, product-reviews.sql, saved-lists.sql, account-deletion.sql concatenated in dependency order
+-- GENERATED — do not edit. This is audit-log.sql, quote-convert-idempotency.sql, admin-catalog.sql, product-docs.sql, product-reviews.sql, saved-lists.sql, account-deletion.sql concatenated in dependency order
 -- by scripts/build-runbook-sql.py. Edit those files and regenerate; anything
 -- typed here is lost on the next build.
 --
@@ -15,14 +15,6 @@
 -- update, so a partial run is fixed by running the whole thing again.
 -- =====================================================================
 
-
--- ==================== quote-convert-idempotency.sql ====================
-
--- Idempotent RFQ→order conversion. Records which order a quote was converted
--- into so a second "Create order from quote" click (reload, second admin, stale
--- list) returns the existing order instead of creating a duplicate. Nullable, so
--- existing rows and the convert route's fallback are unaffected until this runs.
-alter table quote_requests add column if not exists converted_order_id uuid references orders(id) on delete set null;
 
 -- ==================== audit-log.sql ====================
 
@@ -59,6 +51,14 @@ begin
     alter publication supabase_realtime add table public.audit_log;
   end if;
 end $$;
+
+-- ==================== quote-convert-idempotency.sql ====================
+
+-- Idempotent RFQ→order conversion. Records which order a quote was converted
+-- into so a second "Create order from quote" click (reload, second admin, stale
+-- list) returns the existing order instead of creating a duplicate. Nullable, so
+-- existing rows and the convert route's fallback are unaffected until this runs.
+alter table quote_requests add column if not exists converted_order_id uuid references orders(id) on delete set null;
 
 -- ==================== admin-catalog.sql ====================
 

@@ -166,13 +166,14 @@ delete from orders where id = 'eeb66a96-0a39-41b2-b240-22c828ceb7ad';
 
 ## Part 4 — the other seven, and why they are not urgent
 
-These are pending but nothing is bleeding. Each degrades gracefully — the
-feature is simply dark.
+Mostly dark features rather than broken ones — with one exception. **Run
+`audit-log.sql` first:** it is not a dark panel, it is the absence of a record
+that a financial action happened. The rest can wait.
 
 | File | What stays off until it runs |
 | --- | --- |
 | `admin-catalog.sql` | Stock quantities, low-stock alerts |
-| `audit-log.sql` | Audit panel is permanently empty; every `logAudit()` is a no-op. **Also the audit trail for the ERP reconciliation endpoint** — that currently logs to console only |
+| `audit-log.sql` | **Financial actions leave no trace.** Verified: marking a $48,599.62 order paid succeeds, and the `logAudit(user, "order.paid", …)` beside it is a no-op because the table does not exist — so nobody can later establish who marked it paid, or when. Same for dealer approvals, admin grants and price edits. Also the audit trail for the ERP reconciliation endpoint, which currently logs to console only |
 | `product-reviews.sql` | Reviews; PDP shows "No reviews yet" |
 | `product-docs.sql` | Spec-sheet downloads |
 | `saved-lists.sql` | Account project lists |

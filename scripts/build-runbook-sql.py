@@ -27,14 +27,15 @@ BATCH_1 = [
 ]
 
 # Batch 2 — everything else, most-valuable first rather than alphabetically.
-# quote-convert-idempotency leads because it is a correctness bug (a double
-# click on "Create order from quote" can produce two orders) rather than a
-# feature that is merely switched off. audit-log is next: the ERP
-# reconciliation endpoint currently has no audit table to write to, so customer
-# data leaves the system with only a console line behind it.
+# audit-log leads. It is not a dark panel: marking an order paid calls
+# logAudit() right beside the write, and with no table that call is a no-op —
+# verified by marking a $48,599.62 order paid and finding no record of who did
+# it. Financial state changing with nothing to attribute it to is a different
+# class of problem from a feature being switched off. It is also the audit
+# trail the ERP reconciliation endpoint has nowhere to write to.
 BATCH_2 = [
-    "quote-convert-idempotency.sql",
     "audit-log.sql",
+    "quote-convert-idempotency.sql",
     "admin-catalog.sql",
     "product-docs.sql",
     "product-reviews.sql",
