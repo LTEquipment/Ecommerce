@@ -1,6 +1,40 @@
 # Migration runbook — 2026-07-22
 
-Paste into the Supabase SQL editor for project `mrfcfjsmossulfrbwoml`.
+## ⚠ Storefront project only — never the ERP
+
+Paste into the Supabase SQL editor for **`mrfcfjsmossulfrbwoml`** (the
+storefront). **Not `lhqijcgxhygepjnbccxu` (the ERP).**
+
+This is not a formality. The ERP has its own table called `orders`, with
+entirely different columns:
+
+```
+amount, created_at, customer, date, id, items, payment_method,
+products, shipping_address, status, updated_at
+```
+
+So `alter table orders add column if not exists ...` would **succeed** there,
+silently grafting storefront columns onto the ERP's order table. Worse,
+`payments.sql` contains:
+
+```sql
+update orders set payment_method = coalesce(payment_method, 'card')
+  where payment_method is null;
+```
+
+The ERP's `orders` table has a `payment_method` column. Run against the ERP,
+that statement rewrites real order data. The following statement references
+`total`, which the ERP's table lacks, so the script would then abort — after the
+damage.
+
+Check the project name in the Supabase header before pasting anything.
+
+**The ERP's own pending migration is not in this repository and is not ours to
+run.** It is `supabase db push` from the ERP checkout, by the ERP team, adding
+`partner_api_keys.company_entity_id` and `sales_orders.email / po_number /
+subtotal / freight / tax_amount`.
+
+---
 
 Every file below is idempotent (`add column if not exists`, `create ... if not
 exists`), so re-running one is safe and a half-finished run can simply be redone.
