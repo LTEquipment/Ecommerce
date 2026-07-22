@@ -799,6 +799,20 @@ footer .fb-certs{color:rgba(255,255,255,.4)}
 .cmp-btn-pdp.on{color:var(--red)}
 /* Secondary PDP actions: Save + Compare grouped under the primary buy row */
 .pdp-actions{display:flex;align-items:center;gap:18px;margin:4px 0 20px;padding-top:16px;border-top:1px solid var(--line);flex-wrap:wrap}
+
+/* Pointer-target floor (WCAG 2.5.8, AA). Text buttons with no vertical padding,
+   measured at 17–20px tall.
+
+   Not a mobile-only problem: the PDP three fail at 375px and 1280px alike,
+   while .fcol-toggle and .privacy-choices fail only above 768px, because the
+   mobile layer already gives the footer accordion room. Measuring at a single
+   width would have found half of them.
+
+   min-height is enough on its own — each is inline-flex and centred, so the
+   label stays put and the hit area grows around it. 24px is the standard's
+   floor; the 44px finger-target guideline would visibly reflow these rows. */
+.wish-pdp,.cmp-btn-pdp,.recently-clear,.fcol-toggle,.privacy-choices{min-height:24px}
+.recently-clear,.privacy-choices{display:inline-flex;align-items:center}
 /* Add-to-list popover */
 .stl{position:relative}
 .stl-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:20;width:260px;background:var(--white);border:1px solid var(--line);border-radius:var(--rl);box-shadow:var(--shadow-lg);padding:12px}
